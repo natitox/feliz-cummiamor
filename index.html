@@ -198,14 +198,15 @@
 
   <!-- NAV TABS -->
   <nav class="letter-nav">
-    <a href="#" class="nav-tab active" onclick="showTab('carta', this)">
+    <a href="#" class="nav-tab active" id="tab-btn-carta" onclick="showTab('carta', this); return false;">
       <i class="fa-solid fa-heart me-1"></i>Carta
     </a>
-    <a href="album.html" class="nav-tab">
+    <a href="#" class="nav-tab" id="tab-btn-album" onclick="showTab('album', this); return false;">
       <i class="fa-solid fa-images me-1"></i>Álbum
     </a>
   </nav>
 
+  <!-- ── TAB: CARTA ── -->
   <div class="letter-container" id="tab-carta">
 
     <!-- Encabezado -->
@@ -246,7 +247,7 @@ t amooooo :3<br /><br />
     <!-- Separador decorativo -->
     <div class="section-divider" aria-hidden="true">
       <span>❧</span>
-      <span>fotitos limdas</span>
+      <span>Nuestros momentos</span>
       <span>❧</span>
     </div>
 
@@ -254,7 +255,6 @@ t amooooo :3<br /><br />
     <section class="moments-section">
       <div class="moments-grid">
 
-        <!-- 📸 FOTO 1 — pon tu foto en la carpeta img/ y cambia el nombre -->
         <div class="moment-card">
           <div class="photo-frame">
             <img src="img/foto1.jpg" alt="Momento 1" class="moment-photo" />
@@ -262,7 +262,6 @@ t amooooo :3<br /><br />
           <p class="moment-caption">primera salida 💕</p>
         </div>
 
-        <!-- 📸 FOTO 2 — cambia foto2.jpg por el nombre real de tu archivo -->
         <div class="moment-card">
           <div class="photo-frame">
             <img src="img/foto2.jpg" alt="Momento 2" class="moment-photo" />
@@ -270,7 +269,6 @@ t amooooo :3<br /><br />
           <p class="moment-caption">Arboretummm 💖</p>
         </div>
 
-        <!-- 📸 FOTO 3 -->
         <div class="moment-card">
           <div class="photo-frame">
             <img src="img/foto3.jpg" alt="Momento 3" class="moment-photo" />
@@ -278,7 +276,6 @@ t amooooo :3<br /><br />
           <p class="moment-caption">Mi favorita… 🌹</p>
         </div>
 
-        <!-- 📸 FOTO 4 -->
         <div class="moment-card">
           <div class="photo-frame">
             <img src="img/foto4.jpg" alt="Momento 4" class="moment-photo" />
@@ -295,14 +292,118 @@ t amooooo :3<br /><br />
       <div class="footer-hearts" aria-hidden="true">
         <span>❤️</span><span>🧡</span><span>💛</span><span>💚</span><span>💙</span><span>💜</span><span>🩷</span>
       </div>
-      <a href="album.html" class="btn-romantic mt-3 d-inline-flex">
+      <a href="#" class="btn-romantic mt-3 d-inline-flex" onclick="showTab('album', document.getElementById('tab-btn-album')); window.scrollTo(0,0); return false;">
         <i class="fa-solid fa-images me-2"></i>Ver álbum completo
       </a>
     </footer>
 
-  </div><!-- /letter-container -->
+  </div><!-- /tab-carta -->
+
+  <!-- ── TAB: ÁLBUM ── -->
+  <div class="letter-container" id="tab-album" style="display:none;">
+
+    <header class="album-header">
+      <div class="header-decor" aria-hidden="true">✦ ✦ ✦</div>
+      <h1 class="letter-title" style="font-size:clamp(2rem,6vw,3.5rem);">
+        Nuestro<br /><em>Álbum</em> 📸
+      </h1>
+      <p class="letter-subtitle">Cada foto guarda un pedacito de mi corazón</p>
+      <div class="header-divider"><span>💕</span></div>
+    </header>
+
+    <div class="album-container" style="max-width:900px; margin:0 auto; padding:0 1rem 4rem;">
+      <div class="album-grid" id="album-grid">
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Primer recuerdo juntos 💕">
+          <div class="album-frame">
+            <img src="img/foto1.jpg" alt="Foto 1" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">Desde ahí mi copiloto fav 💕</p>
+        </div>
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Mi favorita 🌹">
+          <div class="album-frame">
+            <img src="img/foto2.jpg" alt="Foto 2" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">Mi favorita 🌹</p>
+        </div>
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Siempre juntos 💖">
+          <div class="album-frame">
+            <img src="img/foto3.jpg" alt="Foto 3" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">Mis linduritas 💖</p>
+        </div>
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Te amo tanto 🥰">
+          <div class="album-frame">
+            <img src="img/foto4.jpg" alt="Foto 4" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">Te amo corazomdemelon 🥰🥰</p>
+        </div>
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Nuestro mundo 🌍">
+          <div class="album-frame">
+            <img src="img/foto5.jpg" alt="Foto 5" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">mi mundo 🌍</p>
+        </div>
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Eternamente ♾️">
+          <div class="album-frame">
+            <img src="img/foto6.jpg" alt="Foto 6" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">Nuestra primera fotito ♾️</p>
+        </div>
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Un día especial 🎂">
+          <div class="album-frame">
+            <img src="img/foto7.jpg" alt="Foto 7" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">Día d regaloneo 🎂</p>
+        </div>
+
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Para siempre 💗">
+          <div class="album-frame">
+            <img src="img/foto8.jpg" alt="Foto 8" />
+            <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+          </div>
+          <p class="album-caption">Todas las salidas junto a ti son bonitas 💗</p>
+        </div>
+
+      </div>
+
+      <footer class="letter-footer mt-4">
+        <p class="footer-quote">"Contigo todos los momentos son mi lugar favorito." 💌</p>
+        <a href="#" class="btn-romantic mt-3 d-inline-flex" onclick="showTab('carta', document.getElementById('tab-btn-carta')); window.scrollTo(0,0); return false;">
+          <i class="fa-solid fa-heart me-2"></i>Volver a la carta
+        </a>
+      </footer>
+    </div>
+
+  </div><!-- /tab-album -->
 </section>
 
+
+<!-- ════════════════════════════════════════════
+     LIGHTBOX (para álbum)
+════════════════════════════════════════════ -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <div class="lightbox-inner" onclick="event.stopPropagation()">
+    <button class="lb-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+    <button class="lb-prev" onclick="lbPrev()"><i class="fa-solid fa-chevron-left"></i></button>
+    <img id="lb-img" src="" alt="Foto" />
+    <button class="lb-next" onclick="lbNext()"><i class="fa-solid fa-chevron-right"></i></button>
+    <p class="lb-caption" id="lb-caption"></p>
+  </div>
+</div>
 
 <!-- ════════════════════════════════════════════
      REPRODUCTOR DE MÚSICA (flotante)
@@ -337,6 +438,9 @@ t amooooo :3<br /><br />
           <i class="fa-solid fa-music me-2"></i>Canción 6
         </div>
       </div>
+
+      <!-- Audio MP3 local -->
+      <audio id="mp3-player" style="display:none; width:100%; margin-bottom:.5rem;" controls></audio>
 
       <!-- iframe YouTube -->
       <div id="yt-wrapper" style="display:none;">
@@ -384,3 +488,5 @@ t amooooo :3<br /><br />
 <script src="script.js"></script>
 </body>
 </html>
+
+
