@@ -292,8 +292,8 @@ function updateHearts(value) {
   }
 
   const labels = [
-    '', 'Poquito :c', 'Un poco 🥺', 'Bastante 💕', 'Mucho 💖',
-    '¡Mucho! 💗', 'Muchísimo 💓', 'Demasiado 😍', 'Amor para toda la vida 💝',
+    '', 'Poquito :c', 'Un poco 🥺', 'Bastante 💕', 'piola 💖',
+    '¡Mucho! 💗', 'Muchísimo 💓', 'Demasiado :3', 'Amor para toda la vida 💝',
     '¡Te amo junto al obelix! 💞', '¡Hasta muerta t amaré<3333 {incluye al obelix}! 🌙💖'
   ];
   if (label) label.textContent = labels[n] || '❤️';
