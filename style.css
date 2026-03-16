@@ -1175,101 +1175,100 @@ body::before {
   opacity: .7;
 }
 
-/* Sobre (envelope) */
+/* Sobre */
 .welcome-envelope {
-  position: relative;
-  width: 160px;
-  height: 110px;
   cursor: pointer;
-  filter: drop-shadow(0 8px 24px rgba(198,40,100,.3));
-  transition: transform .3s ease;
+  position: relative;
+  width: 180px;
+  height: 120px;
+  filter: drop-shadow(0 8px 28px rgba(198,40,100,.35));
   animation: envFloat 3s ease-in-out infinite;
+  transition: transform .2s;
 }
 
-.welcome-envelope:hover { transform: scale(1.06); }
-
-@keyframes envFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
+.welcome-envelope:hover { transform: scale(1.05); }
 .welcome-envelope.opening { animation: none; }
 
-/* Parts of the envelope */
+@keyframes envFloat {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+/* Cuerpo del sobre */
 .envelope-back {
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, var(--rose-300), var(--rose-400));
-  border-radius: 8px;
+  background: linear-gradient(160deg, var(--rose-200), var(--rose-300));
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(198,40,100,.2);
 }
 
+/* Solapa superior */
 .envelope-flap {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 55px;
-  background: linear-gradient(135deg, var(--rose-400), var(--rose-500));
-  clip-path: polygon(0 0, 50% 55%, 100% 0);
+  height: 0;
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-top: 66px solid var(--rose-400);
   transform-origin: top center;
-  transition: transform .6s cubic-bezier(.34,1.2,.64,1);
-  border-radius: 8px 8px 0 0;
+  transition: transform .55s cubic-bezier(.4,0,.2,1);
   z-index: 3;
 }
 
 .envelope-flap.open {
-  transform: rotateX(180deg);
+  transform: rotateX(180deg) translateY(-2px);
 }
 
-.envelope-body {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 80px;
-  background: linear-gradient(160deg, var(--rose-200), var(--rose-300));
-  border-radius: 0 0 8px 8px;
-  overflow: hidden;
-  z-index: 2;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 6px;
-}
-
+/* Triángulo izquierdo */
 .envelope-front-left {
   position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: 50%;
-  background: linear-gradient(170deg, var(--rose-300), var(--rose-200));
-  clip-path: polygon(0 0, 100% 45%, 0 100%);
-  z-index: 1;
+  bottom: 0; left: 0;
+  width: 0; height: 0;
+  border-bottom: 60px solid var(--rose-300);
+  border-right: 90px solid transparent;
+  z-index: 2;
 }
 
+/* Triángulo derecho */
 .envelope-front-right {
   position: absolute;
-  top: 0; right: 0; bottom: 0;
-  width: 50%;
-  background: linear-gradient(190deg, var(--rose-300), var(--rose-200));
-  clip-path: polygon(100% 0, 0 45%, 100% 100%);
-  z-index: 1;
+  bottom: 0; right: 0;
+  width: 0; height: 0;
+  border-bottom: 60px solid var(--rose-300);
+  border-left: 90px solid transparent;
+  z-index: 2;
 }
 
+/* Triángulo inferior */
 .envelope-front-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 50%;
-  background: linear-gradient(180deg, transparent, var(--rose-200));
-  z-index: 1;
+  height: 0;
+  border-left: 90px solid transparent;
+  border-right: 90px solid transparent;
+  border-bottom: 72px solid var(--rose-400);
+  z-index: 2;
+}
+
+/* Carta / emoji dentro del sobre */
+.envelope-body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
 }
 
 .envelope-letter {
-  font-size: 2rem;
-  position: relative;
-  z-index: 4;
-  transition: transform .5s ease, opacity .5s ease;
-  transform: translateY(0);
-  opacity: 1;
+  font-size: 2.2rem;
+  transition: transform .4s ease, opacity .4s ease;
+  display: block;
 }
 
 .envelope-letter.rise {
-  transform: translateY(-50px) scale(1.3);
+  transform: translateY(-55px) scale(1.4);
   opacity: 0;
 }
 
@@ -1339,7 +1338,6 @@ body::before {
   border: 1px solid var(--rose-200);
   cursor: default;
   position: relative;
-  transition: transform .2s;
 }
 
 .hint-animal::after {
@@ -1400,7 +1398,6 @@ body::before {
   box-shadow: 0 2px 6px rgba(0,0,0,.15);
   cursor: default;
   position: relative;
-  transition: transform .2s;
 }
 
 .hint-color::after {
