@@ -16,9 +16,9 @@ const CONFIG = {
   // 2. Crea un servicio y una plantilla con las variables:
   //    {{fecha_conocidos}}, {{fecha_primera_vez}}, {{cuanto_amor}}
   // 3. Pega tus IDs aquí:
-  EMAILJS_SERVICE_ID:  'service_60wzk5j',   // ← tu service ID
-  EMAILJS_TEMPLATE_ID: 'template_50p5kvb',  // ← tu template ID
-  EMAILJS_PUBLIC_KEY:  'lQgzaPl2y_KEiVQaB',  // ← tu public key
+  EMAILJS_SERVICE_ID:  'service_XXXXXXX',   // ← tu service ID
+  EMAILJS_TEMPLATE_ID: 'template_XXXXXXX',  // ← tu template ID
+  EMAILJS_PUBLIC_KEY:  'XXXXXXXXXXXXXXXXX',  // ← tu public key
 
   // 🎵 IDs de YouTube (puedes añadir más)
   YOUTUBE_IDS: [
@@ -27,6 +27,17 @@ const CONFIG = {
     'sXR93C_bSVk',
     'J_8xCOSekog',
     '-7a49quIQQc'
+  ],
+
+  // 🎵 MP3 locales — si existe el archivo, se usa en vez de YouTube (sin anuncios)
+  // Ponés los .mp3 en la carpeta  music/  junto a los HTML
+  // Si no tenés el MP3 de una canción, dejá el valor como  ''
+  MP3_FILES: [
+    'music/cancion1.mp3',   // si existe, reemplaza YouTube para canción 1
+    'music/cancion2.mp3',   // canción 2
+    'music/cancion3.mp3',   // canción 3
+    'music/cancion4.mp3',   // canción 4
+    'music/cancion5.mp3'    // canción 5
   ],
 
   // Nombres de las canciones (mismo orden)
@@ -423,7 +434,8 @@ function toggleMusicExpand() {
 }
 
 function playSong(index) {
-  const ids = CONFIG.YOUTUBE_IDS;
+  const ids  = CONFIG.YOUTUBE_IDS;
+  const mp3s = CONFIG.MP3_FILES || [];
   if (index < 0 || index >= ids.length) return;
 
   state.currentSong = index;
@@ -434,32 +446,52 @@ function playSong(index) {
     item.classList.toggle('active', i === index);
   });
 
-  // Cargar iframe
-  const wrapper = document.getElementById('yt-wrapper');
-  const iframe  = document.getElementById('yt-iframe');
-  if (wrapper && iframe) {
-    wrapper.style.display = 'block';
-    iframe.src = `https://www.youtube.com/embed/${ids[index]}?autoplay=1&enablejsapi=1`;
+  const mp3path = mp3s[index] || '';
+  const wrapper  = document.getElementById('yt-wrapper');
+  const iframe   = document.getElementById('yt-iframe');
+  const audioEl  = document.getElementById('mp3-player');
+
+  if (mp3path) {
+    // — Usar MP3 local (sin anuncios) —
+    if (wrapper) wrapper.style.display = 'none';
+    if (iframe)  iframe.src = '';
+    if (audioEl) {
+      audioEl.src = mp3path;
+      audioEl.style.display = 'block';
+      audioEl.play().catch(() => {});
+    }
+  } else {
+    // — Fallback a YouTube —
+    if (audioEl) { audioEl.pause(); audioEl.style.display = 'none'; }
+    if (wrapper && iframe) {
+      wrapper.style.display = 'block';
+      iframe.src = `https://www.youtube.com/embed/${ids[index]}?autoplay=1&enablejsapi=1`;
+    }
   }
 
   // Actualizar botón play/pause
   const icon = document.getElementById('play-icon');
-  if (icon) {
-    icon.classList.replace('fa-play', 'fa-pause');
-  }
+  if (icon) icon.classList.replace('fa-play', 'fa-pause');
 }
 
 function togglePlay() {
+  const audioEl = document.getElementById('mp3-player');
+  const mp3s    = CONFIG.MP3_FILES || [];
+  const usingMp3 = mp3s[state.currentSong] && audioEl && audioEl.src && !audioEl.paused !== undefined;
+
   if (!state.isPlaying) {
     playSong(state.currentSong);
   } else {
     // Detener
+    if (audioEl && !audioEl.paused) {
+      audioEl.pause();
+    }
     const iframe  = document.getElementById('yt-iframe');
     const wrapper = document.getElementById('yt-wrapper');
-    const icon    = document.getElementById('play-icon');
-
-    if (iframe) iframe.src = '';
+    if (iframe)  iframe.src = '';
     if (wrapper) wrapper.style.display = 'none';
+
+    const icon = document.getElementById('play-icon');
     if (icon) icon.classList.replace('fa-pause', 'fa-play');
     state.isPlaying = false;
   }
@@ -476,13 +508,28 @@ function prevSong() {
 }
 
 /* ═══════════════════════════════════════
-   TABS (carta / álbum)
+   TABS (carta / álbum) — sin recargar página
 ═══════════════════════════════════════ */
 function showTab(tabId, el) {
-  // En este proyecto carta = index.html y álbum = album.html
-  // Mantenemos la función por compatibilidad
+  // Actualizar tabs activos
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   if (el) el.classList.add('active');
+
+  // Mostrar/ocultar contenido
+  const carta = document.getElementById('tab-carta');
+  const album = document.getElementById('tab-album');
+
+  if (tabId === 'album') {
+    if (carta) carta.style.display = 'none';
+    if (album) {
+      album.style.display = 'block';
+      // Inicializar animaciones del álbum al mostrarlo
+      setTimeout(() => initAlbumAnimations(), 60);
+    }
+  } else {
+    if (album) album.style.display = 'none';
+    if (carta) carta.style.display = 'block';
+  }
 }
 
 /* ═══════════════════════════════════════
