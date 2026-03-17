@@ -16,9 +16,9 @@ const CONFIG = {
   // 2. Crea un servicio y una plantilla con las variables:
   //    {{fecha_conocidos}}, {{fecha_primera_vez}}, {{cuanto_amor}}
   // 3. Pega tus IDs aquí:
-  EMAILJS_SERVICE_ID:  'service_XXXXXXX',   // ← tu service ID
-  EMAILJS_TEMPLATE_ID: 'template_XXXXXXX',  // ← tu template ID
-  EMAILJS_PUBLIC_KEY:  'XXXXXXXXXXXXXXXXX',  // ← tu public key
+  EMAILJS_SERVICE_ID:  'service_60wzk5j',   // ← tu service ID
+  EMAILJS_TEMPLATE_ID: 'template_50p5kvb',  // ← tu template ID
+  EMAILJS_PUBLIC_KEY:  'lQgzaPl2y_KEiVQaB',  // ← tu public key
 
   // 🎵 IDs de YouTube (puedes añadir más)
   YOUTUBE_IDS: [
