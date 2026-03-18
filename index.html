@@ -54,7 +54,7 @@
 </section>
 
 <!-- ════════════════════════════════════════════
-     PANTALLA 1: CANDADO
+     PANTALLA 1: CANDADO (4 dígitos — NUEVO)
 ════════════════════════════════════════════ -->
 <section id="lock-screen" class="screen">
   <div class="lock-wrapper">
@@ -69,130 +69,304 @@
       </div>
 
       <h1 class="lock-title">Para ti,<br /><em>mi amor</em></h1>
-      <p class="lock-subtitle">3 pistas, 3 números 🔑</p>
+      <p class="lock-subtitle">4 pistas, 4 números 🔑</p>
 
       <!-- Panel de pistas -->
       <div class="hints-panel">
         <p class="hints-title">✦ Pistas ✦</p>
         <div class="hints-grid">
           <div class="hint-item">
-            <span class="hint-label">Animal favorito de Nato</span>
-            <div class="hint-animals">
-              <span class="hint-animal" data-num="1">🐶</span>
-              <span class="hint-animal" data-num="2">🐱</span>
-              <span class="hint-animal" data-num="3">🦊</span>
-              <span class="hint-animal correct" data-num="4">🐸</span>
-              <span class="hint-animal" data-num="5">🦁</span>
-              <span class="hint-animal" data-num="6">🐻</span>
-              <span class="hint-animal" data-num="7">🦋</span>
-              <span class="hint-animal" data-num="8">🐼</span>
-              <span class="hint-animal" data-num="9">🦄</span>
-            </div>
-            <p class="hint-num-hint">¿Cuál es el número de su animal?</p>
+            <span class="hint-label">🗓️ Meses que llevamos juntos</span>
+            <p class="hint-clue">¿Cuántos meses llevamos juntos?</p>
           </div>
           <div class="hint-item">
-            <span class="hint-label">Comida favorita de Nato</span>
-            <div class="hint-foods">
-              <span class="hint-food" data-num="1">🍕 Pizza</span>
-              <span class="hint-food" data-num="2">🍔 Burger</span>
-              <span class="hint-food correct" data-num="3">🍣 Sushi</span>
-              <span class="hint-food" data-num="4">🌮 Tacos</span>
-              <span class="hint-food" data-num="5">🍜 Ramen</span>
-              <span class="hint-food" data-num="6">🥗 Ensalada</span>
-              <span class="hint-food" data-num="7">🍝 Pasta</span>
-              <span class="hint-food" data-num="8">🥩 Carne</span>
-              <span class="hint-food" data-num="9">🥪 Sándwich</span>
-            </div>
-            <p class="hint-num-hint">¿Cuál es el número de su comida?</p>
+            <span class="hint-label">💌 Mes en que te dije "te amo"</span>
+            <p class="hint-clue">¿En qué mes te lo dije? (número)</p>
           </div>
           <div class="hint-item">
-            <span class="hint-label">Color favorito de Nato</span>
-            <div class="hint-colors">
-              <span class="hint-color" data-num="1" style="background:#e74c3c" title="Rojo"></span>
-              <span class="hint-color" data-num="2" style="background:#e67e22" title="Naranja"></span>
-              <span class="hint-color" data-num="3" style="background:#f1c40f" title="Amarillo"></span>
-              <span class="hint-color correct" data-num="4" style="background:#27ae60" title="Verde"></span>
-              <span class="hint-color" data-num="5" style="background:#2980b9" title="Azul"></span>
-              <span class="hint-color" data-num="6" style="background:#8e44ad" title="Violeta"></span>
-              <span class="hint-color" data-num="7" style="background:#e91e8c" title="Rosa"></span>
-              <span class="hint-color" data-num="8" style="background:#1abc9c" title="Turquesa"></span>
-              <span class="hint-color" data-num="9" style="background:#34495e" title="Gris azul"></span>
+            <span class="hint-label">🎂 Día del cumpleaños de Natito</span>
+            <p class="hint-clue">¿Qué día nació tu natito?</p>
+          </div>
+          <div class="hint-item">
+            <span class="hint-label">⛳ Deporte que Natito NUNCA jugaría</span>
+            <div class="hint-sports hint-sports-grid">
+              <span class="hint-sport-num">0️⃣ 🏊 Natación</span>
+              <span class="hint-sport-num">1️⃣ 🎾 Tenis</span>
+              <span class="hint-sport-num">2️⃣ 🏀 Básquet</span>
+              <span class="hint-sport-num">3️⃣ ⚽ Fútbol</span>
+              <span class="hint-sport-num">4️⃣ 🏋️ Pesas</span>
+              <span class="hint-sport-num hint-sport-correct">5️⃣ ⛳ Golf</span>
+              <span class="hint-sport-num">6️⃣ 🏄 Surf</span>
+              <span class="hint-sport-num">7️⃣ 🚴 Ciclismo</span>
+              <span class="hint-sport-num">8️⃣ 🥊 Boxeo</span>
+              <span class="hint-sport-num">9️⃣ 🏐 voley</span>
             </div>
-            <p class="hint-num-hint">¿Cuál es el número de su color?</p>
+            <p class="hint-clue">¿Cuál es el número del deporte que NUNCA jugaría? 👀</p>
           </div>
         </div>
       </div>
 
-      <!-- Inputs de 3 dígitos -->
-      <div class="pin-inputs" id="pin-inputs">
-        <input type="password" maxlength="1" class="pin-box" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
-        <input type="password" maxlength="1" class="pin-box" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
-        <input type="password" maxlength="1" class="pin-box" inputmode="numeric" pattern="[0-9]*" autocomplete="off" />
+      <!-- Teclado emoji -->
+      <div class="emoji-keypad">
+        <p class="keypad-label">Toca los números 💕</p>
+        <div class="keypad-display" id="keypad-display">
+          <span class="keypad-dot" id="kd0"></span>
+          <span class="keypad-dot" id="kd1"></span>
+          <span class="keypad-dot" id="kd2"></span>
+          <span class="keypad-dot" id="kd3"></span>
+        </div>
+        <div class="keypad-grid">
+          <button class="key-btn" onclick="keypadPress('1')">1️⃣</button>
+          <button class="key-btn" onclick="keypadPress('2')">2️⃣</button>
+          <button class="key-btn" onclick="keypadPress('3')">3️⃣</button>
+          <button class="key-btn" onclick="keypadPress('4')">4️⃣</button>
+          <button class="key-btn" onclick="keypadPress('5')">5️⃣</button>
+          <button class="key-btn" onclick="keypadPress('6')">6️⃣</button>
+          <button class="key-btn" onclick="keypadPress('7')">7️⃣</button>
+          <button class="key-btn" onclick="keypadPress('8')">8️⃣</button>
+          <button class="key-btn" onclick="keypadPress('9')">9️⃣</button>
+          <button class="key-btn key-del" onclick="keypadDelete()">⌫</button>
+          <button class="key-btn" onclick="keypadPress('0')">0️⃣</button>
+          <button class="key-btn key-ok" onclick="checkPin()">✅</button>
+        </div>
       </div>
 
-      <p class="lock-error" id="lock-error">💔 Ese no es... intenta de nuevo, mi amor</p>
-
-      <button class="btn-romantic" id="unlock-btn">
-        <i class="fa-solid fa-heart me-2"></i>Abrir
-      </button>
+      <p class="lock-error" id="lock-error">mmm… intenta de nuevo 👀</p>
     </div>
   </div>
 </section>
 
 
 <!-- ════════════════════════════════════════════
-     PANTALLA 2: PREGUNTAS ROMÁNTICAS
+     PANTALLA 2: PREGUNTAS SÍ / NO
 ════════════════════════════════════════════ -->
 <section id="questions-screen" class="screen">
   <div class="questions-wrapper">
-
-    <!-- Pregunta 1 -->
-    <div class="question-card active" id="q1">
-      <div class="q-heart" aria-hidden="true">💌</div>
-      <h2 class="q-title">¿Cuándo nos conocimos?</h2>
-      <p class="q-hint">t am00000oooooo</p>
-      <input type="date" class="romantic-date" id="date-q1" />
-      <button class="btn-romantic mt-3" onclick="nextQuestion(1)">
-        <i class="fa-solid fa-arrow-right me-2"></i>Siguiente
-      </button>
-    </div>
-
-    <!-- Pregunta 2 -->
-    <div class="question-card" id="q2">
-      <div class="q-heart" aria-hidden="true">👀</div>
-      <h2 class="q-title">¿Cuándo salimos <br />por primera vez?</h2>
-      <p class="q-hint">primer día d moto para nupi</p>
-      <input type="date" class="romantic-date" id="date-q2" />
-      <button class="btn-romantic mt-3" onclick="nextQuestion(2)">
-        <i class="fa-solid fa-arrow-right me-2"></i>Siguiente
-      </button>
-    </div>
-
-    <!-- Pregunta 3 -->
-    <div class="question-card" id="q3">
-      <div class="q-heart" aria-hidden="true">💖</div>
-      <h2 class="q-title">¿Cuánto quieres a Nato?</h2>
-      <p class="q-hint"> ojito 😊</p>
-
-      <div class="heart-slider-wrap">
-        <input type="range" id="love-slider" min="1" max="10" value="5" class="love-slider" oninput="updateHearts(this.value)" />
-        <div class="hearts-display" id="hearts-display">
-          <!-- generado por JS -->
-        </div>
-        <p class="slider-label" id="slider-label">¡Muchísimo! 💗</p>
+    <div class="question-card active" id="q-sinno">
+      <div class="q-heart" aria-hidden="true">🧠</div>
+      <div class="q-progress-bar-wrap">
+        <div class="q-progress-bar" id="q-progress-bar"></div>
       </div>
-
-      <button class="btn-romantic mt-4" id="enter-letter-btn" onclick="goToLetter()">
-        <i class="fa-solid fa-envelope-open-text me-2"></i>Entrar a nuestra carta
-      </button>
+      <p class="q-counter" id="q-counter">1 / 28</p>
+      <h2 class="q-title" id="q-sinno-text">Cargando…</h2>
+      <div class="sinno-btns">
+        <button class="btn-sinno btn-si" onclick="responderSiNo('si')">
+          <i class="fa-solid fa-check me-1"></i> Sí
+        </button>
+        <button class="btn-sinno btn-no" onclick="responderSiNo('no')">
+          <i class="fa-solid fa-xmark me-1"></i> No
+        </button>
+      </div>
     </div>
 
+    <!-- Resultado -->
+    <div class="question-card" id="q-resultado">
+      <div class="q-heart" aria-hidden="true">📊</div>
+      <h2 class="q-title">Resultado</h2>
+      <p class="q-hint" id="q-resultado-texto">Calculando…</p>
+      <div class="percent-bar-wrap">
+        <div class="percent-bar-bg">
+          <div class="percent-bar-fill" id="percent-bar-fill"></div>
+        </div>
+        <p class="percent-num" id="percent-num">0%</p>
+      </div>
+      <div id="q-resultado-btn-wrap" class="mt-3"></div>
+    </div>
   </div>
 </section>
 
 
 <!-- ════════════════════════════════════════════
-     PANTALLA 3: CARTA PRINCIPAL
+     PANTALLA 3: ELIGE LA OPCIÓN CORRECTA
+════════════════════════════════════════════ -->
+<section id="choose-screen" class="screen">
+  <div class="questions-wrapper">
+    <div class="question-card active" id="choose-card">
+      <div class="q-heart" aria-hidden="true">🎯</div>
+      <p class="q-counter" id="choose-counter">1 / 5</p>
+      <h2 class="q-title" id="choose-question">Cargando…</h2>
+      <div class="choose-options" id="choose-options"></div>
+      <p class="choose-msg" id="choose-msg"></p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PANTALLA 4: CARTAS OCULTAS
+════════════════════════════════════════════ -->
+<section id="cards-screen" class="screen">
+  <div class="cards-screen-wrapper">
+    <div class="cards-header">
+      <div class="q-heart" aria-hidden="true">🃏</div>
+      <h2 class="cards-title">Cartas para ti</h2>
+      <p class="cards-subtitle">Toca cada carta para revelarla 💌</p>
+      <p class="cards-progress-txt" id="cards-progress-txt">0 / 5 reveladas</p>
+    </div>
+    <div class="hidden-cards-grid" id="hidden-cards-grid">
+
+      <div class="flip-card" id="fc0" onclick="flipCard(0)">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <span class="fc-icon">💌</span>
+            <p class="fc-front-title">Algo que quiero decirte</p>
+          </div>
+          <div class="flip-card-back">
+            <h3 class="fc-back-title">Algo que quiero decirte</h3>
+            <p class="fc-back-text">
+              <!-- ✏️ EDITA AQUÍ -->
+              Soy tan afortunado de tenerte a mi lado.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" id="fc1" onclick="flipCard(1)">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <span class="fc-icon">🌸</span>
+            <p class="fc-front-title">Un momento que no olvido</p>
+          </div>
+          <div class="flip-card-back">
+            <h3 class="fc-back-title">Un momento que no olvido</h3>
+            <p class="fc-back-text">
+              <!-- ✏️ EDITA AQUÍ -->
+              Yo mirandot como bobo cuando estabamos en el puente camino a berlim:p
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" id="fc2" onclick="flipCard(2)">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <span class="fc-icon">🌻</span>
+            <p class="fc-front-title">Cosas que me gustan de ti</p>
+          </div>
+          <div class="flip-card-back">
+            <h3 class="fc-back-title">Cosas que me gustan de ti</h3>
+            <p class="fc-back-text">
+              <!-- ✏️ EDITA AQUÍ -->
+              Me gusta tu voz, tu carita, que me hagas nanai, me gusta tu forma de ser y muchas cosas más y me encanta que seas tan linda conmigo, te quiero mucho.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" id="fc3" onclick="flipCard(3)">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <span class="fc-icon">🤫</span>
+            <p class="fc-front-title">Un secreto mío</p>
+          </div>
+          <div class="flip-card-back">
+            <h3 class="fc-back-title">Un secreto mío</h3>
+            <p class="fc-back-text">
+              <!-- ✏️ EDITA AQUÍ -->
+              La verdad es que me volví demasiado fan tuyo y se me hace muy extraño, pero si pudiera pasar todo mi tiempo contigo estaría apegado a ti siempre.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" id="fc4" onclick="flipCard(4)">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <span class="fc-icon">💖</span>
+            <p class="fc-front-title">Por qué eres especial para mí</p>
+          </div>
+          <div class="flip-card-back">
+            <h3 class="fc-back-title">Por qué eres especial para mí</h3>
+            <p class="fc-back-text">
+              <!-- ✏️ EDITA AQUÍ -->
+              Eres especial porque contigo todo es diferente, los días son más bonitos, lo malo es que los días pasan muy rápido a tu lado🌻🌻🌻
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div id="cards-unlock-wrap" class="mt-4 text-center" style="display:none;">
+      <button class="btn-romantic" onclick="goToPhase('puzzle-screen')">
+        <i class="fa-solid fa-puzzle-piece me-2"></i>Siguiente fase 🧩
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PANTALLA 5: ROMPECABEZAS
+════════════════════════════════════════════ -->
+<section id="puzzle-screen" class="screen">
+  <div class="puzzle-wrapper">
+    <div class="question-card active" style="max-width:420px; width:100%;">
+      <div class="q-heart" aria-hidden="true">🧩</div>
+      <h2 class="q-title">Arma el rompecabezas</h2>
+      <p class="q-hint">Toca dos piezas para intercambiarlas</p>
+      <div class="puzzle-grid" id="puzzle-grid"></div>
+      <p class="puzzle-msg" id="puzzle-msg"></p>
+      <div id="puzzle-unlock-wrap" style="display:none;" class="mt-3">
+        <button class="btn-romantic" onclick="goToPhase('story-screen')">
+          <i class="fa-solid fa-book-open me-2"></i>Continuar 💬
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PANTALLA 6: MINI HISTORIA
+════════════════════════════════════════════ -->
+<section id="story-screen" class="screen">
+  <div class="story-wrapper">
+    <div class="question-card active story-card">
+      <div class="q-heart" aria-hidden="true">💬</div>
+      <div class="story-text-wrap">
+        <p class="story-line" id="story-line">Si llegaste hasta aquí…</p>
+      </div>
+      <button class="btn-romantic mt-4" id="story-btn" onclick="nextStoryLine()">
+        Continuar <i class="fa-solid fa-arrow-right ms-1"></i>
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PANTALLA 7: CARTA FINAL
+════════════════════════════════════════════ -->
+<section id="final-letter-screen" class="screen">
+  <div class="final-letter-wrapper">
+    <div class="final-letter-card" id="final-letter-card">
+      <div class="final-letter-deco" aria-hidden="true">✦ ✦ ✦</div>
+      <div class="q-heart" style="font-size:3rem; margin-bottom:1rem;">💌</div>
+      <h1 class="final-letter-title">Mi carta final</h1>
+      <div class="final-letter-body">
+        <p class="final-letter-text">
+          <!-- ✏️ EDITA AQUÍ TU CARTA FINAL -->
+          Mi amor hermosa,<br /><br />
+          Si llegaste hasta acá es porque abriste mi cartita dnv t amo muchisimo y me encanta que veas lo que hago x ti, sentí que estaba muy vacia la pagina por qué le dediqué muy poco tiempo, pero ahora si está más completita, te amo muchisimoooo. <br /><br />
+          sabías que cada día a tu lado lo atesoro¿. No hay día que no piense en usted y en lo agradecido que estoy de tenerte.<br /><br />
+          te elegiría siempre mi amor ya que eres lo mjr d lo mjr :*.<br /><br />
+          Te amo, mi nupi. Hoy, mañana y siempre.<br /><br />
+          <em>Tu natito 💖</em>
+        </p>
+      </div>
+      <div class="final-letter-hearts" aria-hidden="true">
+        💖 💛 🌸 💖 🌸 💛 💖
+      </div>
+      <button class="btn-romantic mt-3" onclick="goToMainLetter()">
+        <i class="fa-solid fa-envelope-open-text me-2"></i>Ver toda la carta 💌
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PANTALLA CARTA PRINCIPAL (original)
 ════════════════════════════════════════════ -->
 <section id="letter-screen" class="screen">
 
@@ -213,7 +387,7 @@
     <header class="letter-header">
       <div class="confetti-burst" aria-hidden="true" id="confetti-area"></div>
       <div class="header-decor" aria-hidden="true">✦ ✦ ✦</div>
-      <h1 class="letter-title">Feliz cumpleaños<br /><em>nupi de mi vida</em> ❤️</h1>
+      <h1 class="letter-title">Cartita para siempre<br /><em>nupi de mi vida</em> ❤️</h1>
       <p class="letter-subtitle">Te amo</p>
       <div class="header-divider" aria-hidden="true">
         <span>💕</span>
@@ -224,7 +398,6 @@
     <article class="letter-body">
       <p class="letter-intro">
         Hola mi nupi limda hermosa d mi corazónnnnn,<br /><br />
-        <!-- ✏️ EDITA AQUÍ TU MENSAJE PERSONAL -->
         Hoy es el cumpleaños de mi persona favorita. Quiero que sepas que siempre te voy a amar y querer caminar a tu lado. Me encantas y me encanta caminar de la mano contigo, estar a tu lado, dormir contigo, comer contigo.
 
 Haces más dulce mi vida. La vida contigo se siente más bonita y cálida. Te mereces todo, y me gustaría poder darte todo. Eres una persona de la cual estoy orgulloso y feliz por poder estar con ella y ser parte de ella.
@@ -237,7 +410,6 @@ El placer y el privilegio es mío. Solo espero que seas la personita más feliz 
 
 Te amo mucho. Eres mi nupi, mi solcito y mi luz
 t amooooo :3<br /><br />
-        <!-- ✏️ CONTINÚA EL MENSAJE -->
         Gracias por existir, por estar conmigo. Este día es tuyo y quiero que sea bonito como tú lo eres para mí.<br /><br />
         Con todo mi amor para mi wawa,<br />
         <em>Tu corazón d melon 💖</em>
@@ -314,7 +486,7 @@ t amooooo :3<br /><br />
     <div class="album-container" style="max-width:900px; margin:0 auto; padding:0 1rem 4rem;">
       <div class="album-grid" id="album-grid">
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="Amo tanto a mi princesa 💕">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Primer recuerdo juntos 💕">
           <div class="album-frame">
             <img src="img/foto1.jpg" alt="Foto 1" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
@@ -322,15 +494,15 @@ t amooooo :3<br /><br />
           <p class="album-caption">Desde ahí mi copiloto fav 💕</p>
         </div>
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="Mi regalona 🌹">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Mi favorita 🌹">
           <div class="album-frame">
             <img src="img/foto2.jpg" alt="Foto 2" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
           </div>
-          <p class="album-caption">Mi persona favorita 🌹🌹🌹</p>
+          <p class="album-caption">Mi favorita 🌹</p>
         </div>
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="Y mis regalones🌹💖">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Siempre juntos 💖">
           <div class="album-frame">
             <img src="img/foto3.jpg" alt="Foto 3" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
@@ -338,7 +510,7 @@ t amooooo :3<br /><br />
           <p class="album-caption">Mis linduritas 💖</p>
         </div>
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="Te amo tanto vidamia 🌹💖">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Te amo tanto 🥰">
           <div class="album-frame">
             <img src="img/foto4.jpg" alt="Foto 4" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
@@ -346,7 +518,7 @@ t amooooo :3<br /><br />
           <p class="album-caption">Te amo corazomdemelon 🥰🥰</p>
         </div>
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="eres mi mundo 💖🌍">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Nuestro mundo 🌍">
           <div class="album-frame">
             <img src="img/foto5.jpg" alt="Foto 5" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
@@ -354,7 +526,7 @@ t amooooo :3<br /><br />
           <p class="album-caption">mi mundo 🌍</p>
         </div>
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="Para siempre🌹💖 ♾️">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Eternamente ♾️">
           <div class="album-frame">
             <img src="img/foto6.jpg" alt="Foto 6" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
@@ -362,7 +534,7 @@ t amooooo :3<br /><br />
           <p class="album-caption">Nuestra primera fotito ♾️</p>
         </div>
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="Día d regaloneo 🎂">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Un día especial 🎂">
           <div class="album-frame">
             <img src="img/foto7.jpg" alt="Foto 7" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
@@ -370,7 +542,7 @@ t amooooo :3<br /><br />
           <p class="album-caption">Día d regaloneo 🎂</p>
         </div>
 
-        <div class="album-item" onclick="openLightbox(this)" data-caption="T mereces todo 🌹💖💗">
+        <div class="album-item" onclick="openLightbox(this)" data-caption="Para siempre 💗">
           <div class="album-frame">
             <img src="img/foto8.jpg" alt="Foto 8" />
             <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
@@ -419,7 +591,6 @@ t amooooo :3<br /><br />
     </div>
 
     <div class="music-body" id="music-body">
-      <!-- Lista de canciones -->
       <div class="music-playlist" id="music-playlist">
         <div class="playlist-item active" onclick="playSong(0)" data-vid="uEcKk2U_U7A">
           <i class="fa-solid fa-music me-2"></i>Canción 1
@@ -433,16 +604,13 @@ t amooooo :3<br /><br />
         <div class="playlist-item" onclick="playSong(3)" data-vid="J_8xCOSekog">
           <i class="fa-solid fa-music me-2"></i>Canción 4
         </div>
-        <div class="music-playlist" id="music-playlist">
-        <div class="playlist-item active" onclick="playSong(4)" data-vid="-7a49quIQQc">
-          <i class="fa-solid fa-music me-2"></i>Canción 6
+        <div class="playlist-item" onclick="playSong(4)" data-vid="-7a49quIQQc">
+          <i class="fa-solid fa-music me-2"></i>Canción 5
         </div>
       </div>
 
-      <!-- Audio MP3 local -->
       <audio id="mp3-player" style="display:none; width:100%; margin-bottom:.5rem;" controls></audio>
 
-      <!-- iframe YouTube -->
       <div id="yt-wrapper" style="display:none;">
         <iframe id="yt-iframe"
           width="100%" height="120"
@@ -464,7 +632,6 @@ t amooooo :3<br /><br />
   </div>
 </div>
 
-<!-- Botón flotante para abrir música -->
 <button id="music-float-btn" class="music-float-btn" onclick="openMusicPlayer()" style="display:none;">
   🎵
 </button>
@@ -488,5 +655,3 @@ t amooooo :3<br /><br />
 <script src="script.js"></script>
 </body>
 </html>
-
-
