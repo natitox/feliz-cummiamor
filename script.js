@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════
-   script.js — Carta Romántica Digital
-   Lógica principal: candado, preguntas, carta, música, EmailJS
+   script.js — Carta Romántica Digital (v3 — Email completo)
+   Tracking: intentos candado, preguntas sí/no, elige opción,
+   porcentaje, flujo completo
 ═══════════════════════════════════════════════════════ */
 
 'use strict';
@@ -9,18 +10,11 @@
    CONFIGURACIÓN — EDITA AQUÍ
 ═══════════════════════════════════════ */
 const CONFIG = {
-  PIN: '434',                         // rana=4, sushi=3, verde=4
+  PIN: '6195',
 
-  // ✉️  EmailJS — reemplaza con tus datos reales
-  // 1. Crea cuenta en https://www.emailjs.com/
-  // 2. Crea un servicio y una plantilla con las variables:
-  //    {{fecha_conocidos}}, {{fecha_primera_vez}}, {{cuanto_amor}}
-  // 3. Pega tus IDs aquí:
   EMAILJS_SERVICE_ID:  'service_60wzk5j',   // ← tu service ID
   EMAILJS_TEMPLATE_ID: 'template_50p5kvb',  // ← tu template ID
   EMAILJS_PUBLIC_KEY:  'lQgzaPl2y_KEiVQaB',  // ← tu public key
-
-  // 🎵 IDs de YouTube (puedes añadir más)
   YOUTUBE_IDS: [
     'uEcKk2U_U7A',
     'Q4Js9OEODHM',
@@ -29,29 +23,102 @@ const CONFIG = {
     '-7a49quIQQc'
   ],
 
-  // 🎵 MP3 locales — si existe el archivo, se usa en vez de YouTube (sin anuncios)
-  // Ponés los .mp3 en la carpeta  music/  junto a los HTML
-  // Si no tenés el MP3 de una canción, dejá el valor como  ''
   MP3_FILES: [
-    'music/cancion1.mp3',   // si existe, reemplaza YouTube para canción 1
-    'music/cancion2.mp3',   // canción 2
-    'music/cancion3.mp3',   // canción 3
-    'music/cancion4.mp3',   // canción 4
-    'music/cancion5.mp3'    // canción 5
+    'music/cancion1.mp3',
+    'music/cancion2.mp3',
+    'music/cancion3.mp3',
+    'music/cancion4.mp3',
+    'music/cancion5.mp3'
   ],
 
-  // Nombres de las canciones (mismo orden)
   SONG_NAMES: [
     'Nuestra canción 1',
     'Nuestra canción 2',
     'Nuestra canción 3',
     'Nuestra canción 4',
-    'Nuestra canción 5',
-    'Nuestra canción 6',
-    'Nuestra canción 7'
-    
+    'Nuestra canción 5'
   ]
 };
+
+/* ═══════════════════════════════════════
+   DATOS — PREGUNTAS SÍ/NO
+═══════════════════════════════════════ */
+const preguntas = [
+  { pregunta: "¿Natito se imagina abrazándote ahora mismo? 🤗", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito comería 5 platos de porotos?🤍 ", respuestaCorrecta: "no" },
+  { pregunta: "¿Natito te incluiría en sus planes importantes? 📆", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito prefiere Gorillaz antes que Mac Miller? 🎧", respuestaCorrecta: "no" },
+  { pregunta: "¿Natito te cuidaría si estás mal? 💊", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito vería una película romántica solo por ti? 💕", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito le cuesta decir lo que siente? 🥺", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito aguantaría una serie que no le gusta por ti? 📺", respuestaCorrecta: "no" },
+  { pregunta: "¿Natito dejaría cosas por estar contigo? 💕", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito daría la vida por ti? 💘", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito quiere a su abuela? 👵", respuestaCorrecta: "no" },
+  { pregunta: "¿Natito piensa en ti antes de dormir? 🌙", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito cambiaría su día por verte? 😳", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito se pone feliz solo con verte? 😊", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito te presume con orgullo? 😎", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito comería comida del mar por ti? 🐟", respuestaCorrecta: "no" },
+  { pregunta: "¿Natito dejaría todo por un momento contigo? ✨", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito es fan de las películas románticas? 🎬", respuestaCorrecta: "no" },
+  { pregunta: "¿Natito manejaría horas solo para verte? 🚗", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito te diría lo que siente aunque le cueste? 🤍", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito te elegiría incluso en días difíciles? 💞", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito planea tener un futuro contigo? 💍", respuestaCorrecta: "si" },
+  { pregunta: "Si Natito tuviera hambre, ¿le cocinarías? 🍳", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito preferiría dormir contigo que salir? 😴", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito repetiría un día contigo mil veces? ♾️", respuestaCorrecta: "si" },
+  { pregunta: "¿Eres la persona favorita de Natito? 💖", respuestaCorrecta: "si" },
+  { pregunta: "¿Natito te extraña aunque no lo diga? 🥺", respuestaCorrecta: "si" },
+  { pregunta: "¿El segundo color favorito de Natito es el cian? 🎨", respuestaCorrecta: "si" }
+];
+
+/* ═══════════════════════════════════════
+   DATOS — ELIGE LA OPCIÓN CORRECTA
+═══════════════════════════════════════ */
+const preguntasElige = [
+  {
+    pregunta: "¿Cuál es la flor favorita de Natito? 🌸",
+    opciones: ["Rosa 🌹", "Girasol 🌻", "Tulipán 🌷", "Lirio 🤍"],
+    correcta: 1,
+    fallo: "Hmm… piénsalo bien 🤔 ¡Es la más alegre!"
+  },
+  {
+    pregunta: "¿Qué comería Natito de ti? 😋",
+    opciones: ["Hamburguesa 🍔", "A su nupi hermosa 😍", "Galletas 🍪", "Chocolate 🍫"],
+    correcta: 1,
+    fallo: "Nooo, Natito tiene hambre de algo más bonito 👀"
+  },
+  {
+    pregunta: "¿Cuál es el color favorito de Natito? 🎨",
+    opciones: ["Rojo ❤️", "Azul 💙", "Verde 💚", "Morado 💜"],
+    correcta: 2,
+    fallo: "¡Piensa en la naturaleza! 🌿"
+  },
+  {
+    pregunta: "¿Qué apodo le pone Natito a su amor? 🥰",
+    opciones: ["Cielo", "Nupi", "Princesa", "Mi sol"],
+    correcta: 1,
+    fallo: "¡Es algo muy especial! Empieza con N… 💕"
+  },
+  {
+    pregunta: "¿Cuánto quiere Natito a su nupi? 💖",
+    opciones: ["Un poco", "Bastante", "Mucho", "Infinitamente y más ♾️"],
+    correcta: 3,
+    fallo: "¡Piénsalo mejor! No hay límite para este amor 💘"
+  }
+];
+
+/* ═══════════════════════════════════════
+   MINI HISTORIA — LÍNEAS
+═══════════════════════════════════════ */
+const storyLines = [
+  "Si llegaste hasta aquí…",
+  "Significa que me amas muxo… 🥺",
+  "Pero aún falta lo más importante…",
+  "Una última cosa para ti… 💌"
+];
 
 /* ═══════════════════════════════════════
    ESTADO GLOBAL
@@ -60,66 +127,78 @@ const state = {
   currentSong: 0,
   isPlaying: false,
   musicExpanded: true,
+
+  // ── DATOS PARA EL EMAIL ──
   answers: {
-    whenMet: '',
-    firstSeen: '',
-    howMuch: 5
-  }
+    intentosCandado: 0,     // cuántas veces se equivocó en el candado
+    detalleSiNo: [],        // ['si','no','si',...] — respuesta dada en cada pregunta
+    porcentajeSiNo: 0,      // resultado final del juego sí/no
+    detalleElige: [],       // [{pregunta, respuesta, correcto}] por cada pregunta
+    flujoCompleto: false    // true cuando llega a la carta final
+  },
+
+  // Candado
+  keypadValue: '',
+
+  // Sí/No
+  qIndex: 0,
+  qCorrectas: 0,
+
+  // Elige opción
+  chooseIndex: 0,
+
+  // Cartas ocultas
+  cardsFlipped: 0,
+
+  // Rompecabezas
+  puzzlePieces: [],
+  puzzleSelected: null,
+  puzzleSolved: false,
+
+  // Mini historia
+  storyIndex: 0
 };
 
 /* ═══════════════════════════════════════
    INICIALIZACIÓN
 ═══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Inicializar EmailJS
   if (typeof emailjs !== 'undefined') {
     emailjs.init({ publicKey: CONFIG.EMAILJS_PUBLIC_KEY });
   }
 
   createParticles();
-  initPinInputs();
-  initHearts(5);
   updatePlaylistNames();
-
-  // Si ya pasó el lock (sessionStorage), ir directo a la carta
-  if (sessionStorage.getItem('unlocked') === 'true') {
-    showScreen('letter-screen');
-    showMusicControls();
-    launchConfetti();
-    playRandomSong();
-  }
+  initSiNoQuestions();
+  initChooseGame();
+  initPuzzle();
 });
 
 /* ═══════════════════════════════════════
-   PANTALLA 0: SOBRE DE BIENVENIDA
+   NAVEGACIÓN ENTRE PANTALLAS
 ═══════════════════════════════════════ */
-function openEnvelope() {
-  const envelope = document.getElementById('welcome-envelope');
-  const flap = document.getElementById('envelope-flap');
-  const letter = document.getElementById('envelope-letter');
-  if (!envelope || envelope.classList.contains('opening')) return;
-
-  envelope.classList.add('opening');
-  if (flap) flap.classList.add('open');
-  if (letter) letter.classList.add('rise');
-
-  setTimeout(() => {
-    showScreen('lock-screen');
-    const boxes = document.querySelectorAll('.pin-box');
-    if (boxes.length) boxes[0].focus();
-  }, 900);
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo(0, 0);
+  }
 }
 
+window.goToPhase = function(screenId) {
+  if (screenId === 'story-screen') initStory();
+  showScreen(screenId);
+};
+
 /* ═══════════════════════════════════════
-   PARTÍCULAS FLOTANTES (corazones)
+   PARTÍCULAS FLOTANTES
 ═══════════════════════════════════════ */
 function createParticles() {
   const container = document.getElementById('particles-container');
   if (!container) return;
-
   const emojis = ['❤️','💕','💖','💗','💓','🌸','✨','💝','🌹','💞'];
   const count = window.innerWidth < 600 ? 14 : 22;
-
   for (let i = 0; i < count; i++) {
     const p = document.createElement('span');
     p.className = 'heart-particle';
@@ -133,221 +212,540 @@ function createParticles() {
 }
 
 /* ═══════════════════════════════════════
-   PANTALLA 1: PIN / CANDADO
+   PANTALLA 0: SOBRE DE BIENVENIDA
 ═══════════════════════════════════════ */
-function initPinInputs() {
-  const boxes = document.querySelectorAll('.pin-box');
-  if (!boxes.length) return;
+function openEnvelope() {
+  const envelope = document.getElementById('welcome-envelope');
+  const flap     = document.getElementById('envelope-flap');
+  const letter   = document.getElementById('envelope-letter');
+  if (!envelope || envelope.classList.contains('opening')) return;
 
-  boxes.forEach((box, i) => {
-    box.addEventListener('input', () => {
-      box.value = box.value.replace(/\D/g, '');          // Solo dígitos
-      if (box.value && i < boxes.length - 1) {
-        boxes[i + 1].focus();
-      }
-      // Auto-verificar cuando se complete el último dígito (3)
-      if (i === boxes.length - 1 && box.value) {
-        checkPin();
-      }
-    });
+  envelope.classList.add('opening');
+  if (flap)   flap.classList.add('open');
+  if (letter) letter.classList.add('rise');
 
-    box.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !box.value && i > 0) {
-        boxes[i - 1].focus();
-      }
-    });
-  });
+  setTimeout(() => showScreen('lock-screen'), 900);
+}
 
-  // Foco automático al primer box
-  boxes[0].focus();
+/* ═══════════════════════════════════════
+   PANTALLA 1: CANDADO — TECLADO EMOJI
+   Tracking: cuenta cada intento fallido
+═══════════════════════════════════════ */
+function keypadPress(digit) {
+  if (state.keypadValue.length >= 4) return;
+  state.keypadValue += digit;
+  updateKeypadDisplay();
+  if (state.keypadValue.length === 4) setTimeout(checkPin, 300);
+}
 
-  // Botón desbloquear
-  const btn = document.getElementById('unlock-btn');
-  if (btn) btn.addEventListener('click', checkPin);
+function keypadDelete() {
+  state.keypadValue = state.keypadValue.slice(0, -1);
+  updateKeypadDisplay();
+  const err = document.getElementById('lock-error');
+  if (err) err.classList.remove('visible');
+}
+
+function updateKeypadDisplay() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('kd' + i);
+    if (!dot) continue;
+    dot.classList.toggle('filled', i < state.keypadValue.length);
+  }
 }
 
 function checkPin() {
-  const boxes = document.querySelectorAll('.pin-box');
-  const entered = Array.from(boxes).map(b => b.value).join('');
-
-  if (entered.length < 3) return;
-
-  if (entered === CONFIG.PIN) {
+  const err = document.getElementById('lock-error');
+  if (state.keypadValue === CONFIG.PIN) {
     unlockSuccess();
   } else {
-    unlockFail();
+    // ── TRACKING: sumar intento fallido ──
+    state.answers.intentosCandado++;
+
+    if (err) err.classList.add('visible');
+    const card = document.querySelector('.lock-card');
+    if (card) {
+      card.classList.add('shake');
+      setTimeout(() => card.classList.remove('shake'), 450);
+    }
+    state.keypadValue = '';
+    updateKeypadDisplay();
   }
 }
 
 function unlockSuccess() {
-  const lockIcon  = document.getElementById('lock-icon');
-  const lockFa    = document.getElementById('lock-fa');
-  const lockError = document.getElementById('lock-error');
+  const lockIcon = document.getElementById('lock-icon');
+  const lockFa   = document.getElementById('lock-fa');
+  const err      = document.getElementById('lock-error');
 
-  if (lockError) lockError.classList.remove('visible');
+  if (err)      err.classList.remove('visible');
+  if (lockFa)   lockFa.classList.replace('fa-lock', 'fa-lock-open');
+  if (lockIcon) lockIcon.classList.add('unlocking');
 
-  // Animación del candado
-  lockFa.classList.replace('fa-lock', 'fa-lock-open');
-  lockIcon.classList.add('unlocking');
-
-  // Guardar sesión
-  sessionStorage.setItem('unlocked', 'true');
-
-  // Ir a preguntas después de la animación
   setTimeout(() => {
     showScreen('questions-screen');
-    revealQuestion('q1');
-  }, 800);
-}
-
-function unlockFail() {
-  const card      = document.querySelector('.lock-card');
-  const lockError = document.getElementById('lock-error');
-  const boxes     = document.querySelectorAll('.pin-box');
-
-  lockError.classList.add('visible');
-  card.classList.add('shake');
-  setTimeout(() => card.classList.remove('shake'), 450);
-
-  // Limpiar cajas
-  boxes.forEach(b => { b.value = ''; });
-  boxes[0].focus();
+    renderSiNoQuestion();
+  }, 850);
 }
 
 /* ═══════════════════════════════════════
-   NAVEGACIÓN ENTRE PANTALLAS
+   PANTALLA 2: PREGUNTAS SÍ / NO
+   Tracking: guarda cada respuesta + porcentaje final
 ═══════════════════════════════════════ */
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-  });
-  const target = document.getElementById(id);
-  if (target) {
-    target.classList.add('active');
-    window.scrollTo(0, 0);
-  }
+function initSiNoQuestions() {
+  state.qIndex             = 0;
+  state.qCorrectas         = 0;
+  state.answers.detalleSiNo = [];
 }
 
-/* ═══════════════════════════════════════
-   PANTALLA 2: PREGUNTAS ROMÁNTICAS
-═══════════════════════════════════════ */
-function revealQuestion(id) {
-  const card = document.getElementById(id);
-  if (!card) return;
+function renderSiNoQuestion() {
+  const q = preguntas[state.qIndex];
+  if (!q) return;
 
-  // Pequeño delay para la animación de entrada
-  setTimeout(() => {
-    card.style.display = 'block';
+  const textEl    = document.getElementById('q-sinno-text');
+  const counterEl = document.getElementById('q-counter');
+  const barEl     = document.getElementById('q-progress-bar');
+  const card      = document.getElementById('q-sinno');
+
+  if (textEl)    textEl.textContent    = q.pregunta;
+  if (counterEl) counterEl.textContent = `${state.qIndex + 1} / ${preguntas.length}`;
+  if (barEl)     barEl.style.width     = ((state.qIndex / preguntas.length) * 100) + '%';
+
+  if (card) {
+    card.style.opacity   = '0';
+    card.style.transform = 'translateY(20px) scale(.97)';
     requestAnimationFrame(() => {
-      card.classList.add('active');
+      setTimeout(() => {
+        card.style.transition = 'opacity .35s ease, transform .35s ease';
+        card.style.opacity    = '1';
+        card.style.transform  = 'translateY(0) scale(1)';
+      }, 40);
     });
-  }, 60);
+  }
 }
 
-function nextQuestion(num) {
-  const currentId = 'q' + num;
-  const nextId    = 'q' + (num + 1);
-  const current   = document.getElementById(currentId);
-  const next      = document.getElementById(nextId);
+function responderSiNo(resp) {
+  const q = preguntas[state.qIndex];
+  if (!q) return;
 
-  if (!current) return;
+  // ── TRACKING: guardar respuesta dada ──
+  state.answers.detalleSiNo.push(resp);
 
-  // Guardar respuesta
-  if (num === 1) {
-    state.answers.whenMet = document.getElementById('date-q1')?.value || '';
-  } else if (num === 2) {
-    state.answers.firstSeen = document.getElementById('date-q2')?.value || '';
+  if (resp === q.respuestaCorrecta) state.qCorrectas++;
+  state.qIndex++;
+
+  if (state.qIndex < preguntas.length) {
+    const card = document.getElementById('q-sinno');
+    if (card) {
+      card.style.transition = 'opacity .25s ease, transform .25s ease';
+      card.style.opacity    = '0';
+      card.style.transform  = 'translateY(-20px) scale(.97)';
+    }
+    setTimeout(renderSiNoQuestion, 300);
+  } else {
+    mostrarResultado();
+  }
+}
+
+function mostrarResultado() {
+  const sinnoCard     = document.getElementById('q-sinno');
+  const resultadoCard = document.getElementById('q-resultado');
+
+  if (sinnoCard)     sinnoCard.style.display = 'none';
+  if (resultadoCard) {
+    resultadoCard.style.display = 'block';
+    requestAnimationFrame(() => resultadoCard.classList.add('active'));
   }
 
-  // Salida animada de la pregunta actual
-  current.classList.add('exit');
-  current.classList.remove('active');
+  const porcentaje = Math.round((state.qCorrectas / preguntas.length) * 100);
+
+  // ── TRACKING: guardar porcentaje ──
+  state.answers.porcentajeSiNo = porcentaje;
+
+  const textoEl = document.getElementById('q-resultado-texto');
+  const fillEl  = document.getElementById('percent-bar-fill');
+  const numEl   = document.getElementById('percent-num');
+  const btnWrap = document.getElementById('q-resultado-btn-wrap');
+
+  if (textoEl) textoEl.textContent = `Acertaste un: ${porcentaje}% 💖`;
+
+  const color = porcentaje >= 70 ? '#27ae60' : porcentaje >= 50 ? '#f1c40f' : '#e63166';
+
+  if (fillEl) {
+    fillEl.style.background = color;
+    fillEl.style.width = '0%';
+    setTimeout(() => {
+      fillEl.style.transition = 'width 1.2s cubic-bezier(.22,.61,.36,1)';
+      fillEl.style.width = porcentaje + '%';
+    }, 200);
+  }
+
+  if (numEl) animatePercent(numEl, porcentaje);
+
+  if (btnWrap) {
+    if (porcentaje >= 70) {
+      btnWrap.innerHTML = `<button class="btn-romantic" onclick="goToPhase('choose-screen'); initChooseGame();">
+        <i class="fa-solid fa-gamepad me-2"></i>Abrir siguiente fase 💌
+      </button>`;
+    } else {
+      btnWrap.innerHTML = `<button class="btn-romantic" onclick="reiniciarSiNo()">
+        <i class="fa-solid fa-rotate-left me-2"></i>Reintentar
+      </button>`;
+    }
+  }
+}
+
+function animatePercent(el, target) {
+  let current = 0;
+  const step  = Math.ceil(target / 60);
+  const interval = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = current + '%';
+    if (current >= target) clearInterval(interval);
+  }, 20);
+}
+
+function reiniciarSiNo() {
+  state.qIndex             = 0;
+  state.qCorrectas         = 0;
+  state.answers.detalleSiNo = [];
+
+  const sinnoCard     = document.getElementById('q-sinno');
+  const resultadoCard = document.getElementById('q-resultado');
+
+  if (resultadoCard) { resultadoCard.classList.remove('active'); resultadoCard.style.display = 'none'; }
+  if (sinnoCard)     { sinnoCard.style.display = 'block'; sinnoCard.style.opacity = '1'; sinnoCard.style.transform = 'none'; }
+
+  const barEl = document.getElementById('q-progress-bar');
+  if (barEl) barEl.style.width = '0%';
+
+  renderSiNoQuestion();
+}
+
+/* ═══════════════════════════════════════
+   PANTALLA 3: ELIGE LA OPCIÓN CORRECTA
+   Tracking: guarda respuesta elegida + si fue correcta
+═══════════════════════════════════════ */
+function initChooseGame() {
+  state.chooseIndex          = 0;
+  state.answers.detalleElige = [];
+  renderChooseQuestion();
+}
+
+function renderChooseQuestion() {
+  const q         = preguntasElige[state.chooseIndex];
+  const qEl       = document.getElementById('choose-question');
+  const optsEl    = document.getElementById('choose-options');
+  const counterEl = document.getElementById('choose-counter');
+  const msgEl     = document.getElementById('choose-msg');
+
+  if (!q) return;
+
+  if (qEl)       qEl.textContent      = q.pregunta;
+  if (counterEl) counterEl.textContent = `${state.chooseIndex + 1} / ${preguntasElige.length}`;
+  if (msgEl)     { msgEl.textContent = ''; msgEl.className = 'choose-msg'; }
+
+  if (optsEl) {
+    optsEl.innerHTML = '';
+    q.opciones.forEach((opt, i) => {
+      const btn     = document.createElement('button');
+      btn.className = 'btn-choose-opt';
+      btn.textContent = opt;
+      btn.onclick   = () => handleChooseAnswer(i, btn);
+      optsEl.appendChild(btn);
+    });
+  }
+
+  const card = document.getElementById('choose-card');
+  if (card) {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+      card.style.transition = 'opacity .35s ease, transform .35s ease';
+      card.style.opacity    = '1';
+      card.style.transform  = 'none';
+    }, 40);
+  }
+}
+
+function handleChooseAnswer(index, btnEl) {
+  const q    = preguntasElige[state.chooseIndex];
+  const opts = document.querySelectorAll('.btn-choose-opt');
+  const msgEl = document.getElementById('choose-msg');
+
+  opts.forEach(b => b.disabled = true);
+
+  const esCorrecta = index === q.correcta;
+
+  // ── TRACKING: guardar respuesta elegida ──
+  state.answers.detalleElige.push({
+    pregunta:  q.pregunta,
+    respuesta: q.opciones[index],
+    correcto:  esCorrecta
+  });
+
+  if (esCorrecta) {
+    btnEl.classList.add('correct');
+    if (msgEl) { msgEl.textContent = '¡Correcto! 🎉'; msgEl.className = 'choose-msg msg-correct'; }
+    state.chooseIndex++;
+    if (state.chooseIndex < preguntasElige.length) {
+      setTimeout(renderChooseQuestion, 1000);
+    } else {
+      setTimeout(() => goToPhase('cards-screen'), 1000);
+    }
+  } else {
+    btnEl.classList.add('wrong');
+    opts[q.correcta].classList.add('correct');
+    if (msgEl) { msgEl.textContent = q.fallo; msgEl.className = 'choose-msg msg-wrong'; }
+    setTimeout(() => {
+      opts.forEach(b => { b.disabled = false; b.classList.remove('wrong', 'correct'); });
+      if (msgEl) { msgEl.textContent = ''; msgEl.className = 'choose-msg'; }
+    }, 1500);
+  }
+}
+
+/* ═══════════════════════════════════════
+   PANTALLA 4: CARTAS OCULTAS
+═══════════════════════════════════════ */
+function flipCard(index) {
+  const card = document.getElementById('fc' + index);
+  if (!card || card.classList.contains('flipped')) return;
+
+  card.classList.add('flipped');
+  state.cardsFlipped++;
+
+  const progressEl = document.getElementById('cards-progress-txt');
+  if (progressEl) progressEl.textContent = `${state.cardsFlipped} / 5 reveladas`;
+
+  if (state.cardsFlipped === 5) {
+    setTimeout(() => {
+      const unlockWrap = document.getElementById('cards-unlock-wrap');
+      if (unlockWrap) { unlockWrap.style.display = 'block'; unlockWrap.style.animation = 'fadeInUp .5s ease forwards'; }
+    }, 600);
+  }
+}
+
+/* ═══════════════════════════════════════
+   PANTALLA 5: ROMPECABEZAS
+═══════════════════════════════════════ */
+function initPuzzle() {
+  const grid = document.getElementById('puzzle-grid');
+  if (!grid) return;
+
+  const size  = 3;
+  state.puzzlePieces   = Array.from({ length: size * size }, (_, i) => i);
+  shuffleArray(state.puzzlePieces);
+  state.puzzleSelected = null;
+  state.puzzleSolved   = false;
+  renderPuzzle(size);
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function renderPuzzle(size) {
+  const grid = document.getElementById('puzzle-grid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+  state.puzzlePieces.forEach((pieceIndex, position) => {
+    const cell = document.createElement('div');
+    cell.className = 'puzzle-cell';
+    cell.dataset.position = position;
+
+    const row = Math.floor(pieceIndex / size);
+    const col = pieceIndex % size;
+
+    cell.style.backgroundImage     = 'url("img/foto9.jpg")';
+    cell.style.backgroundSize      = `${size * 100}%`;
+    cell.style.backgroundPositionX = `${(col / (size - 1)) * 100}%`;
+    cell.style.backgroundPositionY = `${(row / (size - 1)) * 100}%`;
+
+    cell.onclick = () => handlePuzzleClick(position);
+    grid.appendChild(cell);
+  });
+}
+
+function handlePuzzleClick(position) {
+  if (state.puzzleSolved) return;
+  const cells = document.querySelectorAll('.puzzle-cell');
+
+  if (state.puzzleSelected === null) {
+    state.puzzleSelected = position;
+    cells[position].classList.add('puzzle-selected');
+  } else {
+    if (state.puzzleSelected === position) {
+      cells[position].classList.remove('puzzle-selected');
+      state.puzzleSelected = null;
+      return;
+    }
+    cells[state.puzzleSelected].classList.remove('puzzle-selected');
+    const tmp = state.puzzlePieces[state.puzzleSelected];
+    state.puzzlePieces[state.puzzleSelected] = state.puzzlePieces[position];
+    state.puzzlePieces[position] = tmp;
+    state.puzzleSelected = null;
+    renderPuzzle(3);
+    checkPuzzleSolved();
+  }
+}
+
+function checkPuzzleSolved() {
+  if (!state.puzzlePieces.every((p, i) => p === i)) return;
+
+  state.puzzleSolved = true;
+  document.querySelectorAll('.puzzle-cell').forEach(c => c.classList.add('puzzle-solved'));
+
+  const msgEl = document.getElementById('puzzle-msg');
+  if (msgEl) { msgEl.textContent = 'Si llegaste hasta aquí significa que me amas muxo :3 💖'; msgEl.classList.add('puzzle-msg-show'); }
 
   setTimeout(() => {
-    current.style.display = 'none';
-    current.classList.remove('exit');
-
-    if (next) {
-      revealQuestion(nextId);
-    }
-  }, 450);
+    const unlockWrap = document.getElementById('puzzle-unlock-wrap');
+    if (unlockWrap) unlockWrap.style.display = 'block';
+  }, 1200);
 }
 
-/* Slider de corazones */
-function updateHearts(value) {
-  state.answers.howMuch = value;
-  const display = document.getElementById('hearts-display');
-  const label   = document.getElementById('slider-label');
-  if (!display) return;
+/* ═══════════════════════════════════════
+   PANTALLA 6: MINI HISTORIA
+═══════════════════════════════════════ */
+function initStory() {
+  state.storyIndex = 0;
+  renderStoryLine();
+}
 
-  const n = parseInt(value);
-  display.innerHTML = '';
+function renderStoryLine() {
+  const lineEl = document.getElementById('story-line');
+  const btnEl  = document.getElementById('story-btn');
+  if (!lineEl) return;
 
-  for (let i = 0; i < n; i++) {
-    const h = document.createElement('span');
-    h.textContent = '❤️';
-    h.style.animationDelay = (i * 0.1) + 's';
-    h.classList.add('fade-in-up');
-    display.appendChild(h);
+  const line = storyLines[state.storyIndex];
+  lineEl.style.opacity   = '0';
+  lineEl.style.transform = 'translateY(10px)';
+
+  setTimeout(() => {
+    lineEl.textContent      = line;
+    lineEl.style.transition = 'opacity .5s ease, transform .5s ease';
+    lineEl.style.opacity    = '1';
+    lineEl.style.transform  = 'none';
+  }, 100);
+
+  const isLast = state.storyIndex >= storyLines.length - 1;
+  if (btnEl) {
+    btnEl.innerHTML = isLast
+      ? 'Ver la carta final 💌 <i class="fa-solid fa-arrow-right ms-1"></i>'
+      : 'Continuar <i class="fa-solid fa-arrow-right ms-1"></i>';
   }
-
-  const labels = [
-    '', 'Poquito :c', 'Un poco 🥺', 'Bastante 💕', 'piola 💖',
-    '¡Mucho! 💗', 'Muchísimo 💓', 'Demasiado :3', 'Amor para toda la vida 💝',
-    '¡Te amo junto al obelix! 💞', '¡Hasta muerta t amaré<3333 {incluye al obelix}! 🌙💖'
-  ];
-  if (label) label.textContent = labels[n] || '❤️';
 }
 
-function initHearts(val) {
-  const slider = document.getElementById('love-slider');
-  if (slider) updateHearts(slider.value);
+function nextStoryLine() {
+  state.storyIndex++;
+  if (state.storyIndex < storyLines.length) {
+    renderStoryLine();
+  } else {
+    showScreen('final-letter-screen');
+    animateFinalLetter();
+    showMusicControls();
+    setTimeout(playRandomSong, 800);
+
+    // ── TRACKING: flujo completo → enviar email ──
+    state.answers.flujoCompleto = true;
+    sendAnswersByEmail();
+  }
 }
 
-/* Ir a la carta + enviar respuestas por email */
-function goToLetter() {
-  sendAnswersByEmail();
+/* ═══════════════════════════════════════
+   PANTALLA 7: CARTA FINAL
+═══════════════════════════════════════ */
+function animateFinalLetter() {
+  const card = document.getElementById('final-letter-card');
+  if (!card) return;
+  card.style.opacity   = '0';
+  card.style.transform = 'translateY(40px) scale(.95)';
+  setTimeout(() => {
+    card.style.transition = 'opacity .8s ease, transform .8s cubic-bezier(.22,.61,.36,1)';
+    card.style.opacity    = '1';
+    card.style.transform  = 'none';
+  }, 150);
+  launchConfetti();
+}
+
+function goToMainLetter() {
   showScreen('letter-screen');
   showMusicControls();
-
-  // Trigger confetti después de pequeño delay
-  setTimeout(() => {
-    launchConfetti();
-    initScrollReveal();
-    playRandomSong();
-  }, 500);
+  setTimeout(() => { launchConfetti(); initScrollReveal(); }, 500);
 }
 
-/* Reproducir canción aleatoria */
-function playRandomSong() {
-  const randomIndex = Math.floor(Math.random() * CONFIG.YOUTUBE_IDS.length);
-  setTimeout(() => playSong(randomIndex), 800);
+function goToLetter() {
+  showScreen('letter-screen');
+  showMusicControls();
+  setTimeout(() => { launchConfetti(); initScrollReveal(); playRandomSong(); }, 500);
 }
 
 /* ═══════════════════════════════════════
-   EMAILJS — ENVIAR RESPUESTAS
+   EMAILJS — ENVIAR TODAS LAS RESPUESTAS
+   ─────────────────────────────────────
+   Variables para tu template en emailjs.com:
+     {{intentos_candado}}   → intentos fallidos en el candado
+     {{porcentaje_sinno}}   → porcentaje del juego sí/no
+     {{detalle_sinno}}      → respuesta por pregunta sí/no
+     {{detalle_elige}}      → respuestas del juego elige opción
+     {{flujo_completo}}     → si llegó al final o no
+     {{fecha_hora}}         → fecha y hora (hora Chile)
 ═══════════════════════════════════════ */
 function sendAnswersByEmail() {
-  if (
-    !CONFIG.EMAILJS_SERVICE_ID.includes('XXXX') &&
-    typeof emailjs !== 'undefined'
-  ) {
-    const params = {
-      fecha_conocidos:   state.answers.whenMet   || 'No ingresó',
-      fecha_primera_vez: state.answers.firstSeen || 'No ingresó',
-      cuanto_amor:       state.answers.howMuch + ' / 10 corazones ❤️'
-    };
+  if (typeof emailjs === 'undefined') return;
 
-    emailjs.send(
-      CONFIG.EMAILJS_SERVICE_ID,
-      CONFIG.EMAILJS_TEMPLATE_ID,
-      params
-    ).then(() => {
-      showToast('💌 Tus respuestas fueron enviadas con amor');
-    }).catch((err) => {
-      console.warn('EmailJS error:', err);
-    });
-  }
+  // ── Intentos candado ──
+  const intentos    = state.answers.intentosCandado;
+  const intentosTxt = intentos === 0
+    ? '¡Lo abrió al primer intento! 🎉'
+    : `Se equivocó ${intentos} vez${intentos > 1 ? 'es' : ''} antes de acertar 🔐`;
+
+  // ── Detalle preguntas sí/no ──
+  const detalleRespuestas = state.answers.detalleSiNo.length > 0
+    ? state.answers.detalleSiNo
+        .map((respDada, i) => {
+          const q      = preguntas[i];
+          const acerto = respDada === q.respuestaCorrecta ? '✅' : '❌';
+          return `${acerto} ${q.pregunta}\n   Respondió: ${respDada.toUpperCase()} | Correcta: ${q.respuestaCorrecta.toUpperCase()}`;
+        })
+        .join('\n\n')
+    : 'No completó las preguntas';
+
+  // ── Detalle elige la opción ──
+  const detalleElige = state.answers.detalleElige.length > 0
+    ? state.answers.detalleElige
+        .map(r => {
+          const icono = r.correcto ? '✅' : '❌';
+          return `${icono} ${r.pregunta}\n   Eligió: "${r.respuesta}"`;
+        })
+        .join('\n\n')
+    : 'No llegó a esta sección';
+
+  const params = {
+    intentos_candado: intentosTxt,
+    porcentaje_sinno: state.answers.porcentajeSiNo + '%',
+    detalle_sinno:    detalleRespuestas,
+    detalle_elige:    detalleElige,
+    flujo_completo:   state.answers.flujoCompleto
+                        ? '🎉 ¡Completó todo el flujo!'
+                        : '⏳ No llegó al final todavía',
+    fecha_hora:       new Date().toLocaleString('es-CL', { timeZone: 'America/Santiago' })
+  };
+
+  emailjs.send(
+    CONFIG.EMAILJS_SERVICE_ID,
+    CONFIG.EMAILJS_TEMPLATE_ID,
+    params
+  ).then(() => {
+    showToast('💌 Respuestas enviadas con amor');
+  }).catch(err => {
+    console.warn('EmailJS error:', err);
+  });
 }
 
 /* ═══════════════════════════════════════
@@ -358,54 +756,39 @@ function launchConfetti() {
   if (!area) return;
 
   const colors = ['#ff85a1','#ffb3c6','#ffd6e7','#e63166','#c9184a','#fce4ec','#fff'];
-
   for (let i = 0; i < 40; i++) {
     const c = document.createElement('div');
     c.className = 'confetti-piece';
-    c.style.left = (Math.random() * 100) + '%';
-    c.style.top  = (Math.random() * 40) + '%';
-    c.style.background = colors[Math.floor(Math.random() * colors.length)];
-    c.style.width  = (6 + Math.random() * 8) + 'px';
-    c.style.height = (6 + Math.random() * 8) + 'px';
-    c.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    c.style.left              = (Math.random() * 100) + '%';
+    c.style.top               = (Math.random() * 40) + '%';
+    c.style.background        = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width             = (6 + Math.random() * 8) + 'px';
+    c.style.height            = (6 + Math.random() * 8) + 'px';
+    c.style.borderRadius      = Math.random() > .5 ? '50%' : '2px';
     c.style.animationDuration = (1 + Math.random() * 1.5) + 's';
     c.style.animationDelay    = (Math.random() * .8) + 's';
     area.appendChild(c);
   }
-
-  setTimeout(() => { area.innerHTML = ''; }, 3500);
+  setTimeout(() => { if (area) area.innerHTML = ''; }, 3500);
 }
 
 /* ═══════════════════════════════════════
    SCROLL REVEAL
 ═══════════════════════════════════════ */
 function initScrollReveal() {
-  const revealEls = document.querySelectorAll('.reveal');
-
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target);
-      }
-    });
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
   }, { threshold: 0.15 });
-
-  revealEls.forEach(el => observer.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 }
 
 /* ═══════════════════════════════════════
    REPRODUCTOR DE MÚSICA
 ═══════════════════════════════════════ */
 function updatePlaylistNames() {
-  const items = document.querySelectorAll('.playlist-item');
-  items.forEach((item, i) => {
+  document.querySelectorAll('.playlist-item').forEach((item, i) => {
     const icon = item.querySelector('i');
-    if (icon) {
-      item.innerHTML = '';
-      item.appendChild(icon);
-      item.append(CONFIG.SONG_NAMES[i] || 'Canción ' + (i + 1));
-    }
+    if (icon) { item.innerHTML = ''; item.appendChild(icon.cloneNode(true)); item.append(CONFIG.SONG_NAMES[i] || 'Canción ' + (i + 1)); }
   });
 }
 
@@ -419,18 +802,17 @@ function showMusicControls() {
 function openMusicPlayer() {
   const player   = document.getElementById('music-player');
   const floatBtn = document.getElementById('music-float-btn');
-  if (player)   { player.style.display = 'block'; }
-  if (floatBtn) { floatBtn.style.display = 'none'; }
+  if (player)   player.style.display   = 'block';
+  if (floatBtn) floatBtn.style.display = 'none';
 }
 
 function toggleMusicExpand() {
   const body    = document.getElementById('music-body');
   const chevron = document.getElementById('music-chevron');
   if (!body) return;
-
   state.musicExpanded = !state.musicExpanded;
   body.classList.toggle('collapsed', !state.musicExpanded);
-  chevron.classList.toggle('rotated', !state.musicExpanded);
+  if (chevron) chevron.classList.toggle('rotated', !state.musicExpanded);
 }
 
 function playSong(index) {
@@ -441,91 +823,59 @@ function playSong(index) {
   state.currentSong = index;
   state.isPlaying   = true;
 
-  // Actualizar UI playlist
-  document.querySelectorAll('.playlist-item').forEach((item, i) => {
-    item.classList.toggle('active', i === index);
-  });
+  document.querySelectorAll('.playlist-item').forEach((item, i) => item.classList.toggle('active', i === index));
 
   const mp3path = mp3s[index] || '';
-  const wrapper  = document.getElementById('yt-wrapper');
-  const iframe   = document.getElementById('yt-iframe');
-  const audioEl  = document.getElementById('mp3-player');
+  const wrapper = document.getElementById('yt-wrapper');
+  const iframe  = document.getElementById('yt-iframe');
+  const audioEl = document.getElementById('mp3-player');
 
   if (mp3path) {
-    // — Usar MP3 local (sin anuncios) —
     if (wrapper) wrapper.style.display = 'none';
     if (iframe)  iframe.src = '';
-    if (audioEl) {
-      audioEl.src = mp3path;
-      audioEl.style.display = 'block';
-      audioEl.play().catch(() => {});
-    }
+    if (audioEl) { audioEl.src = mp3path; audioEl.style.display = 'block'; audioEl.play().catch(() => {}); }
   } else {
-    // — Fallback a YouTube —
     if (audioEl) { audioEl.pause(); audioEl.style.display = 'none'; }
-    if (wrapper && iframe) {
-      wrapper.style.display = 'block';
-      iframe.src = `https://www.youtube.com/embed/${ids[index]}?autoplay=1&enablejsapi=1`;
-    }
+    if (wrapper && iframe) { wrapper.style.display = 'block'; iframe.src = `https://www.youtube.com/embed/${ids[index]}?autoplay=1&enablejsapi=1`; }
   }
 
-  // Actualizar botón play/pause
   const icon = document.getElementById('play-icon');
   if (icon) icon.classList.replace('fa-play', 'fa-pause');
 }
 
 function togglePlay() {
   const audioEl = document.getElementById('mp3-player');
-  const mp3s    = CONFIG.MP3_FILES || [];
-  const usingMp3 = mp3s[state.currentSong] && audioEl && audioEl.src && !audioEl.paused !== undefined;
-
   if (!state.isPlaying) {
     playSong(state.currentSong);
   } else {
-    // Detener
-    if (audioEl && !audioEl.paused) {
-      audioEl.pause();
-    }
+    if (audioEl && !audioEl.paused) audioEl.pause();
     const iframe  = document.getElementById('yt-iframe');
     const wrapper = document.getElementById('yt-wrapper');
     if (iframe)  iframe.src = '';
     if (wrapper) wrapper.style.display = 'none';
-
     const icon = document.getElementById('play-icon');
     if (icon) icon.classList.replace('fa-pause', 'fa-play');
     state.isPlaying = false;
   }
 }
 
-function nextSong() {
-  const next = (state.currentSong + 1) % CONFIG.YOUTUBE_IDS.length;
-  playSong(next);
-}
-
-function prevSong() {
-  const prev = (state.currentSong - 1 + CONFIG.YOUTUBE_IDS.length) % CONFIG.YOUTUBE_IDS.length;
-  playSong(prev);
-}
+function nextSong() { playSong((state.currentSong + 1) % CONFIG.YOUTUBE_IDS.length); }
+function prevSong() { playSong((state.currentSong - 1 + CONFIG.YOUTUBE_IDS.length) % CONFIG.YOUTUBE_IDS.length); }
+function playRandomSong() { setTimeout(() => playSong(Math.floor(Math.random() * CONFIG.YOUTUBE_IDS.length)), 800); }
 
 /* ═══════════════════════════════════════
-   TABS (carta / álbum) — sin recargar página
+   TABS (carta / álbum)
 ═══════════════════════════════════════ */
 function showTab(tabId, el) {
-  // Actualizar tabs activos
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   if (el) el.classList.add('active');
 
-  // Mostrar/ocultar contenido
   const carta = document.getElementById('tab-carta');
   const album = document.getElementById('tab-album');
 
   if (tabId === 'album') {
     if (carta) carta.style.display = 'none';
-    if (album) {
-      album.style.display = 'block';
-      // Inicializar animaciones del álbum al mostrarlo
-      setTimeout(() => initAlbumAnimations(), 60);
-    }
+    if (album) { album.style.display = 'block'; setTimeout(() => initAlbumAnimations(), 60); }
   } else {
     if (album) album.style.display = 'none';
     if (carta) carta.style.display = 'block';
@@ -539,11 +889,8 @@ function showToast(msg) {
   const toastEl = document.getElementById('love-toast');
   const msgEl   = document.getElementById('toast-msg');
   if (!toastEl) return;
-
   if (msgEl) msgEl.textContent = msg;
-
-  const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
-  toast.show();
+  new bootstrap.Toast(toastEl, { delay: 3500 }).show();
 }
 
 /* ═══════════════════════════════════════
@@ -553,23 +900,13 @@ let lightboxImages = [];
 let lightboxIndex  = 0;
 
 function initAlbumAnimations() {
-  // Recolectar imágenes para lightbox
   lightboxImages = Array.from(document.querySelectorAll('.album-item'));
-
-  // Scroll reveal con delay escalonado
-  const items = document.querySelectorAll('.album-item');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('revealed');
-        }, i * 60);
-        observer.unobserve(entry.target);
-      }
+      if (entry.isIntersecting) { setTimeout(() => entry.target.classList.add('revealed'), i * 60); observer.unobserve(entry.target); }
     });
   }, { threshold: 0.1 });
-
-  items.forEach(item => observer.observe(item));
+  lightboxImages.forEach(item => observer.observe(item));
 }
 
 function openLightbox(el) {
@@ -580,13 +917,8 @@ function openLightbox(el) {
 
   lightboxImages = Array.from(document.querySelectorAll('.album-item'));
   lightboxIndex  = lightboxImages.indexOf(el);
-
-  const src     = el.querySelector('img')?.src || '';
-  const caption = el.dataset.caption || '';
-
-  img.src = src;
-  if (cap) cap.textContent = caption;
-
+  img.src = el.querySelector('img')?.src || '';
+  if (cap) cap.textContent = el.dataset.caption || '';
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -597,32 +929,23 @@ function closeLightbox() {
   document.body.style.overflow = '';
 }
 
-function lbPrev() {
-  lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
-  lbShow(lightboxIndex);
-}
-
-function lbNext() {
-  lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
-  lbShow(lightboxIndex);
-}
+function lbPrev() { lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length; lbShow(lightboxIndex); }
+function lbNext() { lightboxIndex = (lightboxIndex + 1) % lightboxImages.length; lbShow(lightboxIndex); }
 
 function lbShow(i) {
   const el  = lightboxImages[i];
   const img = document.getElementById('lb-img');
   const cap = document.getElementById('lb-caption');
   if (!el || !img) return;
-
   img.style.opacity = '0';
   setTimeout(() => {
     img.src = el.querySelector('img')?.src || '';
     if (cap) cap.textContent = el.dataset.caption || '';
-    img.style.opacity = '1';
+    img.style.opacity    = '1';
     img.style.transition = 'opacity .3s';
   }, 150);
 }
 
-// Navegar lightbox con teclado
 document.addEventListener('keydown', (e) => {
   const lb = document.getElementById('lightbox');
   if (!lb?.classList.contains('open')) return;
@@ -631,8 +954,3 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape')     closeLightbox();
 });
 
-/* ═══════════════════════════════════════
-   AUTO-INIT EN PÁGINAS SECUNDARIAS
-═══════════════════════════════════════ */
-// Si estamos en album.html, initAlbumAnimations se llama inline.
-// Si regresamos a index.html con sesión, ya está manejado en DOMContentLoaded.
