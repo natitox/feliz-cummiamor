@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💌 Para ti</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --pink:       #e63166;
+      --pink-light: #fce4ec;
+      --pink-soft:  #ff85a1;
+      --gold:       #d4a843;
+      --dark:       #2d1b33;
+      --card-bg:    rgba(255,255,255,0.92);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #fce4ec 60%, #fff0f5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Partículas ── */
+    #login-particles {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    }
+    .lp-heart {
+      position: absolute;
+      font-size: 1.2rem;
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.7; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
+    }
+
+    /* ── Tarjeta login ── */
+    .login-card {
+      position: relative;
+      z-index: 10;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 3rem 2.5rem 2.5rem;
+      width: min(400px, 92vw);
+      box-shadow:
+        0 8px 40px rgba(230,49,102,0.18),
+        0 2px 8px rgba(0,0,0,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+      animation: cardEntrance .8s cubic-bezier(.22,.61,.36,1) both;
+    }
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(40px) scale(.95); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .login-icon {
+      text-align: center;
+      font-size: 3.5rem;
+      margin-bottom: .75rem;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.12); }
+    }
+
+    .login-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      color: var(--pink);
+      text-align: center;
+      margin-bottom: .25rem;
+      line-height: 1.2;
+    }
+    .login-subtitle {
+      text-align: center;
+      font-size: .82rem;
+      color: #999;
+      margin-bottom: 2rem;
+      letter-spacing: .03em;
+    }
+
+    /* ── Campos ── */
+    .field-wrap {
+      position: relative;
+      margin-bottom: 1.1rem;
+    }
+    .field-wrap i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--pink-soft);
+      font-size: .9rem;
+      pointer-events: none;
+    }
+    .login-input {
+      width: 100%;
+      padding: .85rem 1rem .85rem 2.8rem;
+      border: 2px solid #f8bbd0;
+      border-radius: 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: .9rem;
+      background: #fff8fa;
+      color: var(--dark);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .login-input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(230,49,102,.1);
+    }
+    .login-input::placeholder { color: #c8b0bc; }
+
+    /* Toggle password */
+    .eye-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #c8b0bc;
+      font-size: .9rem;
+      padding: 0;
+    }
+    .eye-toggle:hover { color: var(--pink); }
+
+    /* ── Botón ── */
+    .btn-login {
+      width: 100%;
+      padding: .9rem;
+      background: linear-gradient(135deg, #e63166 0%, #c9184a 100%);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: .5rem;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+      box-shadow: 0 4px 16px rgba(230,49,102,.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-login:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(230,49,102,.45);
+    }
+    .btn-login:active:not(:disabled) { transform: translateY(0); }
+    .btn-login:disabled { opacity: .6; cursor: not-allowed; }
+
+    .btn-login .btn-spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto;
+    }
+    .btn-login.loading .btn-text { display: none; }
+    .btn-login.loading .btn-spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Mensajes de error ── */
+    .login-error {
+      background: #fff0f3;
+      border: 1.5px solid #ffb3c6;
+      border-radius: 10px;
+      padding: .65rem 1rem;
+      font-size: .82rem;
+      color: var(--pink);
+      text-align: center;
+      margin-top: .8rem;
+      display: none;
+      animation: fadeIn .3s ease;
+    }
+    .login-error.visible { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; } }
+
+    /* Barra de intentos */
+    .attempts-info {
+      text-align: center;
+      font-size: .75rem;
+      color: #bbb;
+      margin-top: .6rem;
+    }
+    .attempts-info.danger { color: var(--pink); font-weight: 500; }
+
+    /* Bloqueo */
+    .blocked-overlay {
+      display: none;
+      text-align: center;
+      padding: 1rem 0 0;
+    }
+    .blocked-overlay.visible { display: block; }
+    .blocked-overlay .block-emoji { font-size: 2.5rem; margin-bottom: .5rem; }
+    .blocked-overlay .block-msg {
+      font-size: .85rem;
+      color: var(--pink);
+      font-weight: 500;
+    }
+    .blocked-overlay .block-timer {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: var(--dark);
+      margin: .4rem 0;
+    }
+    .blocked-overlay .block-hint {
+      font-size: .75rem;
+      color: #aaa;
+    }
+
+    /* ── Decoración ── */
+    .login-deco {
+      text-align: center;
+      font-size: .75rem;
+      color: #daa;
+      letter-spacing: .15em;
+      margin-top: 1.5rem;
+    }
+
+    /* shake */
+    .shake {
+      animation: shakeAnim .4s ease !important;
+    }
+    @keyframes shakeAnim {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-6px); }
+      80%      { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="login-particles"></div>
+
+<div class="login-card" id="login-card">
+
+  <div class="login-icon">💌</div>
+  <h1 class="login-title">Para ti,<br/><em>mi amor</em></h1>
+  <p class="login-subtitle">Ingresa para abrir tu carta especial</p>
+
+  <!-- Formulario -->
+  <div id="login-form-wrap">
+    <div class="field-wrap">
+      <i class="fa-solid fa-user"></i>
+      <input
+        id="login-username"
+        class="login-input"
+        type="text"
+        placeholder="Tu nombre especial…"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+      />
+    </div>
+
+    <div class="field-wrap">
+      <i class="fa-solid fa-lock"></i>
+      <input
+        id="login-password"
+        class="login-input"
+        type="password"
+        placeholder="Tu contraseña secreta…"
+        autocomplete="current-password"
+      />
+      <button class="eye-toggle" onclick="togglePass()" type="button" aria-label="Ver contraseña">
+        <i class="fa-solid fa-eye" id="eye-icon"></i>
+      </button>
+    </div>
+
+    <button class="btn-login" id="login-btn" onclick="handleLogin()">
+      <span class="btn-text"><i class="fa-solid fa-heart me-2"></i>Entrar con amor ✨</span>
+      <span class="btn-spinner"></span>
+    </button>
+
+    <div class="login-error" id="login-error">
+      Usuario o contraseña incorrectos 💔
+    </div>
+    <p class="attempts-info" id="attempts-info"></p>
+  </div>
+
+  <!-- Bloqueo temporal -->
+  <div class="blocked-overlay" id="blocked-overlay">
+    <div class="block-emoji">🔒</div>
+    <p class="block-msg">Demasiados intentos, mi amor…</p>
+    <div class="block-timer" id="block-timer">5:00</div>
+    <p class="block-hint">Espera un momento e intenta de nuevo 🕰️</p>
+  </div>
+
+  <p class="login-deco">✦ ✦ ✦</p>
+</div>
+
+<!-- Firebase SDK (v9 compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+'use strict';
+
+// ─── Partículas ───────────────────────────────────
+(function createParticles() {
+  const c = document.getElementById('login-particles');
+  const emojis = ['❤️','💕','💖','🌸','✨','💝','💗','🌹'];
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('span');
+    el.className = 'lp-heart';
+    el.textContent = emojis[i % emojis.length];
+    el.style.left = (Math.random() * 100) + '%';
+    el.style.fontSize = (.7 + Math.random() * .9) + 'rem';
+    el.style.animationDuration = (10 + Math.random() * 18) + 's';
+    el.style.animationDelay   = (Math.random() * 15) + 's';
+    c.appendChild(el);
+  }
+})();
+
+// ─── Inicializar Firebase ──────────────────────────
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+
+// ─── Anti-brute-force state ────────────────────────
+const MAX_ATTEMPTS  = 5;
+const BLOCK_MS      = 5 * 60 * 1000;  // 5 minutos
+
+let attemptCount = parseInt(sessionStorage.getItem('_la') || '0', 10);
+let blockedUntil = parseInt(sessionStorage.getItem('_lb') || '0', 10);
+let blockTimer   = null;
+
+function isBlocked() { return Date.now() < blockedUntil; }
+
+function saveAttempts() {
+  sessionStorage.setItem('_la', attemptCount);
+  sessionStorage.setItem('_lb', blockedUntil);
+}
+
+function startBlockCountdown() {
+  const overlay = document.getElementById('blocked-overlay');
+  const form    = document.getElementById('login-form-wrap');
+  const timerEl = document.getElementById('block-timer');
+  overlay.classList.add('visible');
+  form.style.display = 'none';
+
+  function tick() {
+    const remaining = Math.max(0, blockedUntil - Date.now());
+    const m = Math.floor(remaining / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
+    timerEl.textContent = m + ':' + String(s).padStart(2, '0');
+    if (remaining <= 0) {
+      clearInterval(blockTimer);
+      overlay.classList.remove('visible');
+      form.style.display = 'block';
+      attemptCount = 0;
+      blockedUntil = 0;
+      saveAttempts();
+    }
+  }
+  tick();
+  blockTimer = setInterval(tick, 1000);
+}
+
+// Si ya estaba bloqueado al cargar la página
+if (isBlocked()) startBlockCountdown();
+
+// ─── Toggle contraseña ─────────────────────────────
+window.togglePass = function() {
+  const inp  = document.getElementById('login-password');
+  const icon = document.getElementById('eye-icon');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  icon.className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+};
+
+// ─── Login ─────────────────────────────────────────
+window.handleLogin = async function() {
+  if (isBlocked()) return;
+
+  const usernameRaw = document.getElementById('login-username').value.trim();
+  const password    = document.getElementById('login-password').value;
+  const btn         = document.getElementById('login-btn');
+  const errEl       = document.getElementById('login-error');
+  const attEl       = document.getElementById('attempts-info');
+
+  // Normalizar username (ofuscación básica)
+  const username = usernameRaw.toLowerCase().replace(/\s/g, '');
+
+  // Validar campos vacíos
+  if (!username || !password) {
+    showError('Completa ambos campos para continuar 💕');
+    return;
+  }
+
+  // Buscar usuario permitido por username
+  const userEntry = ALLOWED_USERS[username];
+  if (!userEntry) {
+    registerFailedAttempt();
+    return;
+  }
+
+  // Loading state
+  btn.disabled = true;
+  btn.classList.add('loading');
+  errEl.classList.remove('visible');
+
+  // Delay anti-brute-force (aumenta con intentos)
+  const delay = Math.min(attemptCount * 500, 2000);
+  await new Promise(r => setTimeout(r, delay));
+
+  try {
+    await auth.signInWithEmailAndPassword(userEntry.email, password);
+
+    // Verificar que la contraseña coincide con la local también (doble capa)
+    if (password !== userEntry.password) {
+      await auth.signOut();
+      throw new Error('password-mismatch');
+    }
+
+    // ✅ Login exitoso
+    sessionStorage.setItem('_la', '0');
+    sessionStorage.setItem('_lb', '0');
+    sessionStorage.setItem('_lu', username);
+
+    // Redirigir con pequeña animación
+    btn.innerHTML = '<span class="btn-text">💖 Bienvenid@ al amor…</span>';
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 900);
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    registerFailedAttempt();
+  }
+};
+
+function registerFailedAttempt() {
+  attemptCount++;
+  saveAttempts();
+
+  const remaining = MAX_ATTEMPTS - attemptCount;
+
+  if (attemptCount >= MAX_ATTEMPTS) {
+    blockedUntil = Date.now() + BLOCK_MS;
+    saveAttempts();
+    startBlockCountdown();
+    return;
+  }
+
+  showError('Usuario o contraseña incorrectos 💔');
+
+  const attEl = document.getElementById('attempts-info');
+  if (remaining <= 2) {
+    attEl.textContent = `⚠️ ${remaining} intento${remaining === 1 ? '' : 's'} restante${remaining === 1 ? '' : 's'}`;
+    attEl.className = 'attempts-info danger';
+  } else {
+    attEl.textContent = '';
+    attEl.className = 'attempts-info';
+  }
+
+  const card = document.getElementById('login-card');
+  card.classList.add('shake');
+  setTimeout(() => card.classList.remove('shake'), 450);
+}
+
+function showError(msg) {
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = msg;
+  errEl.classList.add('visible');
+}
+
+// ─── Enter key ─────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+// ─── Si ya está autenticado, redirigir ──────────────
+auth.onAuthStateChanged(user => {
+  if (user && !isBlocked()) {
+    // Verificar que es uno de nuestros 2 usuarios permitidos
+    const allowed = Object.values(ALLOWED_USERS).some(u => u.email === user.email);
+    if (allowed) {
+      window.location.href = 'index.html';
+    }
+  }
+});
+</script>
+
+</body>
+</html>

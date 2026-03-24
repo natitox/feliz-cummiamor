@@ -1,0 +1,782 @@
+/* ═══════════════════════════════════════════════════════
+   firebase-integration.js  — v1.0
+   ─────────────────────────────────────────────────────
+   Integración completa:
+   • Auth guard (redirige a login.html si no hay sesión)
+   • Sección sorpresa flotante 💌 con candado 8 dígitos
+   • Juego de Memoria (pares de cartas)
+   • Juego Ordena la Historia
+   • Quiz Emocional personalizado
+   • Panel privado (subir fotos + crear cartas)
+   • Álbum dinámico desde Firestore/Storage
+   • Cartas dinámicas desde Firestore
+═══════════════════════════════════════════════════════ */
+'use strict';
+
+/* ════════════════════════════════════════════
+   0. INICIALIZAR FIREBASE
+════════════════════════════════════════════ */
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth      = firebase.auth();
+const db        = firebase.firestore();
+const storage   = firebase.storage();
+
+/* ════════════════════════════════════════════
+   1. AUTH GUARD — si no hay sesión → login
+════════════════════════════════════════════ */
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = 'login.html';
+    return;
+  }
+  // Guardar usuario actual globalmente
+  window._currentUser = user;
+  window._currentUsername = sessionStorage.getItem('_lu') || 'amor';
+
+  // Mostrar nombre en bienvenida (si existe el elemento)
+  const nameEl = document.getElementById('user-display-name');
+  if (nameEl) nameEl.textContent = window._currentUsername;
+
+  // Habilitar panel privado
+  initPrivatePanel();
+
+  // Cargar datos de Firestore
+  loadDynamicCartas();
+  loadDynamicAlbum();
+});
+
+/* ════════════════════════════════════════════
+   2. SECCIÓN SORPRESA FLOTANTE 💌
+════════════════════════════════════════════ */
+function injectSurpriseSection() {
+  const html = `
+  <!-- Botón flotante sorpresa -->
+  <button id="surprise-float-btn" class="surprise-float-btn" onclick="openSurprise()" aria-label="Sección secreta">
+    💌
+    <span class="surprise-badge">✨</span>
+  </button>
+
+  <!-- Modal sorpresa -->
+  <div id="surprise-modal" class="surprise-modal" role="dialog" aria-modal="true">
+    <div class="surprise-backdrop" onclick="closeSurprise()"></div>
+    <div class="surprise-content" id="surprise-content">
+
+      <!-- FASE 1: Candado 8 dígitos -->
+      <div id="surprise-lock-phase" class="surprise-phase active">
+        <button class="surprise-close" onclick="closeSurprise()">✕</button>
+        <div class="sp-deco">✦ ✦ ✦</div>
+        <div class="sp-icon">🔐</div>
+        <h2 class="sp-title">Hay algo especial<br/><em>esperándote</em></h2>
+        <p class="sp-hint">Ingresa el código de 8 dígitos para abrirlo</p>
+        <div class="sp-pin-display" id="sp-pin-display"></div>
+        <div class="sp-keypad">
+          ${[1,2,3,4,5,6,7,8,9,'⌫',0,'✓'].map(k =>
+            `<button class="sp-key ${k==='✓'?'sp-key-ok':k==='⌫'?'sp-key-del':''}"
+              onclick="spKeyPress('${k}')">${k}</button>`
+          ).join('')}
+        </div>
+        <p class="sp-error" id="sp-error"></p>
+      </div>
+
+      <!-- FASE 2: La pregunta especial -->
+      <div id="surprise-question-phase" class="surprise-phase">
+        <button class="surprise-close" onclick="closeSurprise()">✕</button>
+        <div class="sp-deco">💖 💖 💖</div>
+        <div class="sp-icon sp-icon-big sp-icon-animate">💍</div>
+        <h2 class="sp-title sp-title-special">Tengo algo<br/>muy importante<br/><em>que preguntarte</em></h2>
+        <p class="sp-subtitle-q">Desde el primer día que te vi, supe que eras especial para mí. Cada momento a tu lado ha sido el mejor de mi vida. Y por eso hoy…</p>
+        <p class="sp-big-question">¿Quieres ser<br/><em>mi novia?</em> 💍</p>
+        <div class="sp-answer-btns">
+          <button class="sp-btn-si" onclick="surpriseAnswer('si')">
+            <span class="sp-btn-icon">💖</span>
+            <span>¡Sí, quiero!</span>
+          </button>
+          <button class="sp-btn-no" onclick="surpriseAnswer('no')">
+            <span class="sp-btn-icon">🥺</span>
+            <span>No…</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- FASE 3A: Respuesta SÍ -->
+      <div id="surprise-yes-phase" class="surprise-phase">
+        <div class="surprise-confetti" id="surprise-confetti"></div>
+        <button class="surprise-close" onclick="closeSurprise()">✕</button>
+        <div class="sp-deco">🎉 💖 🎉</div>
+        <div class="sp-gif-wrap">
+          <img src="https://media.giphy.com/media/v6aOjy0Qo1fIA/giphy.gif"
+               alt="gatito celebrando"
+               class="sp-gif sp-gif-yes"
+               onerror="this.src='https://media.giphy.com/media/BzyTuYCmvSORqs1ABM/giphy.gif'" />
+        </div>
+        <h2 class="sp-title sp-title-yes">¡¡TE DIJE SÍ!! 🎊</h2>
+        <p class="sp-msg-yes">
+          Mi amor, desde hoy y para siempre eres y serás mi novia oficial 💍<br/><br/>
+          Prometo quererte, cuidarte y hacerte reír todos los días.<br/>
+          Eres mi persona favorita en todo el universo.<br/><br/>
+          <em>Te amo infinitamente, mi nupi 💖</em>
+        </p>
+        <p class="sp-hearts-row">💖 💛 🌸 💖 🌸 💛 💖</p>
+      </div>
+
+      <!-- FASE 3B: Respuesta NO -->
+      <div id="surprise-no-phase" class="surprise-phase">
+        <button class="surprise-close" onclick="closeSurprise()">✕</button>
+        <div class="sp-deco">😿 🥺 😿</div>
+        <div class="sp-gif-wrap">
+          <img src="https://media.giphy.com/media/ISOckXUybVfQ4/giphy.gif"
+               alt="gatito triste"
+               class="sp-gif sp-gif-no"
+               onerror="this.src='https://media.giphy.com/media/6uMqzcbWNgwGca8Jfe/giphy.gif'" />
+        </div>
+        <h2 class="sp-title sp-title-no">Está bien… 🥺</h2>
+        <p class="sp-msg-no">
+          No importa lo que respondas, igual te quiero muchísimo 💕<br/><br/>
+          Este gatito y yo estaremos aquí esperando…<br/>
+          porque el amor no se rinde tan fácil 🐱
+        </p>
+        <button class="sp-btn-retry" onclick="surpriseRetry()">
+          💖 Quiero cambiar mi respuesta
+        </button>
+      </div>
+
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+// Estado del pin sorpresa
+let spPinValue = '';
+
+window.spKeyPress = function(k) {
+  if (k === '⌫') {
+    spPinValue = spPinValue.slice(0, -1);
+    renderSpPin();
+    return;
+  }
+  if (k === '✓') {
+    checkSecretPin();
+    return;
+  }
+  if (spPinValue.length >= 8) return;
+  spPinValue += k;
+  renderSpPin();
+  if (spPinValue.length === 8) setTimeout(checkSecretPin, 300);
+};
+
+function renderSpPin() {
+  const el = document.getElementById('sp-pin-display');
+  if (!el) return;
+  el.innerHTML = Array.from({length: 8}, (_, i) =>
+    `<span class="sp-dot ${i < spPinValue.length ? 'filled' : ''}"></span>`
+  ).join('');
+}
+
+function checkSecretPin() {
+  if (spPinValue === SECRET_PIN) {
+    showSurprisePhase('surprise-question-phase');
+  } else {
+    const errEl = document.getElementById('sp-error');
+    if (errEl) { errEl.textContent = 'Código incorrecto 💔 intenta de nuevo'; errEl.style.opacity = '1'; }
+    const content = document.getElementById('surprise-content');
+    if (content) { content.classList.add('shake'); setTimeout(() => content.classList.remove('shake'), 450); }
+    spPinValue = '';
+    renderSpPin();
+    setTimeout(() => { if (errEl) errEl.style.opacity = '0'; }, 2000);
+  }
+}
+
+window.surpriseAnswer = function(answer) {
+  if (answer === 'si') {
+    showSurprisePhase('surprise-yes-phase');
+    launchSurpriseConfetti();
+  } else {
+    showSurprisePhase('surprise-no-phase');
+  }
+};
+
+window.surpriseRetry = function() {
+  showSurprisePhase('surprise-question-phase');
+};
+
+function showSurprisePhase(id) {
+  document.querySelectorAll('.surprise-phase').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function launchSurpriseConfetti() {
+  const area = document.getElementById('surprise-confetti');
+  if (!area) return;
+  const items = ['💖','🌸','✨','💛','🎊','💕','🥳','🌟'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'sc-piece';
+    c.textContent = items[Math.floor(Math.random() * items.length)];
+    c.style.left = Math.random() * 100 + '%';
+    c.style.top  = '-10%';
+    c.style.fontSize = (.9 + Math.random() * 1.1) + 'rem';
+    c.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    c.style.animationDelay = (Math.random() * 1.2) + 's';
+    area.appendChild(c);
+  }
+  setTimeout(() => { if (area) area.innerHTML = ''; }, 4000);
+}
+
+window.openSurprise = function() {
+  spPinValue = '';
+  renderSpPin();
+  showSurprisePhase('surprise-lock-phase');
+  document.getElementById('surprise-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeSurprise = function() {
+  document.getElementById('surprise-modal').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+/* ════════════════════════════════════════════
+   3. JUEGO DE MEMORIA (PARES DE CARTAS)
+════════════════════════════════════════════ */
+const memoryData = [
+  { emoji: '💖', label: 'Amor' },
+  { emoji: '🌸', label: 'Flores' },
+  { emoji: '🎵', label: 'Música' },
+  { emoji: '🌙', label: 'Noche' },
+  { emoji: '☕', label: 'Café' },
+  { emoji: '🌍', label: 'Mundo' },
+  { emoji: '✨', label: 'Magia' },
+  { emoji: '🐱', label: 'Gatito' }
+];
+
+let memCards = [];
+let memFlipped = [];
+let memSolved = 0;
+let memLocked = false;
+
+function initMemoryGame() {
+  const grid = document.getElementById('memory-grid');
+  if (!grid) return;
+
+  // Duplicar y mezclar
+  const pairs = [...memoryData, ...memoryData].sort(() => Math.random() - .5);
+  memCards = [];
+  memFlipped = [];
+  memSolved = 0;
+  memLocked = false;
+
+  grid.innerHTML = '';
+  pairs.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.index = i;
+    card.dataset.label = item.label;
+    card.innerHTML = `
+      <div class="mem-card-inner">
+        <div class="mem-front">💌</div>
+        <div class="mem-back">${item.emoji}</div>
+      </div>`;
+    card.onclick = () => handleMemoryClick(i);
+    grid.appendChild(card);
+    memCards.push({ el: card, label: item.label, flipped: false, matched: false });
+  });
+
+  const counter = document.getElementById('memory-counter');
+  if (counter) counter.textContent = `0 / ${memoryData.length} pares`;
+}
+
+function handleMemoryClick(index) {
+  if (memLocked) return;
+  const card = memCards[index];
+  if (!card || card.flipped || card.matched) return;
+
+  card.flipped = true;
+  card.el.classList.add('flipped');
+  memFlipped.push(index);
+
+  if (memFlipped.length === 2) {
+    memLocked = true;
+    const [a, b] = memFlipped;
+    if (memCards[a].label === memCards[b].label) {
+      // Match!
+      memCards[a].el.classList.add('matched');
+      memCards[b].el.classList.add('matched');
+      memCards[a].matched = true;
+      memCards[b].matched = true;
+      memSolved++;
+      memFlipped = [];
+      memLocked = false;
+      const counter = document.getElementById('memory-counter');
+      if (counter) counter.textContent = `${memSolved} / ${memoryData.length} pares`;
+      if (memSolved === memoryData.length) {
+        setTimeout(memoryComplete, 600);
+      }
+    } else {
+      setTimeout(() => {
+        memCards[a].el.classList.remove('flipped');
+        memCards[b].el.classList.remove('flipped');
+        memCards[a].flipped = false;
+        memCards[b].flipped = false;
+        memFlipped = [];
+        memLocked = false;
+      }, 1100);
+    }
+  }
+}
+
+function memoryComplete() {
+  const msgEl = document.getElementById('memory-msg');
+  const btnWrap = document.getElementById('memory-unlock-wrap');
+  if (msgEl) { msgEl.textContent = '¡Lo encontraste todo! Igual que encontraste mi corazón 💖'; msgEl.style.opacity = '1'; }
+  if (btnWrap) btnWrap.style.display = 'block';
+}
+
+/* ════════════════════════════════════════════
+   4. JUEGO: ORDENA LA HISTORIA
+════════════════════════════════════════════ */
+const historyPhrases = [
+  { id: 1, text: "Nos conocimos y algo especial comenzó ✨" },
+  { id: 2, text: "Las primeras conversaciones que me robaron el corazón 💬" },
+  { id: 3, text: "Nuestra primera salida juntos, nerviosos y emocionados 🌸" },
+  { id: 4, text: "El momento en que te dije 'te amo' por primera vez 💌" },
+  { id: 5, text: "Cada día a tu lado se volvió mi favorito 💖" },
+  { id: 6, text: "Y aquí estamos, escribiendo nuestro propio cuento 🌟" }
+];
+
+let sortDragSrc = null;
+let sortOrder = [];
+
+function initSortGame() {
+  const container = document.getElementById('sort-phrases');
+  if (!container) return;
+
+  // Mezclar
+  sortOrder = [...historyPhrases].sort(() => Math.random() - .5);
+
+  container.innerHTML = '';
+  sortOrder.forEach((phrase, i) => {
+    const item = document.createElement('div');
+    item.className = 'sort-item';
+    item.draggable = true;
+    item.dataset.id = phrase.id;
+    item.innerHTML = `<span class="sort-num">${i + 1}</span><span class="sort-text">${phrase.text}</span>`;
+
+    // Drag events
+    item.addEventListener('dragstart', e => {
+      sortDragSrc = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    item.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+    item.addEventListener('dragenter', () => item.classList.add('drag-over'));
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      item.classList.remove('drag-over');
+      if (sortDragSrc && sortDragSrc !== item) {
+        const items = [...container.children];
+        const fromIdx = items.indexOf(sortDragSrc);
+        const toIdx   = items.indexOf(item);
+        if (fromIdx < toIdx) container.insertBefore(sortDragSrc, item.nextSibling);
+        else container.insertBefore(sortDragSrc, item);
+        updateSortNumbers();
+      }
+    });
+
+    // Touch swap (mobile)
+    let touchSrc = null;
+    item.addEventListener('touchstart', e => { touchSrc = item; item.classList.add('dragging'); }, { passive: true });
+    item.addEventListener('touchend', e => {
+      item.classList.remove('dragging');
+      const touch = e.changedTouches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.sort-item');
+      if (target && target !== touchSrc && touchSrc) {
+        const items = [...container.children];
+        const fromIdx = items.indexOf(touchSrc);
+        const toIdx   = items.indexOf(target);
+        if (fromIdx < toIdx) container.insertBefore(touchSrc, target.nextSibling);
+        else container.insertBefore(touchSrc, target);
+        updateSortNumbers();
+      }
+    });
+
+    container.appendChild(item);
+  });
+
+  const msgEl = document.getElementById('sort-msg');
+  const btnWrap = document.getElementById('sort-unlock-wrap');
+  if (msgEl) { msgEl.textContent = ''; msgEl.className = 'sort-msg'; }
+  if (btnWrap) btnWrap.style.display = 'none';
+}
+
+function updateSortNumbers() {
+  document.querySelectorAll('#sort-phrases .sort-num').forEach((num, i) => {
+    num.textContent = i + 1;
+  });
+}
+
+window.checkSortOrder = function() {
+  const items = [...document.querySelectorAll('#sort-phrases .sort-item')];
+  const order = items.map(el => parseInt(el.dataset.id));
+  const correct = historyPhrases.map(p => p.id);
+  const msgEl  = document.getElementById('sort-msg');
+  const btnWrap = document.getElementById('sort-unlock-wrap');
+
+  if (JSON.stringify(order) === JSON.stringify(correct)) {
+    if (msgEl) { msgEl.textContent = '¡Perfecta! Así fue nuestra historia… y así la llevas en el corazón 💖'; msgEl.className = 'sort-msg sort-msg-ok'; }
+    if (btnWrap) btnWrap.style.display = 'block';
+    items.forEach(el => el.classList.add('sort-correct'));
+  } else {
+    if (msgEl) { msgEl.textContent = 'Hmm… el orden no es exacto, pero el amor sí 🌸 ¡Sigue intentando!'; msgEl.className = 'sort-msg sort-msg-wrong'; }
+    items.forEach(el => { el.classList.add('sort-wrong'); setTimeout(() => el.classList.remove('sort-wrong'), 1000); });
+  }
+};
+
+/* ════════════════════════════════════════════
+   5. QUIZ EMOCIONAL DINÁMICO
+════════════════════════════════════════════ */
+const emojiQuiz = [
+  {
+    pregunta: "Si pudiéramos ir a cualquier lugar ahora mismo, ¿a dónde iríamos? 🌍",
+    opciones: [
+      { texto: "Una playa desierta 🏖️", resp: "A tomar sol juntos, sin prisa y sin el mundo, solo nosotros dos. Eso suena perfecto." },
+      { texto: "Una ciudad nueva 🏙️", resp: "Explorando calles desconocidas, perdiéndonos y encontrándonos en cada esquina. ¡Me encantaría!" },
+      { texto: "Una cabaña en el bosque 🌲", resp: "Lejos del ruido, solo el sonido de la naturaleza y tu voz. El plan más romántico." },
+      { texto: "Quedarnos en casa 🏠", resp: "A veces el mejor lugar del mundo es estar en casa contigo. No necesito más." }
+    ]
+  },
+  {
+    pregunta: "¿Cuál sería nuestro plan perfecto para un sábado? 🌸",
+    opciones: [
+      { texto: "Desayuno largo y rico ☕", resp: "Café con leche, tostadas, y tú frente a mí. Los sábados deberían ser todos así." },
+      { texto: "Salir a caminar sin rumbo 🚶‍♂️‍🚶‍♀️", resp: "Sin destino fijo, solo la mano de alguien que quieres. Eso es libertad." },
+      { texto: "Ver películas todo el día 🎬", resp: "Manta, snacks, y tú. Eso es lo que necesito para ser la persona más feliz." },
+      { texto: "Sorprenderme con algo 🎁", resp: "Me encanta que quieras sorprenderme. Cada momento contigo ya es una sorpresa bonita." }
+    ]
+  },
+  {
+    pregunta: "¿Qué canción describe mejor lo que sientes ahora? 🎵",
+    opciones: [
+      { texto: "Una canción lenta y romántica 🎻", resp: "De esas que ponen en las películas cuando los protagonistas finalmente se miran. Eso somos." },
+      { texto: "Algo alegre y bailable 💃", resp: "Porque estar enamorado tiene que celebrarse a todo volumen. ¡Que suene!" },
+      { texto: "Una canción tranquila de verano 🌊", resp: "Como ese momento de calma perfecta. Contigo todo tiene esa vibra de paz." },
+      { texto: "Algo profundo con letra bonita 📝", resp: "Hay cosas que solo la música puede decir. Y tú inspiras las mejores letras." }
+    ]
+  }
+];
+
+let quizIndex = 0;
+let quizResponses = [];
+
+function initEmotionalQuiz() {
+  quizIndex = 0;
+  quizResponses = [];
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const q = emojiQuiz[quizIndex];
+  const qEl    = document.getElementById('equiz-question');
+  const optsEl = document.getElementById('equiz-options');
+  const countEl = document.getElementById('equiz-counter');
+  const respEl = document.getElementById('equiz-response');
+
+  if (!q) return;
+  if (qEl) qEl.textContent = q.pregunta;
+  if (countEl) countEl.textContent = `${quizIndex + 1} / ${emojiQuiz.length}`;
+  if (respEl) { respEl.textContent = ''; respEl.style.opacity = '0'; }
+
+  if (optsEl) {
+    optsEl.innerHTML = '';
+    q.opciones.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'equiz-opt';
+      btn.textContent = opt.texto;
+      btn.onclick = () => handleQuizAnswer(opt.resp, btn, optsEl);
+      optsEl.appendChild(btn);
+    });
+  }
+}
+
+function handleQuizAnswer(respText, btnEl, optsEl) {
+  // Bloquear otros botones
+  optsEl.querySelectorAll('.equiz-opt').forEach(b => { b.disabled = true; b.classList.remove('selected'); });
+  btnEl.classList.add('selected');
+  quizResponses.push(respText);
+
+  const respEl = document.getElementById('equiz-response');
+  if (respEl) {
+    respEl.textContent = respText;
+    respEl.style.transition = 'opacity .5s ease';
+    respEl.style.opacity = '1';
+  }
+
+  setTimeout(() => {
+    quizIndex++;
+    if (quizIndex < emojiQuiz.length) {
+      renderQuizQuestion();
+    } else {
+      showQuizFinal();
+    }
+  }, 2000);
+}
+
+function showQuizFinal() {
+  const card = document.getElementById('equiz-card');
+  const finalEl = document.getElementById('equiz-final');
+  if (card) card.style.display = 'none';
+  if (finalEl) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `
+      <div class="q-heart">💖</div>
+      <h2 class="q-title">Gracias por responder, mi amor</h2>
+      <div class="equiz-final-msgs">
+        ${quizResponses.map(r => `<p class="equiz-final-msg">"${r}"</p>`).join('')}
+      </div>
+      <p class="q-hint" style="margin-top:1rem">Cada respuesta me hace quererte más 🌸</p>
+      <div id="equiz-unlock-wrap" class="mt-3">
+        <button class="btn-romantic" onclick="goToPhase('cards-screen')">
+          <i class="fa-solid fa-cards-blank me-2"></i>Siguiente: Cartas 💌
+        </button>
+      </div>`;
+  }
+}
+
+/* ════════════════════════════════════════════
+   6. FIRESTORE — CARTAS DINÁMICAS
+════════════════════════════════════════════ */
+async function loadDynamicCartas() {
+  try {
+    const snap = await db.collection('cartas').orderBy('fecha', 'desc').get();
+    if (snap.empty) return;
+
+    const grid = document.getElementById('dynamic-cards-grid');
+    if (!grid) return;
+
+    snap.forEach(doc => {
+      const data = doc.data();
+      const card = document.createElement('div');
+      card.className = 'dyn-card reveal';
+      card.innerHTML = `
+        <div class="dyn-card-header">
+          <span class="dyn-card-icon">💌</span>
+          <span class="dyn-card-autor">${data.autor || 'amor'}</span>
+        </div>
+        <h3 class="dyn-card-titulo">${data.titulo || ''}</h3>
+        <p class="dyn-card-texto">${data.contenido || ''}</p>
+        <p class="dyn-card-fecha">${formatDate(data.fecha?.toDate())}</p>`;
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    console.warn('Error cargando cartas:', err);
+  }
+}
+
+/* ════════════════════════════════════════════
+   7. FIRESTORE + STORAGE — ÁLBUM DINÁMICO
+════════════════════════════════════════════ */
+async function loadDynamicAlbum() {
+  try {
+    const snap = await db.collection('fotos').orderBy('fecha', 'desc').get();
+    if (snap.empty) return;
+
+    const grid = document.getElementById('album-grid');
+    if (!grid) return;
+
+    snap.forEach(doc => {
+      const data = doc.data();
+      const item = document.createElement('div');
+      item.className = 'album-item';
+      item.dataset.caption = data.descripcion || '';
+      item.onclick = function() { if (typeof openLightbox === 'function') openLightbox(this); };
+      item.innerHTML = `
+        <div class="album-frame">
+          <img src="${data.url}" alt="${data.descripcion || 'Foto'}" loading="lazy" />
+          <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <p class="album-caption">${data.descripcion || ''}</p>`;
+      grid.appendChild(item);
+    });
+
+    // Re-inicializar lightbox con las nuevas fotos
+    if (typeof initAlbumAnimations === 'function') initAlbumAnimations();
+  } catch (err) {
+    console.warn('Error cargando fotos:', err);
+  }
+}
+
+/* ════════════════════════════════════════════
+   8. PANEL PRIVADO (subir fotos + crear cartas)
+════════════════════════════════════════════ */
+function initPrivatePanel() {
+  const panel = document.getElementById('private-panel');
+  if (!panel) return;
+
+  const user = window._currentUser;
+  if (!user) return;
+
+  panel.style.display = 'block';
+
+  // Verificar si es uno de los 2 usuarios permitidos
+  const allowed = Object.values(ALLOWED_USERS).some(u => u.email === user.email);
+  if (!allowed) { panel.style.display = 'none'; return; }
+}
+
+window.uploadPhoto = async function() {
+  const fileInput = document.getElementById('photo-upload-input');
+  const descInput = document.getElementById('photo-upload-desc');
+  const statusEl  = document.getElementById('upload-status');
+
+  if (!fileInput?.files?.length) {
+    showUploadStatus('Selecciona una imagen primero 📷', 'error');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+
+  // Validar
+  if (!file.type.startsWith('image/')) {
+    showUploadStatus('Solo se permiten imágenes 🖼️', 'error');
+    return;
+  }
+  if (file.size > MAX_SIZE) {
+    showUploadStatus('La imagen es muy grande (máx. 10 MB) 📏', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('upload-photo-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Subiendo… 💕'; }
+
+  try {
+    const filename = `fotos/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+    const ref = storage.ref(filename);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+
+    await db.collection('fotos').add({
+      url,
+      descripcion: descInput?.value?.trim() || 'Un momento especial 💕',
+      autor: window._currentUsername || 'amor',
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    showUploadStatus('¡Foto subida con amor! 💖', 'ok');
+    if (descInput) descInput.value = '';
+    fileInput.value = '';
+
+    // Agregar al álbum dinámicamente
+    const grid = document.getElementById('album-grid');
+    if (grid) {
+      const item = document.createElement('div');
+      item.className = 'album-item revealed';
+      item.dataset.caption = descInput?.value || '';
+      item.onclick = function() { if (typeof openLightbox === 'function') openLightbox(this); };
+      item.innerHTML = `
+        <div class="album-frame">
+          <img src="${url}" alt="Nueva foto" loading="lazy" />
+          <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
+        </div>
+        <p class="album-caption">${descInput?.value || 'Un momento especial 💕'}</p>`;
+      grid.prepend(item);
+    }
+
+  } catch (err) {
+    console.error(err);
+    showUploadStatus('Error al subir. Intenta de nuevo 😔', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📤 Subir foto'; }
+  }
+};
+
+window.createCarta = async function() {
+  const tituloEl   = document.getElementById('carta-titulo-input');
+  const contenidoEl = document.getElementById('carta-contenido-input');
+  const statusEl   = document.getElementById('carta-status');
+
+  const titulo    = tituloEl?.value?.trim();
+  const contenido = contenidoEl?.value?.trim();
+
+  if (!titulo || !contenido) {
+    showCartaStatus('Completa título y contenido 💌', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('create-carta-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando… 💕'; }
+
+  try {
+    await db.collection('cartas').add({
+      titulo,
+      contenido,
+      autor: window._currentUsername || 'amor',
+      fecha: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    showCartaStatus('¡Carta guardada con amor! 💖', 'ok');
+    if (tituloEl)   tituloEl.value   = '';
+    if (contenidoEl) contenidoEl.value = '';
+    loadDynamicCartas();
+
+  } catch (err) {
+    console.error(err);
+    showCartaStatus('Error al guardar. Intenta de nuevo 😔', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '💌 Enviar carta'; }
+  }
+};
+
+function showUploadStatus(msg, type) {
+  const el = document.getElementById('upload-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'panel-status ' + (type === 'ok' ? 'status-ok' : 'status-error');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function showCartaStatus(msg, type) {
+  const el = document.getElementById('carta-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'panel-status ' + (type === 'ok' ? 'status-ok' : 'status-error');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+/* ════════════════════════════════════════════
+   9. LOGOUT
+════════════════════════════════════════════ */
+window.logoutUser = async function() {
+  await auth.signOut();
+  sessionStorage.clear();
+  window.location.href = 'login.html';
+};
+
+/* ════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════ */
+function formatDate(date) {
+  if (!date) return '';
+  return date.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+/* ════════════════════════════════════════════
+   DOM READY — inicializar todo
+════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  injectSurpriseSection();
+  renderSpPin();
+  initMemoryGame();
+  initSortGame();
+  initEmotionalQuiz();
+});
+
+// Exponer funciones globales necesarias
+window.initMemoryGame  = initMemoryGame;
+window.initSortGame    = initSortGame;
+window.initEmotionalQuiz = initEmotionalQuiz;
+window.checkSortOrder  = window.checkSortOrder;
