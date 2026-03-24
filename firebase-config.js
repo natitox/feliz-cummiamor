@@ -38,16 +38,14 @@ const FIREBASE_CONFIG = {
 const ALLOWED_USERS = {
   snupi: {
     email:    "snupi@amor.app",
-    password: "200617snupi",       // ← CAMBIA ESTO antes de subir a producción
+    password: "200617snupi",
     display:  "snupi"
   },
   natito: {
     email:    "natito@amor.app",
-    password: "200409natito",      // ← CAMBIA ESTO antes de subir a producción
+    password: "200409natito",
     display:  "natito"
   }
 };
 
-/* Clave secreta para la sección sorpresa (8 dígitos)
-   Puedes cambiarla por cualquier número de 8 dígitos */
 const SECRET_PIN = "20061709";
