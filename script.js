@@ -188,6 +188,9 @@ function showScreen(id) {
 
 window.goToPhase = function(screenId) {
   if (screenId === 'story-screen') initStory();
+  if (screenId === 'memory-screen' && typeof initMemoryGame === 'function') initMemoryGame();
+  if (screenId === 'sort-screen'   && typeof initSortGame    === 'function') initSortGame();
+  if (screenId === 'equiz-screen'  && typeof initEmotionalQuiz === 'function') initEmotionalQuiz();
   showScreen(screenId);
 };
 
@@ -384,7 +387,7 @@ function mostrarResultado() {
   if (btnWrap) {
     if (porcentaje >= 70) {
       btnWrap.innerHTML = `<button class="btn-romantic" onclick="goToPhase('choose-screen'); initChooseGame();">
-        <i class="fa-solid fa-gamepad me-2"></i>Abrir siguiente fase 💌
+        <i class="fa-solid fa-gamepad me-2"></i>Siguiente: ¡Adivina! 🎯
       </button>`;
     } else {
       btnWrap.innerHTML = `<button class="btn-romantic" onclick="reiniciarSiNo()">
@@ -490,7 +493,7 @@ function handleChooseAnswer(index, btnEl) {
     if (state.chooseIndex < preguntasElige.length) {
       setTimeout(renderChooseQuestion, 1000);
     } else {
-      setTimeout(() => goToPhase('cards-screen'), 1000);
+      setTimeout(() => goToPhase('memory-screen'), 1000);
     }
   } else {
     btnEl.classList.add('wrong');
@@ -954,3 +957,25 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape')     closeLightbox();
 });
 
+
+/* ═══════════════════════════════════════
+   TABS EXTENDIDO — soporte para panel
+═══════════════════════════════════════ */
+(function patchShowTab() {
+  const _orig = window.showTab;
+  window.showTab = function(tabId, el) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const carta = document.getElementById('tab-carta');
+    const album = document.getElementById('tab-album');
+    const panel = document.getElementById('tab-panel');
+    [carta, album, panel].forEach(t => { if (t) t.style.display = 'none'; });
+    if (tabId === 'album') {
+      if (album) { album.style.display = 'block'; setTimeout(() => initAlbumAnimations(), 60); }
+    } else if (tabId === 'panel') {
+      if (panel) panel.style.display = 'block';
+    } else {
+      if (carta) carta.style.display = 'block';
+    }
+  };
+})();
