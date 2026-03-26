@@ -151,7 +151,7 @@ function injectSurpriseSection() {
         <p class="sp-msg-no">
           I hate U bromita se que no me dirás q n0ooo t amo ASJDaskda💕<br/><br/>
           Este gatito y yo 😿😿😿<br/>
-          porque el amor no se rinde tan fácil 🐱
+          pq te ganó la curiosidad y querias saber que habia en el no ASHJDAS TAMOOOOOO 🐱
         </p>
         <button class="sp-btn-retry" onclick="surpriseRetry()">
           💖 Quiero cambiar mi respuesta
