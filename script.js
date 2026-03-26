@@ -53,10 +53,8 @@ const preguntas = [
   { pregunta: "¿Natito le cuesta decir lo que siente? 🥺", respuestaCorrecta: "si" },
   { pregunta: "¿Natito quiere tener 3 hijos? 📺", respuestaCorrecta: "no" },
   { pregunta: "¿Natito te cocinaria siempre? ", respuestaCorrecta: "si" },
-  { pregunta: "¿Natito daría la vida por ti? ", respuestaCorrecta: "si" },    
-   { pregunta: "¿Natito te cocinaria siempre? ", respuestaCorrecta: "si" },
-   
- ];
+  { pregunta: "¿Natito daría la vida por ti? ", respuestaCorrecta: "si" }
+];
 
 
 /* ═══════════════════════════════════════
