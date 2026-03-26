@@ -66,8 +66,8 @@ function injectSurpriseSection() {
         <button class="surprise-close" onclick="closeSurprise()">✕</button>
         <div class="sp-deco">✦ ✦ ✦</div>
         <div class="sp-icon">🔐</div>
-        <h2 class="sp-title">Hay algo especial<br/><em>esperándote</em></h2>
-        <p class="sp-hint">Ingresa el código de 8 dígitos para abrirlo</p>
+        <h2 class="sp-title">Eres muy especial <br/><em> para mi 🌹 </em></h2>
+        <p class="sp-hint">Ingresa la clave q me se yo nms </p>
         <div class="sp-pin-display" id="sp-pin-display"></div>
         <div class="sp-keypad">
           ${[1,2,3,4,5,6,7,8,9,'⌫',0,'✓'].map(k =>
@@ -93,7 +93,7 @@ function injectSurpriseSection() {
           <div class="sp-icon sp-icon-ring">💍</div>
         </div>
         <h2 class="sp-title sp-title-special">
-          Tengo algo muy<br/>importante que<br/><em>preguntarte…</em>
+          Tengo que preguntarte<br/>algo importante.<br/><em>eres mi vida sabías¿</em>
         </h2>
         <div class="sp-divider-stars" aria-hidden="true">✦ ✦ ✦</div>
         <p class="sp-subtitle-q">
