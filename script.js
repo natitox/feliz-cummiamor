@@ -58,41 +58,6 @@ const preguntas = [
    
  ];
 
-/* ═══════════════════════════════════════
-   DATOS — ELIGE LA OPCIÓN CORRECTA
-═══════════════════════════════════════ */
-const preguntasElige = [
-  {
-    pregunta: "¿Cuál es la flor favorita de Natito? 🌸",
-    opciones: ["Rosa 🌹", "Girasol 🌻", "Tulipán 🌷", "Lirio 🤍"],
-    correcta: 1,
-    fallo: "Hmm… piénsalo bien 🤔 ¡Es la más alegre!"
-  },
-  {
-    pregunta: "¿Qué comería Natito de ti? 😋",
-    opciones: ["Hamburguesa 🍔", "A su nupi hermosa 😍", "Galletas 🍪", "Chocolate 🍫"],
-    correcta: 1,
-    fallo: "Nooo, Natito tiene hambre de algo más bonito 👀"
-  },
-  {
-    pregunta: "¿Cuál es el color favorito de Natito? 🎨",
-    opciones: ["Rojo ❤️", "Azul 💙", "Verde 💚", "Morado 💜"],
-    correcta: 2,
-    fallo: "¡Piensa en la naturaleza! 🌿"
-  },
-  {
-    pregunta: "¿Qué apodo le pone Natito a su amor? 🥰",
-    opciones: ["Cielo", "Nupi", "Princesa", "Mi sol"],
-    correcta: 1,
-    fallo: "¡Es algo muy especial! Empieza con N… 💕"
-  },
-  {
-    pregunta: "¿Cuánto quiere Natito a su nupi? 💖",
-    opciones: ["Un poco", "Bastante", "Mucho", "Infinitamente y más ♾️"],
-    correcta: 3,
-    fallo: "¡Piénsalo mejor! No hay límite para este amor 💘"
-  }
-];
 
 /* ═══════════════════════════════════════
    MINI HISTORIA — LÍNEAS
