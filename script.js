@@ -160,17 +160,6 @@ const state = {
 };
 
 /* ═══════════════════════════════════════
-   SALTAR QUIZ — ir directo a la carta
-═══════════════════════════════════════ */
-window.skipToLetter = function() {
-  state.answers.flujoCompleto = true;
-  showScreen('final-letter-screen');
-  animateFinalLetter();
-  showMusicControls();
-  setTimeout(playRandomSong, 800);
-};
-
-/* ═══════════════════════════════════════
    INICIALIZACIÓN
 ═══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -539,6 +528,17 @@ function flipCard(index) {
 }
 
 /* ═══════════════════════════════════════
+   SALTAR QUIZ — ir directo a la carta
+═══════════════════════════════════════ */
+window.skipToLetter = function() {
+  state.answers.flujoCompleto = true;
+  showScreen('final-letter-screen');
+  animateFinalLetter();
+  showMusicControls();
+  setTimeout(playRandomSong, 800);
+};
+
+/* ═══════════════════════════════════════
    PANTALLA 5: ROMPECABEZAS
 ═══════════════════════════════════════ */
 function initPuzzle() {
@@ -571,20 +571,20 @@ function renderPuzzle(size) {
   grid.style.gridTemplateColumns = `repeat(${size}, ${cellPx}px)`;
   grid.style.width  = (cellPx * size) + 'px';
   grid.style.margin = '0 auto';
-  grid.style.gap    = '1px';
+  grid.style.gap    = '2px';
 
   state.puzzlePieces.forEach((pieceIndex, position) => {
     const cell = document.createElement('div');
     cell.className = 'puzzle-cell';
     cell.dataset.position = position;
 
-    const row = Math.floor(pieceIndex / size);
-    const col = pieceIndex % size;
+    const row    = Math.floor(pieceIndex / size);
+    const col    = pieceIndex % size;
     const bgPosX = size === 1 ? 0 : (col / (size - 1)) * 100;
     const bgPosY = size === 1 ? 0 : (row / (size - 1)) * 100;
 
-    cell.style.width  = cellPx + 'px';
-    cell.style.height = cellPx + 'px';
+    cell.style.width               = cellPx + 'px';
+    cell.style.height              = cellPx + 'px';
     cell.style.backgroundImage     = 'url("img/foto9.jpg")';
     cell.style.backgroundSize      = `${size * 100}%`;
     cell.style.backgroundPositionX = `${bgPosX}%`;
