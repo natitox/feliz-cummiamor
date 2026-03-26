@@ -81,11 +81,29 @@ function injectSurpriseSection() {
       <!-- FASE 2: La pregunta especial -->
       <div id="surprise-question-phase" class="surprise-phase">
         <button class="surprise-close" onclick="closeSurprise()">✕</button>
-        <div class="sp-deco">💖 💖 💖</div>
-        <div class="sp-icon sp-icon-big sp-icon-animate">💍</div>
-        <h2 class="sp-title sp-title-special">Tengo algo<br/>muy importante<br/><em>que preguntarte</em></h2>
-        <p class="sp-subtitle-q">Desde el primer día que te vi, supe que eras especial para mí. Cada momento a tu lado ha sido el mejor de mi vida. Y por eso hoy…</p>
-        <p class="sp-big-question">¿Quieres ser<br/><em>mi novia?</em> 💍</p>
+        <!-- Corazones flotantes animados -->
+        <div class="sp-hearts-bg" aria-hidden="true">
+          <span>💖</span><span>🌸</span><span>💛</span><span>✨</span>
+          <span>💕</span><span>🌹</span><span>💖</span><span>🌸</span>
+        </div>
+        <!-- Anillo con pulso -->
+        <div class="sp-ring-wrap">
+          <div class="sp-ring-pulse"></div>
+          <div class="sp-ring-pulse sp-ring-pulse-2"></div>
+          <div class="sp-icon sp-icon-ring">💍</div>
+        </div>
+        <h2 class="sp-title sp-title-special">
+          Tengo algo muy<br/>importante que<br/><em>preguntarte…</em>
+        </h2>
+        <div class="sp-divider-stars" aria-hidden="true">✦ ✦ ✦</div>
+        <p class="sp-subtitle-q">
+          Desde el primer día que te vi, supe que eras especial.<br/>
+          Cada momento a tu lado ha sido el mejor de mi vida.<br/>
+          Y por eso hoy quiero preguntarte algo…
+        </p>
+        <p class="sp-big-question">
+          ¿Quieres ser<br/><em>mi polola?</em> 💍
+        </p>
         <div class="sp-answer-btns">
           <button class="sp-btn-si" onclick="surpriseAnswer('si')">
             <span class="sp-btn-icon">💖</span>
@@ -162,7 +180,6 @@ window.spKeyPress = function(k) {
   if (spPinValue.length >= 8) return;
   spPinValue += k;
   renderSpPin();
-  if (spPinValue.length === 8) setTimeout(checkSecretPin, 300);
 };
 
 function renderSpPin() {
@@ -773,6 +790,142 @@ document.addEventListener('DOMContentLoaded', () => {
   initMemoryGame();
   initSortGame();
   initEmotionalQuiz();
+
+  // Inyectar estilos extra para animación de propuesta
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Corazones flotantes de fondo en la fase de propuesta */
+    .sp-hearts-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+      border-radius: inherit;
+    }
+    .sp-hearts-bg span {
+      position: absolute;
+      bottom: -10%;
+      font-size: 1.3rem;
+      opacity: 0;
+      animation: spHeartFloat 5s ease-in infinite;
+    }
+    .sp-hearts-bg span:nth-child(1)  { left: 5%;  animation-delay: 0s;   animation-duration: 5s; }
+    .sp-hearts-bg span:nth-child(2)  { left: 15%; animation-delay: 0.7s; animation-duration: 6s; }
+    .sp-hearts-bg span:nth-child(3)  { left: 28%; animation-delay: 1.4s; animation-duration: 4.5s; }
+    .sp-hearts-bg span:nth-child(4)  { left: 42%; animation-delay: 0.3s; animation-duration: 5.5s; }
+    .sp-hearts-bg span:nth-child(5)  { left: 58%; animation-delay: 1s;   animation-duration: 5s; }
+    .sp-hearts-bg span:nth-child(6)  { left: 70%; animation-delay: 2s;   animation-duration: 4s; }
+    .sp-hearts-bg span:nth-child(7)  { left: 83%; animation-delay: 0.5s; animation-duration: 6.5s; }
+    .sp-hearts-bg span:nth-child(8)  { left: 93%; animation-delay: 1.8s; animation-duration: 5s; }
+    @keyframes spHeartFloat {
+      0%   { transform: translateY(0) scale(1);   opacity: 0; }
+      10%  { opacity: 0.7; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
+    }
+
+    /* Anillo con auras pulsantes */
+    .sp-ring-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem auto 0.5rem;
+      width: 90px;
+      height: 90px;
+      z-index: 1;
+    }
+    .sp-ring-pulse {
+      position: absolute;
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(230,49,102,0.35), transparent 70%);
+      animation: spPulse 2s ease-out infinite;
+    }
+    .sp-ring-pulse-2 { animation-delay: 1s; }
+    @keyframes spPulse {
+      0%   { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .sp-icon-ring {
+      position: relative;
+      font-size: 3.2rem;
+      z-index: 2;
+      animation: spRingBounce 1.6s ease-in-out infinite;
+      display: block;
+      line-height: 1;
+    }
+    @keyframes spRingBounce {
+      0%, 100% { transform: translateY(0) rotate(-8deg) scale(1); }
+      30%       { transform: translateY(-10px) rotate(8deg) scale(1.1); }
+      60%       { transform: translateY(-5px) rotate(-4deg) scale(1.05); }
+    }
+
+    /* Línea decorativa de estrellas */
+    .sp-divider-stars {
+      color: #e63166;
+      letter-spacing: 8px;
+      font-size: 0.75rem;
+      opacity: 0.6;
+      margin: 0.5rem 0;
+      z-index: 1;
+      position: relative;
+    }
+
+    /* Pregunta grande con gradiente animado */
+    .sp-big-question {
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      font-family: 'Dancing Script', cursive;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.3;
+      margin: 0.8rem 0 1.2rem;
+      z-index: 1;
+      position: relative;
+      background: linear-gradient(135deg, #e63166, #ff85a1, #e63166);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: spGradientShift 3s ease infinite;
+    }
+    @keyframes spGradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .sp-big-question em {
+      font-style: italic;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Botones de respuesta mejorados */
+    #surprise-question-phase {
+      position: relative;
+      overflow: hidden;
+    }
+    .sp-subtitle-q {
+      position: relative;
+      z-index: 1;
+    }
+    .sp-title-special {
+      position: relative;
+      z-index: 1;
+    }
+    .sp-answer-btns {
+      position: relative;
+      z-index: 1;
+    }
+    .sp-btn-si {
+      animation: spBtnPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes spBtnPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230,49,102,0.4); }
+      50%       { box-shadow: 0 0 0 10px rgba(230,49,102,0); }
+    }
+  `;
+  document.head.appendChild(style);
 });
 
 // Exponer funciones globales necesarias
