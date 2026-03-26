@@ -106,11 +106,11 @@ function injectSurpriseSection() {
         </p>
         <div class="sp-answer-btns">
           <button class="sp-btn-si" onclick="surpriseAnswer('si')">
-            <span class="sp-btn-icon">💖</span>
+            <span class="sp-btn-icon">🐱</span>
             <span>¡Sí, quiero!</span>
           </button>
           <button class="sp-btn-no" onclick="surpriseAnswer('no')">
-            <span class="sp-btn-icon">🥺</span>
+            <span class="sp-btn-icon">😢</span>
             <span>No…</span>
           </button>
         </div>
@@ -127,11 +127,11 @@ function injectSurpriseSection() {
                class="sp-gif sp-gif-yes"
                onerror="this.src='https://media.giphy.com/media/BzyTuYCmvSORqs1ABM/giphy.gif'" />
         </div>
-        <h2 class="sp-title sp-title-yes">¡¡TE DIJE SÍ!! 🎊</h2>
+        <h2 class="sp-title sp-title-yes">¡¡Me dijo que siiiiiii!!!!!!! 🎊</h2>
         <p class="sp-msg-yes">
-          Mi amor, desde hoy y para siempre eres y serás mi novia oficial 💍<br/><br/>
-          Prometo quererte, cuidarte y hacerte reír todos los días.<br/>
-          Eres mi persona favorita en todo el universo.<br/><br/>
+          Esto solo es el comienzo mi vida, te amo muchisimo 🌸😿💍<br/><br/>
+          Prometo estar para ti siemopre.<br/>
+          Eres mi persona favorita .<br/><br/>
           <em>Te amo infinitamente, mi nupi 💖</em>
         </p>
         <p class="sp-hearts-row">💖 💛 🌸 💖 🌸 💛 💖</p>
@@ -149,8 +149,8 @@ function injectSurpriseSection() {
         </div>
         <h2 class="sp-title sp-title-no">Está bien… 🥺</h2>
         <p class="sp-msg-no">
-          No importa lo que respondas, igual te quiero muchísimo 💕<br/><br/>
-          Este gatito y yo estaremos aquí esperando…<br/>
+          I hate U bromita se que no me dirás q n0ooo t amo ASJDaskda💕<br/><br/>
+          Este gatito y yo 😿😿😿<br/>
           porque el amor no se rinde tan fácil 🐱
         </p>
         <button class="sp-btn-retry" onclick="surpriseRetry()">
