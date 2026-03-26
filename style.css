@@ -1,6 +1,3 @@
- · CSS
-Copy
-
 /* ═══════════════════════════════════════════════════════
    style.css — Carta Romántica Digital  ✨ v3 ENHANCED ✨
    Paleta: rosado pastel, lavanda, blanco perla, glow suave
@@ -110,6 +107,13 @@ body::before {
     radial-gradient(ellipse at 40% 80%,  rgba(255,228,242,.35) 0%, transparent 45%);
   pointer-events: none;
   z-index: 0;
+  animation: bgShift 18s ease-in-out infinite alternate;
+}
+ 
+@keyframes bgShift {
+  0%   { opacity: 1; }
+  50%  { opacity: .75; }
+  100% { opacity: 1; }
 }
  
 body::after {
@@ -121,6 +125,7 @@ body::after {
     radial-gradient(circle at 78% 20%, rgba(255,126,180,.12) 0%, transparent 32%);
   pointer-events: none;
   z-index: 0;
+  animation: bgShift 22s ease-in-out infinite alternate-reverse;
 }
  
 /* ══════════════════════════════════════════
@@ -141,14 +146,14 @@ body::after {
   opacity: 0;
   animation: floatHeart linear infinite;
   user-select: none;
-  will-change: transform, opacity;
+  filter: blur(0px);
 }
  
 @keyframes floatHeart {
-  0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 0; }
-  8%   { opacity: .55; }
-  70%  { opacity: .28; }
-  100% { transform: translateY(-108vh) rotate(360deg) scale(.4); opacity: 0; }
+  0%   { transform: translateY(0) rotate(0deg)   scale(1);    opacity: 0; }
+  8%   { opacity: .65; }
+  70%  { opacity: .35; filter: blur(.5px); }
+  100% { transform: translateY(-108vh) rotate(540deg) scale(.3); opacity: 0; filter: blur(1px); }
 }
  
 /* ══════════════════════════════════════════
@@ -221,37 +226,6 @@ body::after {
   opacity: .8;
   animation: fadeInUp .9s .2s ease both;
 }
-
-/* ── Botón saltar quiz ───────────────────── */
-.btn-skip-quiz {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .4rem;
-  padding: .48rem 1.5rem;
-  background: rgba(255,255,255,.5);
-  color: var(--text-soft);
-  border: 1.5px solid var(--rose-300);
-  border-radius: 50px;
-  font-family: var(--font-body);
-  font-size: .8rem;
-  font-weight: 400;
-  letter-spacing: .02em;
-  cursor: pointer;
-  opacity: .72;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: opacity .25s, border-color .25s, color .25s, background .25s, transform .2s;
-  margin-top: -.3rem;
-}
-.btn-skip-quiz:hover {
-  opacity: 1;
-  border-color: var(--rose-500);
-  color: var(--rose-600);
-  background: rgba(255,255,255,.8);
-  transform: translateY(-2px);
-}
-.btn-skip-quiz i { font-size: .72rem; }
  
 .welcome-envelope {
   cursor: pointer;
@@ -1133,19 +1107,17 @@ body::after {
 }
  
 .puzzle-cell {
+  aspect-ratio: 1;
   background-color: var(--rose-200);
   background-repeat: no-repeat;
   cursor: pointer;
-  transition: transform .18s ease, box-shadow .18s;
-  outline: 1.5px solid rgba(255,255,255,.55);
-  will-change: transform;
+  transition: transform .2s var(--spring), box-shadow .2s, outline .2s;
+  outline: 2px solid transparent;
 }
  
 .puzzle-cell:hover {
-  transform: scale(1.06);
-  box-shadow: 0 4px 14px rgba(0,0,0,.18);
-  position: relative;
-  z-index: 2;
+  transform: scale(1.04);
+  box-shadow: 0 5px 18px rgba(0,0,0,.16);
 }
  
 .puzzle-cell.puzzle-selected {
@@ -2899,3 +2871,4 @@ body::after {
   background: rgba(230,49,102,.2);
   color: var(--rose-700);
 }
+ 
