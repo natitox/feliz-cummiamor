@@ -146,8 +146,8 @@ body::after {
  
 @keyframes floatHeart {
   0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 0; }
-  8%   { opacity: .6; }
-  70%  { opacity: .3; }
+  8%   { opacity: .55; }
+  70%  { opacity: .28; }
   100% { transform: translateY(-108vh) rotate(360deg) scale(.4); opacity: 0; }
 }
  
@@ -227,26 +227,29 @@ body::after {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .35rem;
-  padding: .5rem 1.4rem;
-  background: transparent;
+  gap: .4rem;
+  padding: .48rem 1.5rem;
+  background: rgba(255,255,255,.5);
   color: var(--text-soft);
   border: 1.5px solid var(--rose-300);
   border-radius: 50px;
   font-family: var(--font-body);
-  font-size: .78rem;
+  font-size: .8rem;
   font-weight: 400;
-  letter-spacing: .03em;
+  letter-spacing: .02em;
   cursor: pointer;
-  opacity: .7;
-  transition: opacity .25s, border-color .25s, color .25s, transform .25s;
-  margin-top: -.4rem;
+  opacity: .72;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity .25s, border-color .25s, color .25s, background .25s, transform .2s;
+  margin-top: -.3rem;
 }
 .btn-skip-quiz:hover {
   opacity: 1;
   border-color: var(--rose-500);
   color: var(--rose-600);
-  transform: translateY(-1px);
+  background: rgba(255,255,255,.8);
+  transform: translateY(-2px);
 }
 .btn-skip-quiz i { font-size: .72rem; }
  
@@ -1134,7 +1137,7 @@ body::after {
   background-repeat: no-repeat;
   cursor: pointer;
   transition: transform .18s ease, box-shadow .18s;
-  outline: 1.5px solid rgba(255,255,255,.6);
+  outline: 1.5px solid rgba(255,255,255,.55);
   will-change: transform;
 }
  
@@ -2896,4 +2899,3 @@ body::after {
   background: rgba(230,49,102,.2);
   color: var(--rose-700);
 }
-
