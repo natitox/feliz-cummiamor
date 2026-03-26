@@ -1,9 +1,6 @@
- CSS
-Copy
-
  · CSS
 Copy
- 
+
 /* ═══════════════════════════════════════════════════════
    style.css — Carta Romántica Digital  ✨ v3 ENHANCED ✨
    Paleta: rosado pastel, lavanda, blanco perla, glow suave
@@ -113,13 +110,6 @@ body::before {
     radial-gradient(ellipse at 40% 80%,  rgba(255,228,242,.35) 0%, transparent 45%);
   pointer-events: none;
   z-index: 0;
-  animation: bgShift 18s ease-in-out infinite alternate;
-}
- 
-@keyframes bgShift {
-  0%   { opacity: 1; }
-  50%  { opacity: .75; }
-  100% { opacity: 1; }
 }
  
 body::after {
@@ -131,7 +121,6 @@ body::after {
     radial-gradient(circle at 78% 20%, rgba(255,126,180,.12) 0%, transparent 32%);
   pointer-events: none;
   z-index: 0;
-  animation: bgShift 22s ease-in-out infinite alternate-reverse;
 }
  
 /* ══════════════════════════════════════════
@@ -156,7 +145,7 @@ body::after {
 }
  
 @keyframes floatHeart {
-  0%   { transform: translateY(0) rotate(0deg)   scale(1);    opacity: 0; }
+  0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 0; }
   8%   { opacity: .6; }
   70%  { opacity: .3; }
   100% { transform: translateY(-108vh) rotate(360deg) scale(.4); opacity: 0; }
@@ -232,6 +221,34 @@ body::after {
   opacity: .8;
   animation: fadeInUp .9s .2s ease both;
 }
+
+/* ── Botón saltar quiz ───────────────────── */
+.btn-skip-quiz {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  padding: .5rem 1.4rem;
+  background: transparent;
+  color: var(--text-soft);
+  border: 1.5px solid var(--rose-300);
+  border-radius: 50px;
+  font-family: var(--font-body);
+  font-size: .78rem;
+  font-weight: 400;
+  letter-spacing: .03em;
+  cursor: pointer;
+  opacity: .7;
+  transition: opacity .25s, border-color .25s, color .25s, transform .25s;
+  margin-top: -.4rem;
+}
+.btn-skip-quiz:hover {
+  opacity: 1;
+  border-color: var(--rose-500);
+  color: var(--rose-600);
+  transform: translateY(-1px);
+}
+.btn-skip-quiz i { font-size: .72rem; }
  
 .welcome-envelope {
   cursor: pointer;
@@ -1116,17 +1133,16 @@ body::after {
   background-color: var(--rose-200);
   background-repeat: no-repeat;
   cursor: pointer;
-  transition: transform .18s ease, box-shadow .18s, outline .18s;
-  outline: 2px solid rgba(255,255,255,.5);
+  transition: transform .18s ease, box-shadow .18s;
+  outline: 1.5px solid rgba(255,255,255,.6);
   will-change: transform;
-  flex-shrink: 0;
 }
  
 .puzzle-cell:hover {
   transform: scale(1.06);
   box-shadow: 0 4px 14px rgba(0,0,0,.18);
-  z-index: 2;
   position: relative;
+  z-index: 2;
 }
  
 .puzzle-cell.puzzle-selected {
@@ -2880,10 +2896,4 @@ body::after {
   background: rgba(230,49,102,.2);
   color: var(--rose-700);
 }
-
-
-
-
-
-
 
