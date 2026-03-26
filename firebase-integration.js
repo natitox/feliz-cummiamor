@@ -129,7 +129,7 @@ function injectSurpriseSection() {
         </div>
         <h2 class="sp-title sp-title-yes">¡¡Me dijo que siiiiiii!!!!!!! 🎊</h2>
         <p class="sp-msg-yes">
-          Esto solo es el comienzo mi vida, te amo muchisimo 🌸😿💍<br/><br/>
+          Esto solo es el comienzo mi vida, te amo muchisimo 🌸😿<br/><br/>
           Prometo estar para ti siemopre.<br/>
           Eres mi persona favorita .<br/><br/>
           <em>Te amo infinitamente, mi nupi 💖</em>
