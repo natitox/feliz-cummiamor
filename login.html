@@ -1,31 +1,38 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>💌 Para ti</title>
-
+ 
   <link rel="icon" type="image/png" href="img/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
+ 
   <style>
     :root {
-      --pink:       #e63166;
-      --pink-light: #fce4ec;
-      --pink-soft:  #ff85a1;
-      --gold:       #d4a843;
-      --dark:       #2d1b33;
-      --card-bg:    rgba(255,255,255,0.92);
+      --rose-400:   #ff85a1;
+      --rose-500:   #e63166;
+      --rose-600:   #c9184a;
+      --rose-700:   #a4133c;
+      --lavender:   #c8b4ff;
+      --text-dark:  #2d1b33;
+      --text-mid:   #7a3854;
+      --text-soft:  #a06080;
+      --text-light: #c8a0b8;
+      --spring: 0.5s cubic-bezier(0.34,1.56,0.64,1);
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    html { -webkit-tap-highlight-color: transparent; }
+ 
     body {
       min-height: 100vh;
-      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #fce4ec 60%, #fff0f5 100%);
+      background: linear-gradient(145deg, #fce4ec 0%, #f3e8ff 35%, #fce4ec 65%, #fff0f8 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -33,103 +40,164 @@
       overflow: hidden;
       position: relative;
     }
-
+ 
+    /* ── Fondo animado ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 15%, rgba(255,182,215,.55) 0%, transparent 45%),
+        radial-gradient(ellipse at 80% 85%, rgba(200,80,130,.22) 0%, transparent 48%),
+        radial-gradient(ellipse at 60% 45%, rgba(200,180,255,.4) 0%, transparent 50%);
+      pointer-events: none;
+      animation: bgPulse 12s ease-in-out infinite alternate;
+    }
+ 
+    @keyframes bgPulse {
+      0%   { opacity: 1; }
+      50%  { opacity: .7; }
+      100% { opacity: 1; }
+    }
+ 
     /* ── Partículas ── */
     #login-particles {
       position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
+ 
     .lp-heart {
       position: absolute;
-      font-size: 1.2rem;
       animation: floatUp linear infinite;
       opacity: 0;
+      filter: drop-shadow(0 2px 6px rgba(230,49,102,.25));
     }
+ 
     @keyframes floatUp {
-      0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-      10%  { opacity: 0.7; }
-      90%  { opacity: 0.4; }
-      100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
+      0%   { transform: translateY(100vh) rotate(0deg) scale(1);   opacity: 0; }
+      8%   { opacity: .6; }
+      80%  { opacity: .3; }
+      100% { transform: translateY(-12vh) rotate(25deg) scale(.5); opacity: 0; }
     }
-
-    /* ── Tarjeta login ── */
+ 
+    /* ── Tarjeta login — glassmorphism ── */
     .login-card {
       position: relative;
       z-index: 10;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-radius: 28px;
-      padding: 3rem 2.5rem 2.5rem;
+      background: rgba(255,255,255,.82);
+      backdrop-filter: blur(22px) saturate(1.4);
+      -webkit-backdrop-filter: blur(22px) saturate(1.4);
+      border: 1.5px solid rgba(255,182,210,.45);
+      border-radius: 32px;
+      padding: 3.1rem 2.6rem 2.6rem;
       width: min(400px, 92vw);
       box-shadow:
-        0 8px 40px rgba(230,49,102,0.18),
-        0 2px 8px rgba(0,0,0,0.06),
-        inset 0 1px 0 rgba(255,255,255,0.9);
-      animation: cardEntrance .8s cubic-bezier(.22,.61,.36,1) both;
+        0 10px 48px rgba(230,49,102,.2),
+        0 2px 10px rgba(0,0,0,.06),
+        inset 0 1px 0 rgba(255,255,255,.95),
+        inset 0 -1px 0 rgba(255,182,210,.18);
+      animation: cardEntrance .85s cubic-bezier(.22,.61,.36,1) both;
     }
+ 
     @keyframes cardEntrance {
-      from { opacity: 0; transform: translateY(40px) scale(.95); }
-      to   { opacity: 1; transform: none; }
+      from { opacity: 0; transform: translateY(44px) scale(.93); filter: blur(4px); }
+      to   { opacity: 1; transform: none; filter: blur(0); }
     }
-
+ 
+    /* Decos de esquina */
+    .login-card::before {
+      content: '✦';
+      position: absolute; top: 1.1rem; left: 1.2rem;
+      color: var(--rose-400); font-size: .75rem; opacity: .5;
+      animation: twinkle 3.5s ease-in-out infinite;
+    }
+ 
+    .login-card::after {
+      content: '✦';
+      position: absolute; bottom: 1.1rem; right: 1.2rem;
+      color: var(--lavender); font-size: .75rem; opacity: .5;
+      animation: twinkle 3.5s 1.2s ease-in-out infinite;
+    }
+ 
+    @keyframes twinkle {
+      0%,100% { opacity: .35; transform: scale(1); }
+      50%      { opacity: .8; transform: scale(1.4); }
+    }
+ 
     .login-icon {
       text-align: center;
-      font-size: 3.5rem;
-      margin-bottom: .75rem;
-      animation: pulse 2.5s ease-in-out infinite;
+      font-size: 3.6rem;
+      margin-bottom: .8rem;
+      animation: pulse 2.6s ease-in-out infinite;
+      filter: drop-shadow(0 4px 14px rgba(230,49,102,.3));
+      display: block;
     }
+ 
     @keyframes pulse {
       0%,100% { transform: scale(1); }
-      50%      { transform: scale(1.12); }
+      50%      { transform: scale(1.13); }
     }
-
+ 
     .login-title {
       font-family: 'Dancing Script', cursive;
-      font-size: 2.2rem;
-      color: var(--pink);
+      font-size: 2.3rem;
+      color: var(--rose-500);
       text-align: center;
-      margin-bottom: .25rem;
+      margin-bottom: .22rem;
       line-height: 1.2;
+      text-shadow: 0 2px 12px rgba(230,49,102,.15);
     }
+ 
     .login-subtitle {
       text-align: center;
-      font-size: .82rem;
-      color: #999;
-      margin-bottom: 2rem;
+      font-size: .83rem;
+      color: var(--text-light);
+      margin-bottom: 2.1rem;
       letter-spacing: .03em;
+      font-style: italic;
     }
-
+ 
     /* ── Campos ── */
     .field-wrap {
       position: relative;
       margin-bottom: 1.1rem;
     }
-    .field-wrap i {
+ 
+    .field-wrap i.field-icon {
       position: absolute;
-      left: 1rem;
+      left: 1.05rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--pink-soft);
+      color: var(--rose-400);
       font-size: .9rem;
       pointer-events: none;
+      transition: color .22s;
     }
+ 
+    .field-wrap:focus-within i.field-icon {
+      color: var(--rose-500);
+    }
+ 
     .login-input {
       width: 100%;
-      padding: .85rem 1rem .85rem 2.8rem;
-      border: 2px solid #f8bbd0;
-      border-radius: 14px;
+      padding: .9rem 1.05rem .9rem 2.9rem;
+      border: 1.5px solid rgba(255,182,210,.5);
+      border-radius: 16px;
       font-family: 'Poppins', sans-serif;
       font-size: .9rem;
-      background: #fff8fa;
-      color: var(--dark);
-      transition: border-color .2s, box-shadow .2s;
+      background: rgba(255,255,255,.75);
+      color: var(--text-dark);
+      transition: border-color .22s, box-shadow .22s, background .22s;
       outline: none;
+      backdrop-filter: blur(4px);
     }
+ 
     .login-input:focus {
-      border-color: var(--pink);
-      box-shadow: 0 0 0 3px rgba(230,49,102,.1);
+      border-color: var(--rose-500);
+      box-shadow: 0 0 0 3.5px rgba(230,49,102,.12);
+      background: rgba(255,255,255,.92);
     }
-    .login-input::placeholder { color: #c8b0bc; }
-
+ 
+    .login-input::placeholder { color: var(--text-light); }
+ 
     /* Toggle password */
     .eye-toggle {
       position: absolute;
@@ -139,135 +207,186 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #c8b0bc;
+      color: var(--text-light);
       font-size: .9rem;
       padding: 0;
+      transition: color .2s, transform .2s;
     }
-    .eye-toggle:hover { color: var(--pink); }
-
+ 
+    .eye-toggle:hover {
+      color: var(--rose-500);
+      transform: translateY(-50%) scale(1.15);
+    }
+ 
     /* ── Botón ── */
     .btn-login {
       width: 100%;
-      padding: .9rem;
-      background: linear-gradient(135deg, #e63166 0%, #c9184a 100%);
+      padding: .95rem;
+      background: linear-gradient(135deg, var(--rose-500), var(--rose-700));
       color: #fff;
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       font-family: 'Poppins', sans-serif;
       font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
       margin-top: .5rem;
-      transition: transform .15s, box-shadow .15s, opacity .15s;
-      box-shadow: 0 4px 16px rgba(230,49,102,.35);
+      transition: transform .25s var(--spring), box-shadow .25s, opacity .2s, filter .2s;
+      box-shadow: 0 5px 20px rgba(230,49,102,.4), inset 0 1px 0 rgba(255,255,255,.2);
       position: relative;
       overflow: hidden;
     }
-    .btn-login:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(230,49,102,.45);
+ 
+    .btn-login::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.18), transparent 60%);
+      border-radius: inherit;
+      pointer-events: none;
     }
-    .btn-login:active:not(:disabled) { transform: translateY(0); }
-    .btn-login:disabled { opacity: .6; cursor: not-allowed; }
-
+ 
+    .btn-login:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 26px rgba(230,49,102,.52);
+      filter: brightness(1.07);
+    }
+ 
+    .btn-login:active:not(:disabled) { transform: scale(.97); }
+    .btn-login:disabled { opacity: .62; cursor: not-allowed; }
+ 
     .btn-login .btn-spinner {
       display: none;
       width: 18px; height: 18px;
       border: 2px solid rgba(255,255,255,.4);
       border-top-color: #fff;
       border-radius: 50%;
-      animation: spin .7s linear infinite;
+      animation: spinAnim .7s linear infinite;
       margin: 0 auto;
     }
-    .btn-login.loading .btn-text { display: none; }
+ 
+    .btn-login.loading .btn-text    { display: none; }
     .btn-login.loading .btn-spinner { display: block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Mensajes de error ── */
+ 
+    @keyframes spinAnim { to { transform: rotate(360deg); } }
+ 
+    /* ── Error ── */
     .login-error {
-      background: #fff0f3;
-      border: 1.5px solid #ffb3c6;
-      border-radius: 10px;
-      padding: .65rem 1rem;
-      font-size: .82rem;
-      color: var(--pink);
+      background: rgba(255,182,210,.25);
+      border: 1.5px solid rgba(255,174,207,.7);
+      border-radius: 12px;
+      padding: .68rem 1rem;
+      font-size: .83rem;
+      color: var(--rose-600);
       text-align: center;
-      margin-top: .8rem;
+      margin-top: .85rem;
       display: none;
-      animation: fadeIn .3s ease;
+      animation: errorIn .32s ease both;
+      backdrop-filter: blur(4px);
     }
+ 
     .login-error.visible { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; } }
-
-    /* Barra de intentos */
+ 
+    @keyframes errorIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+ 
+    /* Intentos */
     .attempts-info {
       text-align: center;
-      font-size: .75rem;
-      color: #bbb;
-      margin-top: .6rem;
+      font-size: .76rem;
+      color: var(--text-light);
+      margin-top: .62rem;
     }
-    .attempts-info.danger { color: var(--pink); font-weight: 500; }
-
+ 
+    .attempts-info.danger {
+      color: var(--rose-500);
+      font-weight: 500;
+    }
+ 
     /* Bloqueo */
     .blocked-overlay {
       display: none;
       text-align: center;
-      padding: 1rem 0 0;
+      padding: 1.1rem 0 .2rem;
+      animation: fadeIn .35s ease both;
     }
+ 
     .blocked-overlay.visible { display: block; }
-    .blocked-overlay .block-emoji { font-size: 2.5rem; margin-bottom: .5rem; }
-    .blocked-overlay .block-msg {
-      font-size: .85rem;
-      color: var(--pink);
+ 
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+ 
+    .block-emoji {
+      font-size: 2.6rem;
+      margin-bottom: .55rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+ 
+    .block-msg {
+      font-size: .87rem;
+      color: var(--rose-500);
       font-weight: 500;
     }
-    .blocked-overlay .block-timer {
+ 
+    .block-timer {
       font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      color: var(--dark);
-      margin: .4rem 0;
+      font-size: 2rem;
+      color: var(--text-dark);
+      margin: .5rem 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,.1);
     }
-    .blocked-overlay .block-hint {
-      font-size: .75rem;
-      color: #aaa;
+ 
+    .block-hint {
+      font-size: .76rem;
+      color: var(--text-light);
+      font-style: italic;
     }
-
-    /* ── Decoración ── */
+ 
+    /* ── Decoración footer ── */
     .login-deco {
       text-align: center;
-      font-size: .75rem;
-      color: #daa;
-      letter-spacing: .15em;
-      margin-top: 1.5rem;
+      font-size: .76rem;
+      color: var(--text-light);
+      letter-spacing: .2em;
+      margin-top: 1.7rem;
+      animation: twinkle 5s ease-in-out infinite;
     }
-
-    /* shake */
-    .shake {
-      animation: shakeAnim .4s ease !important;
-    }
+ 
+    /* ── Shake ── */
+    .shake { animation: shakeAnim .42s ease !important; }
+ 
     @keyframes shakeAnim {
       0%,100% { transform: translateX(0); }
-      20%      { transform: translateX(-8px); }
-      40%      { transform: translateX(8px); }
-      60%      { transform: translateX(-6px); }
-      80%      { transform: translateX(6px); }
+      20%     { transform: translateX(-9px); }
+      40%     { transform: translateX(9px); }
+      60%     { transform: translateX(-7px); }
+      80%     { transform: translateX(7px); }
     }
+ 
+    /* ── Scrollbar suave ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(230,49,102,.25); border-radius: 50px; }
+ 
+    ::selection { background: rgba(230,49,102,.2); color: var(--rose-700); }
   </style>
 </head>
 <body>
-
+ 
 <div id="login-particles"></div>
-
+ 
 <div class="login-card" id="login-card">
-
-  <div class="login-icon">💌</div>
+ 
+  <span class="login-icon">💌</span>
   <h1 class="login-title">Para ti,<br/><em>mi amor</em></h1>
   <p class="login-subtitle">Ingresa para abrir tu carta especial</p>
-
+ 
   <!-- Formulario -->
   <div id="login-form-wrap">
     <div class="field-wrap">
-      <i class="fa-solid fa-user"></i>
+      <i class="fa-solid fa-user field-icon"></i>
       <input
         id="login-username"
         class="login-input"
@@ -278,9 +397,9 @@
         spellcheck="false"
       />
     </div>
-
+ 
     <div class="field-wrap">
-      <i class="fa-solid fa-lock"></i>
+      <i class="fa-solid fa-lock field-icon"></i>
       <input
         id="login-password"
         class="login-input"
@@ -292,18 +411,18 @@
         <i class="fa-solid fa-eye" id="eye-icon"></i>
       </button>
     </div>
-
+ 
     <button class="btn-login" id="login-btn" onclick="handleLogin()">
-      <span class="btn-text"><i class="fa-solid fa-heart me-2"></i>Entrar con amor ✨</span>
+      <span class="btn-text"><i class="fa-solid fa-heart" style="margin-right:.5rem"></i>Entrar con amor ✨</span>
       <span class="btn-spinner"></span>
     </button>
-
+ 
     <div class="login-error" id="login-error">
       Usuario o contraseña incorrectos 💔
     </div>
     <p class="attempts-info" id="attempts-info"></p>
   </div>
-
+ 
   <!-- Bloqueo temporal -->
   <div class="blocked-overlay" id="blocked-overlay">
     <div class="block-emoji">🔒</div>
@@ -311,60 +430,60 @@
     <div class="block-timer" id="block-timer">5:00</div>
     <p class="block-hint">Espera un momento e intenta de nuevo 🕰️</p>
   </div>
-
+ 
   <p class="login-deco">✦ ✦ ✦</p>
 </div>
-
-<!-- Firebase SDK (v9 compat) -->
+ 
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="firebase-config.js"></script>
-
+ 
 <script>
 'use strict';
-
-// ─── Partículas ───────────────────────────────────
+ 
+/* ── Partículas ── */
 (function createParticles() {
   const c = document.getElementById('login-particles');
-  const emojis = ['❤️','💕','💖','🌸','✨','💝','💗','🌹'];
-  for (let i = 0; i < 18; i++) {
+  const emojis = ['❤️','💕','💖','🌸','✨','💝','💗','🌹','🦋','⭐'];
+  for (let i = 0; i < 22; i++) {
     const el = document.createElement('span');
     el.className = 'lp-heart';
     el.textContent = emojis[i % emojis.length];
-    el.style.left = (Math.random() * 100) + '%';
-    el.style.fontSize = (.7 + Math.random() * .9) + 'rem';
-    el.style.animationDuration = (10 + Math.random() * 18) + 's';
-    el.style.animationDelay   = (Math.random() * 15) + 's';
+    el.style.left    = (Math.random() * 100) + '%';
+    el.style.fontSize = (.65 + Math.random() * .95) + 'rem';
+    el.style.animationDuration = (12 + Math.random() * 18) + 's';
+    el.style.animationDelay   = (Math.random() * 16) + 's';
     c.appendChild(el);
   }
 })();
-
-// ─── Inicializar Firebase ──────────────────────────
+ 
+/* ── Firebase init ── */
 firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
-
-// ─── Anti-brute-force state ────────────────────────
-const MAX_ATTEMPTS  = 5;
-const BLOCK_MS      = 5 * 60 * 1000;  // 5 minutos
-
+ 
+/* ── Anti-brute-force ── */
+const MAX_ATTEMPTS = 5;
+const BLOCK_MS     = 5 * 60 * 1000;
+ 
 let attemptCount = parseInt(sessionStorage.getItem('_la') || '0', 10);
 let blockedUntil = parseInt(sessionStorage.getItem('_lb') || '0', 10);
 let blockTimer   = null;
-
+ 
 function isBlocked() { return Date.now() < blockedUntil; }
-
+ 
 function saveAttempts() {
   sessionStorage.setItem('_la', attemptCount);
   sessionStorage.setItem('_lb', blockedUntil);
 }
-
+ 
 function startBlockCountdown() {
   const overlay = document.getElementById('blocked-overlay');
   const form    = document.getElementById('login-form-wrap');
   const timerEl = document.getElementById('block-timer');
   overlay.classList.add('visible');
   form.style.display = 'none';
-
+ 
   function tick() {
     const remaining = Math.max(0, blockedUntil - Date.now());
     const m = Math.floor(remaining / 60000);
@@ -382,96 +501,83 @@ function startBlockCountdown() {
   tick();
   blockTimer = setInterval(tick, 1000);
 }
-
-// Si ya estaba bloqueado al cargar la página
+ 
 if (isBlocked()) startBlockCountdown();
-
-// ─── Toggle contraseña ─────────────────────────────
+ 
+/* ── Toggle password ── */
 window.togglePass = function() {
   const inp  = document.getElementById('login-password');
   const icon = document.getElementById('eye-icon');
   const show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
+  inp.type   = show ? 'text' : 'password';
   icon.className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
 };
-
-// ─── Login ─────────────────────────────────────────
+ 
+/* ── Login ── */
 window.handleLogin = async function() {
   if (isBlocked()) return;
-
+ 
   const usernameRaw = document.getElementById('login-username').value.trim();
   const password    = document.getElementById('login-password').value;
   const btn         = document.getElementById('login-btn');
   const errEl       = document.getElementById('login-error');
-  const attEl       = document.getElementById('attempts-info');
-
-  // Normalizar username (ofuscación básica)
+ 
   const username = usernameRaw.toLowerCase().replace(/\s/g, '');
-
-  // Validar campos vacíos
+ 
   if (!username || !password) {
     showError('Completa ambos campos para continuar 💕');
     return;
   }
-
-  // Buscar usuario permitido por username
+ 
   const userEntry = ALLOWED_USERS[username];
   if (!userEntry) {
     registerFailedAttempt();
     return;
   }
-
-  // Loading state
+ 
   btn.disabled = true;
   btn.classList.add('loading');
   errEl.classList.remove('visible');
-
-  // Delay anti-brute-force (aumenta con intentos)
+ 
   const delay = Math.min(attemptCount * 500, 2000);
   await new Promise(r => setTimeout(r, delay));
-
+ 
   try {
     await auth.signInWithEmailAndPassword(userEntry.email, password);
-
-    // Verificar que la contraseña coincide con la local también (doble capa)
+ 
     if (password !== userEntry.password) {
       await auth.signOut();
       throw new Error('password-mismatch');
     }
-
-    // ✅ Login exitoso
+ 
     sessionStorage.setItem('_la', '0');
     sessionStorage.setItem('_lb', '0');
     sessionStorage.setItem('_lu', username);
-
-    // Redirigir con pequeña animación
+ 
     btn.innerHTML = '<span class="btn-text">💖 Bienvenid@ al amor…</span>';
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 900);
-
+    setTimeout(() => { window.location.href = 'index.html'; }, 900);
+ 
   } catch (err) {
     btn.disabled = false;
     btn.classList.remove('loading');
     registerFailedAttempt();
   }
 };
-
+ 
 function registerFailedAttempt() {
   attemptCount++;
   saveAttempts();
-
   const remaining = MAX_ATTEMPTS - attemptCount;
-
+ 
   if (attemptCount >= MAX_ATTEMPTS) {
     blockedUntil = Date.now() + BLOCK_MS;
     saveAttempts();
     startBlockCountdown();
     return;
   }
-
+ 
   showError('Usuario o contraseña incorrectos 💔');
-
+ 
   const attEl = document.getElementById('attempts-info');
   if (remaining <= 2) {
     attEl.textContent = `⚠️ ${remaining} intento${remaining === 1 ? '' : 's'} restante${remaining === 1 ? '' : 's'}`;
@@ -480,34 +586,30 @@ function registerFailedAttempt() {
     attEl.textContent = '';
     attEl.className = 'attempts-info';
   }
-
+ 
   const card = document.getElementById('login-card');
   card.classList.add('shake');
   setTimeout(() => card.classList.remove('shake'), 450);
 }
-
+ 
 function showError(msg) {
   const errEl = document.getElementById('login-error');
   errEl.textContent = msg;
   errEl.classList.add('visible');
 }
-
-// ─── Enter key ─────────────────────────────────────
+ 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') handleLogin();
 });
-
-// ─── Si ya está autenticado, redirigir ──────────────
+ 
 auth.onAuthStateChanged(user => {
   if (user && !isBlocked()) {
-    // Verificar que es uno de nuestros 2 usuarios permitidos
     const allowed = Object.values(ALLOWED_USERS).some(u => u.email === user.email);
-    if (allowed) {
-      window.location.href = 'index.html';
-    }
+    if (allowed) window.location.href = 'index.html';
   }
 });
 </script>
-
+ 
 </body>
 </html>
+ 
