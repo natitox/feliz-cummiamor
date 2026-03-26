@@ -399,14 +399,32 @@ function flipCard(index) {
 /* ═══════════════════════════════════════
    SALTAR QUIZ — ir directo a la carta
 ═══════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   SALTAR QUIZ CON CLAVE SECRETA
+═══════════════════════════════════════ */
 window.skipToLetter = function() {
-  state.answers.flujoCompleto = true;
-  showScreen('final-letter-screen');
-  animateFinalLetter();
-  showMusicControls();
-  setTimeout(playRandomSong, 800);
-};
 
+  const clave = prompt("🔑 Ingresa la clave para saltar el quiz:");
+
+  if (!clave) return;
+
+  if (clave === "2006") {
+
+    state.answers.flujoCompleto = true;
+
+    showScreen('final-letter-screen');
+    animateFinalLetter();
+    showMusicControls();
+
+    setTimeout(playRandomSong, 800);
+
+  } else {
+
+    alert("❌ Clave incorrecta");
+
+  }
+
+};
 /* ═══════════════════════════════════════
    PANTALLA 5: ROMPECABEZAS
 ═══════════════════════════════════════ */
