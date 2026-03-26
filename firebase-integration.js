@@ -93,16 +93,16 @@ function injectSurpriseSection() {
           <div class="sp-icon sp-icon-ring">💍</div>
         </div>
         <h2 class="sp-title sp-title-special">
-          Tengo que preguntarte<br/>algo importante.<br/><em>eres mi vida sabías¿</em>
+          espero<br/> que le guste.<br/><em>eres mi vida sabías¿</em>
         </h2>
         <div class="sp-divider-stars" aria-hidden="true">✦ ✦ ✦</div>
         <p class="sp-subtitle-q">
-          Desde el primer día que te vi, supe que eras especial.<br/>
-          Cada momento a tu lado ha sido el mejor de mi vida.<br/>
-          Y por eso hoy quiero preguntarte algo…
+          Te lo queria decir antes, pero me daba cosita, pero estoy demasiado seguro de que quiero estár contigo.<br/>
+          Estar a tu lado me hace tan felizzz y espero que también te de seguridad que yo solo quiero estar contigo<br/>
+          y por eso queria preguntarte esto...
         </p>
         <p class="sp-big-question">
-          ¿Quieres ser<br/><em>mi polola?</em> 💍
+          ¿Quieres<br/><em>pololear conmigo?</em> 💍
         </p>
         <div class="sp-answer-btns">
           <button class="sp-btn-si" onclick="surpriseAnswer('si')">
