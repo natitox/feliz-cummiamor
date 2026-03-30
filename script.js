@@ -117,8 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
   createParticles();
   updatePlaylistNames();
   initSiNoQuestions();
-  initChooseGame();
-  initPuzzle();
 });
 
 /* ═══════════════════════════════════════
@@ -138,6 +136,7 @@ window.goToPhase = function(screenId) {
   if (screenId === 'memory-screen' && typeof initMemoryGame === 'function') initMemoryGame();
   if (screenId === 'sort-screen'   && typeof initSortGame    === 'function') initSortGame();
   if (screenId === 'equiz-screen'  && typeof initEmotionalQuiz === 'function') initEmotionalQuiz();
+   if (screenId === 'puzzle-screen') initPuzzle();  // ← agrega esto si no está
   showScreen(screenId);
 };
 
