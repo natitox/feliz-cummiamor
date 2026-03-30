@@ -20,6 +20,49 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
   <link rel="stylesheet" href="style.css?v=3" />
+
+  <style>
+    /* ── Panel hints ── */
+    .panel-hint {
+      font-size: .82rem;
+      color: #888;
+      line-height: 1.5;
+      margin-bottom: .6rem;
+    }
+    .panel-hint a { color: #e63166; }
+
+    /* ── Spotify song list ── */
+    .spotify-song-item { margin-bottom: .4rem; }
+    .spotify-song-btn {
+      width: 100%;
+      text-align: left;
+      background: rgba(30,215,96,.08);
+      border: 1px solid rgba(30,215,96,.25);
+      border-radius: 10px;
+      padding: .55rem .9rem;
+      font-size: .88rem;
+      color: var(--text, #333);
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .spotify-song-btn:hover,
+    .spotify-song-btn.active {
+      background: rgba(30,215,96,.18);
+      border-color: rgba(30,215,96,.55);
+    }
+    .spotify-song-btn .fa-spotify { color: #1ed760; font-size: 1rem; }
+
+    /* ── Photo preview wrap ── */
+    #photo-preview-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px dashed rgba(230,49,102,.3);
+      padding: .4rem;
+    }
+  </style>
 </head>
 <body>
 
@@ -174,7 +217,7 @@
       <div class="q-progress-bar-wrap">
         <div class="q-progress-bar" id="q-progress-bar"></div>
       </div>
-      <p class="q-counter" id="q-counter">1 / 28</p>
+      <p class="q-counter" id="q-counter">1 / 10</p>
       <h2 class="q-title" id="q-sinno-text">Cargando…</h2>
       <div class="sinno-btns">
         <button class="btn-sinno btn-si" onclick="responderSiNo('si')">
@@ -524,30 +567,76 @@ t amooooo :3<br /><br />
       <div class="header-divider"><span>💕</span></div>
     </header>
     <div class="private-panel-wrap">
-      <!-- Subir foto -->
+
+      <!-- ── SUBIR FOTO (vía ImgBB, gratis) ── -->
       <div class="panel-section">
         <h3 class="panel-section-title"><i class="fa-solid fa-camera"></i> Subir nueva foto 📷</h3>
-        <label class="panel-file-label" for="photo-upload-input">
+        <p class="panel-hint">
+          <i class="fa-solid fa-circle-info me-1"></i>
+          Las fotos se suben gratis vía <strong>ImgBB</strong>. Necesitas configurar tu API key en
+          <code>firebase-integration.js</code> (línea <code>IMGBB_API_KEY</code>).
+          Consíguela gratis en <a href="https://api.imgbb.com/" target="_blank" rel="noopener">api.imgbb.com</a> 🔑
+        </p>
+        <label class="panel-file-label" for="photo-upload-input" id="photo-file-label">
           <i class="fa-solid fa-cloud-arrow-up me-2"></i>
-          Selecciona una imagen (máx. 10 MB)
-          <input type="file" id="photo-upload-input" accept="image/*" style="display:none;" />
+          Selecciona una imagen (máx. 32 MB)
+          <input type="file" id="photo-upload-input" accept="image/*" style="display:none;"
+            onchange="previewPhoto(this)" />
         </label>
-        <input id="photo-upload-desc" class="panel-input" type="text" placeholder="Descripción o pie de foto… 💕" maxlength="80" />
+        <!-- Preview antes de subir -->
+        <div id="photo-preview-wrap" style="display:none; text-align:center; margin:.6rem 0;">
+          <img id="photo-preview" src="" alt="Preview"
+            style="max-width:100%; max-height:200px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.15);" />
+        </div>
+        <input id="photo-upload-desc" class="panel-input" type="text"
+          placeholder="Descripción o pie de foto… 💕" maxlength="80" />
         <button id="upload-photo-btn" class="btn-romantic w-100" onclick="uploadPhoto()">
-          <i class="fa-solid fa-cloud-arrow-up me-2"></i>Subir foto
+          <i class="fa-solid fa-cloud-arrow-up me-2"></i>Subir foto al álbum
         </button>
         <div class="panel-status" id="upload-status"></div>
       </div>
-      <!-- Crear carta -->
+
+      <!-- ── MÚSICA SPOTIFY ── -->
+      <div class="panel-section">
+        <h3 class="panel-section-title"><i class="fa-brands fa-spotify"></i> Agregar canción 🎵</h3>
+        <p class="panel-hint">
+          <i class="fa-solid fa-circle-info me-1"></i>
+          Abre Spotify → busca la canción o playlist → clic en
+          <em>Compartir → Copiar enlace</em> y pégalo abajo.
+          El player muestra 30 s de preview (o la canción completa si tienes Spotify abierto).
+        </p>
+        <!-- Player embed -->
+        <div id="spotify-embed-container" style="display:none; margin-bottom:.8rem;"></div>
+        <!-- Lista de canciones guardadas -->
+        <div id="spotify-songs-list" style="margin-bottom:.8rem;">
+          <p id="spotify-no-songs" class="panel-hint" style="color:#aaa; font-style:italic;">
+            Aún no hay canciones guardadas. ¡Agrega la primera! 🎶
+          </p>
+        </div>
+        <!-- Formulario agregar -->
+        <input id="musica-nombre-input" class="panel-input" type="text"
+          placeholder="Nombre de la canción o playlist… 🎵" maxlength="80" />
+        <input id="musica-url-input" class="panel-input" type="url"
+          placeholder="https://open.spotify.com/track/..." />
+        <button id="add-musica-btn" class="btn-romantic w-100" onclick="addMusica()">
+          <i class="fa-solid fa-plus me-2"></i>Agregar canción
+        </button>
+        <div class="panel-status" id="musica-status"></div>
+      </div>
+
+      <!-- ── CREAR CARTA ── -->
       <div class="panel-section">
         <h3 class="panel-section-title"><i class="fa-solid fa-envelope-open-text"></i> Escribir nueva carta 💌</h3>
-        <input id="carta-titulo-input" class="panel-input" type="text" placeholder="Título de la carta…" maxlength="60" />
-        <textarea id="carta-contenido-input" class="panel-input panel-textarea" placeholder="Escribe tu carta aquí con todo el amor del mundo… 🌸" maxlength="1000"></textarea>
+        <input id="carta-titulo-input" class="panel-input" type="text"
+          placeholder="Título de la carta…" maxlength="60" />
+        <textarea id="carta-contenido-input" class="panel-input panel-textarea"
+          placeholder="Escribe tu carta aquí con todo el amor del mundo… 🌸" maxlength="1000"></textarea>
         <button id="create-carta-btn" class="btn-romantic w-100" onclick="createCarta()">
           <i class="fa-solid fa-paper-plane me-2"></i>Enviar carta
         </button>
         <div class="panel-status" id="carta-status"></div>
       </div>
+
     </div>
   </div>
 
@@ -607,6 +696,5 @@ t amooooo :3<br /><br />
 <script src="script.js"></script>
 <script src="firebase-config.js"></script>
 <script src="firebase-integration.js"></script>
-<script src="natito-editor.js"></script>
 </body>
 </html>
