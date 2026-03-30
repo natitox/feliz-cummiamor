@@ -449,7 +449,7 @@ function renderPuzzle(size) {
   const grid = document.getElementById('puzzle-grid');
   if (!grid) return;
 
-  const cellPx = Math.floor(Math.min(window.innerWidth - 64, 370) / size);
+  const cellPx = Math.min(89, Math.floor((window.innerWidth - 32) / size));
   grid.innerHTML = '';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = `repeat(${size}, ${cellPx}px)`;
