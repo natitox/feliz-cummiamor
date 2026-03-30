@@ -333,7 +333,7 @@ function mostrarResultado() {
 
   if (btnWrap) {
     if (porcentaje >= 70) {
-      btnWrap.innerHTML = `<button class="btn-romantic" onclick="goToPhase('choose-screen'); initChooseGame();">
+      btnWrap.innerHTML = `<button class="btn-romantic" onclick="goToPhase('memory-screen');">
         <i class="fa-solid fa-gamepad me-2"></i>Siguiente: ¡Adivina! 🎯
       </button>`;
     } else {
@@ -885,3 +885,25 @@ document.addEventListener('keydown', (e) => {
     }
   };
 })();
+
+
+/* ═══════════════════════════════════════
+   PREVIEW DE FOTO ANTES DE SUBIR
+═══════════════════════════════════════ */
+window.previewPhoto = function(input) {
+  const wrap    = document.getElementById('photo-preview-wrap');
+  const preview = document.getElementById('photo-preview');
+  const label   = document.getElementById('photo-file-label');
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    if (preview) { preview.src = e.target.result; }
+    if (wrap)    { wrap.style.display = 'block'; }
+    if (label) {
+      const nameSpan = label.querySelector('.file-name-txt');
+      if (nameSpan) nameSpan.textContent = file.name;
+    }
+  };
+  reader.readAsDataURL(file);
+};
