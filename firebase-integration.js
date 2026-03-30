@@ -40,6 +40,11 @@ auth.onAuthStateChanged(user => {
   // Habilitar panel privado
   initPrivatePanel();
 
+  // Editor natito (solo para natito)
+  if ((sessionStorage.getItem('_lu') || '') === 'natito') {
+    if (typeof window.initNatitoEditor === 'function') window.initNatitoEditor();
+  }
+
   // Cargar datos de Firestore
   loadDynamicCartas();
   loadDynamicAlbum();
@@ -643,17 +648,10 @@ function initPrivatePanel() {
   if (!allowed) { panel.style.display = 'none'; return; }
 }
 
-/* ════════════════════════════════════════════
-   IMGBB API KEY — gratis en imgbb.com/api
-   1. Ve a https://api.imgbb.com/
-   2. Crea cuenta gratis y copia tu API key
-   3. Pégala aquí abajo
-════════════════════════════════════════════ */
-const IMGBB_API_KEY = '788afa9311150d93136c35f995797225'; // ← reemplaza esto
-
 window.uploadPhoto = async function() {
   const fileInput = document.getElementById('photo-upload-input');
   const descInput = document.getElementById('photo-upload-desc');
+  const statusEl  = document.getElementById('upload-status');
 
   if (!fileInput?.files?.length) {
     showUploadStatus('Selecciona una imagen primero 📷', 'error');
@@ -661,36 +659,30 @@ window.uploadPhoto = async function() {
   }
 
   const file = fileInput.files[0];
-  const MAX_SIZE = 32 * 1024 * 1024; // 32 MB (límite ImgBB)
+  const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
+  // Validar
   if (!file.type.startsWith('image/')) {
     showUploadStatus('Solo se permiten imágenes 🖼️', 'error');
     return;
   }
   if (file.size > MAX_SIZE) {
-    showUploadStatus('La imagen es muy grande (máx. 32 MB) 📏', 'error');
+    showUploadStatus('La imagen es muy grande (máx. 10 MB) 📏', 'error');
     return;
   }
 
   const btn = document.getElementById('upload-photo-btn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Subiendo… 💕'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Subiendo… 💕'; }
 
   try {
-    // Subir a ImgBB (gratis, sin Firebase Storage)
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('key', IMGBB_API_KEY);
-
-    const res  = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error?.message || 'Error ImgBB');
-
-    const url  = json.data.url;
-    const desc = descInput?.value?.trim() || 'Un momento especial 💕';
+    const filename = `fotos/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+    const ref = storage.ref(filename);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
 
     await db.collection('fotos').add({
       url,
-      descripcion: desc,
+      descripcion: descInput?.value?.trim() || 'Un momento especial 💕',
       autor: window._currentUsername || 'amor',
       fecha: firebase.firestore.FieldValue.serverTimestamp()
     });
@@ -698,125 +690,30 @@ window.uploadPhoto = async function() {
     showUploadStatus('¡Foto subida con amor! 💖', 'ok');
     if (descInput) descInput.value = '';
     fileInput.value = '';
-    const preview = document.getElementById('photo-preview');
-    if (preview) { preview.src = ''; preview.style.display = 'none'; }
-    const previewWrap = document.getElementById('photo-preview-wrap');
-    if (previewWrap) previewWrap.style.display = 'none';
 
     // Agregar al álbum dinámicamente
     const grid = document.getElementById('album-grid');
     if (grid) {
       const item = document.createElement('div');
       item.className = 'album-item revealed';
-      item.dataset.caption = desc;
+      item.dataset.caption = descInput?.value || '';
       item.onclick = function() { if (typeof openLightbox === 'function') openLightbox(this); };
       item.innerHTML = `
         <div class="album-frame">
-          <img src="${url}" alt="${desc}" loading="lazy" />
+          <img src="${url}" alt="Nueva foto" loading="lazy" />
           <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <p class="album-caption">${desc}</p>`;
+        <p class="album-caption">${descInput?.value || 'Un momento especial 💕'}</p>`;
       grid.prepend(item);
     }
 
   } catch (err) {
     console.error(err);
-    showUploadStatus('Error: ' + (err.message || 'intenta de nuevo 😔'), 'error');
+    showUploadStatus('Error al subir. Intenta de nuevo 😔', 'error');
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-2"></i>Subir foto'; }
+    if (btn) { btn.disabled = false; btn.textContent = '📤 Subir foto'; }
   }
 };
-
-/* ════════════════════════════════════════════
-   MÚSICA: GUARDAR CANCIÓN DE SPOTIFY EN FIRESTORE
-   Acepta: https://open.spotify.com/track/...
-           https://open.spotify.com/playlist/...
-           https://open.spotify.com/album/...
-════════════════════════════════════════════ */
-window.addMusica = async function() {
-  const urlInput    = document.getElementById('musica-url-input');
-  const nombreInput = document.getElementById('musica-nombre-input');
-  const urlRaw      = urlInput?.value?.trim();
-  const nombre      = nombreInput?.value?.trim();
-
-  if (!urlRaw || !nombre) {
-    showMusicaStatus('Completa el nombre y la URL de Spotify 🎵', 'error');
-    return;
-  }
-
-  // Convertir URL de Spotify a embed
-  let embedUrl = urlRaw;
-  const spMatch = urlRaw.match(/open\.spotify\.com\/(track|playlist|album|artist)\/([a-zA-Z0-9]+)/);
-  if (spMatch) {
-    embedUrl = `https://open.spotify.com/embed/${spMatch[1]}/${spMatch[2]}?utm_source=generator`;
-  } else if (!urlRaw.includes('spotify.com/embed') && !urlRaw.startsWith('https://')) {
-    showMusicaStatus('Pega una URL de Spotify válida 🎵', 'error');
-    return;
-  }
-
-  const btn = document.getElementById('add-musica-btn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando…'; }
-
-  try {
-    await db.collection('musica').add({
-      nombre,
-      embedUrl,
-      autor: window._currentUsername || 'amor',
-      fecha: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    showMusicaStatus('¡Canción guardada! 🎶', 'ok');
-    if (urlInput)    urlInput.value    = '';
-    if (nombreInput) nombreInput.value = '';
-
-    addSongToList({ nombre, embedUrl });
-
-  } catch (err) {
-    console.error(err);
-    showMusicaStatus('Error al guardar 😔', 'error');
-  } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-plus me-2"></i>Agregar canción'; }
-  }
-};
-
-function addSongToList(data) {
-  const list = document.getElementById('spotify-songs-list');
-  if (!list) return;
-  const noMsg = document.getElementById('spotify-no-songs');
-  if (noMsg) noMsg.style.display = 'none';
-  const item = document.createElement('div');
-  item.className = 'spotify-song-item';
-  item.innerHTML = `<button class="spotify-song-btn" onclick="playSpotifySong('${data.embedUrl.replace(/'/g, "\'")}', this)"><i class="fa-brands fa-spotify me-2"></i>${data.nombre}</button>`;
-  list.prepend(item);
-}
-
-window.playSpotifySong = function(embedUrl, btn) {
-  const player = document.getElementById('spotify-embed-container');
-  if (!player) return;
-  document.querySelectorAll('.spotify-song-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  player.innerHTML = `<iframe style="border-radius:12px; width:100%;" src="${embedUrl}" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-  player.style.display = 'block';
-};
-
-async function loadDynamicMusica() {
-  try {
-    const snap = await db.collection('musica').orderBy('fecha', 'desc').get();
-    if (snap.empty) return;
-    snap.forEach(doc => addSongToList(doc.data()));
-  } catch (err) {
-    console.warn('Error cargando música:', err);
-  }
-}
-
-function showMusicaStatus(msg, type) {
-  const el = document.getElementById('musica-status');
-  if (!el) return;
-  el.textContent = msg;
-  el.className = 'panel-status ' + (type === 'ok' ? 'status-ok' : 'status-error');
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3000);
-}
 
 window.createCarta = async function() {
   const tituloEl   = document.getElementById('carta-titulo-input');
