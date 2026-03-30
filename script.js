@@ -117,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
   createParticles();
   updatePlaylistNames();
   initSiNoQuestions();
+  initChooseGame();
+  initPuzzle();
 });
 
 /* ═══════════════════════════════════════
@@ -136,7 +138,6 @@ window.goToPhase = function(screenId) {
   if (screenId === 'memory-screen' && typeof initMemoryGame === 'function') initMemoryGame();
   if (screenId === 'sort-screen'   && typeof initSortGame    === 'function') initSortGame();
   if (screenId === 'equiz-screen'  && typeof initEmotionalQuiz === 'function') initEmotionalQuiz();
-   if (screenId === 'puzzle-screen') initPuzzle();  // ← agrega esto si no está
   showScreen(screenId);
 };
 
@@ -332,7 +333,7 @@ function mostrarResultado() {
 
   if (btnWrap) {
     if (porcentaje >= 70) {
-      btnWrap.innerHTML = `<button class="btn-romantic" onclick="goToPhase('memory-screen');">
+      btnWrap.innerHTML = `<button class="btn-romantic" onclick="goToPhase('choose-screen'); initChooseGame();">
         <i class="fa-solid fa-gamepad me-2"></i>Siguiente: ¡Adivina! 🎯
       </button>`;
     } else {
@@ -468,12 +469,11 @@ function renderPuzzle(size) {
     const bgPosY = size === 1 ? 0 : (row / (size - 1)) * 100;
 
     cell.style.width               = cellPx + 'px';
-   cell.style.height              = cellPx + 'px';
-   cell.style.backgroundImage = 'url("img/foto9.jpg")';
-   cell.style.backgroundSize      = `${size * 100}% ${size * 100}%`;
-   cell.style.backgroundRepeat    = 'no-repeat';
-   cell.style.backgroundPositionX = `${bgPosX}%`;
-   cell.style.backgroundPositionY = `${bgPosY}%`;
+    cell.style.height              = cellPx + 'px';
+    cell.style.backgroundImage     = 'url("' + (window._puzzleImageUrl || 'img/foto1.jpg') + '")';
+    cell.style.backgroundSize      = `${size * 100}%`;
+    cell.style.backgroundPositionX = `${bgPosX}%`;
+    cell.style.backgroundPositionY = `${bgPosY}%`;
 
     cell.onclick = () => handlePuzzleClick(position);
     grid.appendChild(cell);
@@ -885,25 +885,3 @@ document.addEventListener('keydown', (e) => {
     }
   };
 })();
-
-
-/* ═══════════════════════════════════════
-   PREVIEW DE FOTO ANTES DE SUBIR
-═══════════════════════════════════════ */
-window.previewPhoto = function(input) {
-  const wrap    = document.getElementById('photo-preview-wrap');
-  const preview = document.getElementById('photo-preview');
-  const label   = document.getElementById('photo-file-label');
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (preview) { preview.src = e.target.result; }
-    if (wrap)    { wrap.style.display = 'block'; }
-    if (label) {
-      const nameSpan = label.querySelector('.file-name-txt');
-      if (nameSpan) nameSpan.textContent = file.name;
-    }
-  };
-  reader.readAsDataURL(file);
-};
