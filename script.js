@@ -469,12 +469,12 @@ function renderPuzzle(size) {
     const bgPosY = size === 1 ? 0 : (row / (size - 1)) * 100;
 
     cell.style.width               = cellPx + 'px';
-    cell.style.height              = cellPx + 'px';
-   cell.style.backgroundImage      = 'url("img/foto9.jpg")';
-   cell.style.backgroundSize       = `${size * 100}% ${size * 100}%`;
-   cell.style.backgroundRepeat     = 'no-repeat';
-    cell.style.backgroundPositionX = `${bgPosX}%`;
-    cell.style.backgroundPositionY = `${bgPosY}%`;
+   cell.style.height              = cellPx + 'px';
+   cell.style.backgroundImage     = 'url("img/foto9.jpg?v=2")';
+   cell.style.backgroundSize      = `${size * 100}% ${size * 100}%`;
+   cell.style.backgroundRepeat    = 'no-repeat';
+   cell.style.backgroundPositionX = `${bgPosX}%`;
+   cell.style.backgroundPositionY = `${bgPosY}%`;
 
     cell.onclick = () => handlePuzzleClick(position);
     grid.appendChild(cell);
