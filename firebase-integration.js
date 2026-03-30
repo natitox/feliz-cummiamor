@@ -123,10 +123,10 @@ function injectSurpriseSection() {
         <button class="surprise-close" onclick="closeSurprise()">✕</button>
         <div class="sp-deco">🎉 💖 🎉</div>
         <div class="sp-gif-wrap">
-          <img src="https://media.giphy.com/media/v6aOjy0Qo1fIA/giphy.gif"
-               alt="gatito celebrando"
+          <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2F0cXl4MHFyNG1pOTRwdzZmcWwxbm9kcGFsdTl4aWRtdTZhZG82NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1kymxb4RCuOwE/giphy.gif"
+               alt="snoopy"
                class="sp-gif sp-gif-yes"
-               onerror="this.src='https://media.giphy.com/media/BzyTuYCmvSORqs1ABM/giphy.gif'" />
+               onerror="this.src='https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExc2F0cXl4MHFyNG1pOTRwdzZmcWwxbm9kcGFsdTl4aWRtdTZhZG82NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1kymxb4RCuOwE/giphy.gif'" />
         </div>
         <h2 class="sp-title sp-title-yes">¡¡Me dijo que siiiiiii!!!!!!! 🎊</h2>
         <p class="sp-msg-yes">
@@ -143,10 +143,10 @@ function injectSurpriseSection() {
         <button class="surprise-close" onclick="closeSurprise()">✕</button>
         <div class="sp-deco">😿 🥺 😿</div>
         <div class="sp-gif-wrap">
-          <img src="https://media.giphy.com/media/ISOckXUybVfQ4/giphy.gif"
-               alt="gatito triste"
+          <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2RuMTdtbHA0eHZ3MG5iaWI3OWtueG5lN2ZieHBxbXo2cmF1dDIzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8boMf1VXVHoJy/giphy.gif"
+               alt="troste snupi"
                class="sp-gif sp-gif-no"
-               onerror="this.src='https://media.giphy.com/media/6uMqzcbWNgwGca8Jfe/giphy.gif'" />
+               onerror="this.src='https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2RuMTdtbHA0eHZ3MG5iaWI3OWtueG5lN2ZieHBxbXo2cmF1dDIzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8boMf1VXVHoJy/giphy.gif'" />
         </div>
         <h2 class="sp-title sp-title-no">Está bien… 🥺</h2>
         <p class="sp-msg-no">
