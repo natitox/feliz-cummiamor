@@ -649,7 +649,7 @@ function initPrivatePanel() {
    2. Crea cuenta gratis y copia tu API key
    3. Pégala aquí abajo
 ════════════════════════════════════════════ */
-const IMGBB_API_KEY = 'TU_API_KEY_DE_IMGBB'; // ← reemplaza esto
+const IMGBB_API_KEY = '788afa9311150d93136c35f995797225'; // ← reemplaza esto
 
 window.uploadPhoto = async function() {
   const fileInput = document.getElementById('photo-upload-input');
