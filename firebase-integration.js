@@ -1,50 +1,80 @@
-/* ═══════════════════════════════════════════════════════
-   firebase-integration.js  — v1.0
-   ─────────────────────────────────────────────────────
-   Integración completa:
-   • Auth guard (redirige a login.html si no hay sesión)
-   • Sección sorpresa flotante 💌 con candado 8 dígitos
-   • Juego de Memoria (pares de cartas)
-   • Juego Ordena la Historia
-   • Quiz Emocional personalizado
-   • Panel privado (subir fotos + crear cartas)
-   • Álbum dinámico desde Firestore/Storage
-   • Cartas dinámicas desde Firestore
-═══════════════════════════════════════════════════════ */
 'use strict';
 
 /* ════════════════════════════════════════════
    0. INICIALIZAR FIREBASE
 ════════════════════════════════════════════ */
-firebase.initializeApp(FIREBASE_CONFIG);
-const auth      = firebase.auth();
-const db        = firebase.firestore();
-const storage   = firebase.storage();
+const app = firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+/* ════════════════════════════════════════════
+   HELPERS DE SEGURIDAD
+════════════════════════════════════════════ */
+function isAllowedEmail(email) {
+  return ALLOWED_EMAILS.includes((email || '').toLowerCase());
+}
+
+function currentUserIsAllowed() {
+  return isAllowedEmail(window._currentUser?.email || '');
+}
+
+/* ════════════════════════════════════════════
+   PANEL PRIVADO (CONTROL VISUAL)
+════════════════════════════════════════════ */
+function initPrivatePanel() {
+  const panelTab = document.getElementById('tab-panel');
+  const panelBtn = document.getElementById('tab-btn-panel');
+  const user = window._currentUser;
+
+  if (!panelTab || !panelBtn || !user) return;
+
+  const allowed = isAllowedEmail(user.email || '');
+
+  if (allowed) {
+    panelBtn.style.display = '';
+    panelTab.style.display = 'none';
+  } else {
+    panelBtn.style.display = 'none';
+    panelTab.style.display = 'none';
+  }
+}
 
 /* ════════════════════════════════════════════
    1. AUTH GUARD — si no hay sesión → login
 ════════════════════════════════════════════ */
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(async user => {
   if (!user) {
     window.location.href = 'login.html';
     return;
   }
-  // Guardar usuario actual globalmente
+
+  const signedEmail = (user.email || '').toLowerCase();
+
+  // 🔒 validación real
+  if (!isAllowedEmail(signedEmail)) {
+    await auth.signOut();
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // 👇 guardar usuario global
   window._currentUser = user;
   window._currentUsername = sessionStorage.getItem('_lu') || 'amor';
 
-  // Mostrar nombre en bienvenida (si existe el elemento)
   const nameEl = document.getElementById('user-display-name');
   if (nameEl) nameEl.textContent = window._currentUsername;
 
-  // Habilitar panel privado
+  // 👇 inicializar panel
   initPrivatePanel();
 
-  // Cargar datos de Firestore
+  // 👇 cargar contenido
   loadDynamicCartas();
   loadDynamicAlbum();
   loadDynamicMusica();
 });
+
+
 
 /* ════════════════════════════════════════════
    2. SECCIÓN SORPRESA FLOTANTE 💌
