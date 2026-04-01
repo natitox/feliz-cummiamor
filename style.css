@@ -572,6 +572,7 @@ body::before {
   position: relative;
   display: none;
   opacity: 0;
+   max-width: 560px; /* o el valor que necesites */
   transform: translateY(30px) scale(.96);
   transition: opacity var(--transition), transform var(--transition);
 }
