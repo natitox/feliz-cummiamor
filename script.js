@@ -469,7 +469,7 @@ function renderPuzzle(size) {
 
     cell.style.width               = cellPx + 'px';
    cell.style.height              = cellPx + 'px';
-   cell.style.backgroundImage = 'url("img/enamoradito.jpeg")';
+   cell.style.backgroundImage = 'url("img/enamoradito.jpg")';
    cell.style.backgroundSize      = `${size * 100}% ${size * 100}%`;
    cell.style.backgroundRepeat    = 'no-repeat';
    cell.style.backgroundPositionX = `${bgPosX}%`;
