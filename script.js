@@ -28,7 +28,12 @@ const CONFIG = {
     'music/cancion2.mp3',
     'music/cancion3.mp3',
     'music/cancion4.mp3',
-    'music/cancion5.mp3'
+    'music/cancion5.mp3',
+    'music/cancion6.mp3',
+    'music/cancion7.mp3',
+    'music/cancion8.mp3',
+    'music/cancion9.mp3',
+    'music/cancion10.mp3'
   ],
 
   SONG_NAMES: [
@@ -36,7 +41,12 @@ const CONFIG = {
     'Nuestra canción 2',
     'Nuestra canción 3',
     'Nuestra canción 4',
-    'Nuestra canción 5'
+    'Nuestra canción 5',
+    'Nuestra canción 6',
+    'Nuestra canción 7',
+    'Nuestra canción 8',
+    'Nuestra canción 9',
+    'Nuestra canción 10'
   ]
 };
 
