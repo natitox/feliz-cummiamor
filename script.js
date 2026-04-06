@@ -10,7 +10,7 @@
    CONFIGURACIÓN — EDITA AQUÍ
 ═══════════════════════════════════════ */
 const CONFIG = {
-  PIN: '7195',
+  PIN: '1805',
 
   EMAILJS_SERVICE_ID:  'service_60wzk5j',   // ← tu service ID
   EMAILJS_TEMPLATE_ID: 'template_50p5kvb',  // ← tu template ID
