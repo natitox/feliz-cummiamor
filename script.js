@@ -10,7 +10,7 @@
    CONFIGURACIÓN — EDITA AQUÍ
 ═══════════════════════════════════════ */
 const CONFIG = {
-  PIN: '6195',
+  PIN: '7195',
 
   EMAILJS_SERVICE_ID:  'service_60wzk5j',   // ← tu service ID
   EMAILJS_TEMPLATE_ID: 'template_50p5kvb',  // ← tu template ID
@@ -51,7 +51,7 @@ const preguntas = [
   { pregunta: "¿Natito te compraria medicamentos si enfermas¿ 💊", respuestaCorrecta: "si" },
   { pregunta: "¿Natito puede ver una serie sin distraerse? ", respuestaCorrecta: "no" },
   { pregunta: "¿Natito le cuesta decir lo que siente? 🥺", respuestaCorrecta: "si" },
-  { pregunta: "¿Natito quiere tener 3 hijos? 📺", respuestaCorrecta: "no" },
+  { pregunta: "¿Natito haria lo posible por verte aun que sea un ratito? 📺", respuestaCorrecta: "si" },
   { pregunta: "¿Natito te cocinaria siempre? ", respuestaCorrecta: "si" },
   { pregunta: "¿Natito daría la vida por ti? ", respuestaCorrecta: "si" }
 ];
