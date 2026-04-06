@@ -566,7 +566,7 @@ body::before {
   backdrop-filter: blur(14px);
   border: var(--border-romantic);
   border-radius: var(--radius-card);
-  padding: 2.5rem 2rem;
+  padding: 2.5rem 2.5rem;
   text-align: center;
   box-shadow: var(--shadow-soft);
   position: relative;
