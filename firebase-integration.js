@@ -385,12 +385,15 @@ function memoryComplete() {
    4. JUEGO: ORDENA LA HISTORIA
 ════════════════════════════════════════════ */
 const historyPhrases = [
-  { id: 1, text: "Nos conocimos y algo especial comenzó ✨" },
-  { id: 2, text: "Las primeras conversaciones que me robaron el corazón 💬" },
-  { id: 3, text: "Nuestra primera salida juntos, nerviosos y emocionados 🌸" },
-  { id: 4, text: "El momento en que te dije 'te amo' por primera vez 💌" },
-  { id: 5, text: "Cada día a tu lado se volvió mi favorito 💖" },
-  { id: 6, text: "Y aquí estamos, escribiendo nuestro propio cuento 🌟" }
+  { id: 1, text: "Hablamos en el cum de la tama y me curé bastamte ASJDAJASDKSAK✨" },
+  { id: 2, text: "Me enviaste soli, luego te meti a cf, después me dist laik a historia random y te hablé ASJsadjasjdas💬" },
+  { id: 3, text: " T invité a salir y te fui a buscar al preu en cande y tomamos cafecito🌸" },
+  { id: 4, text: "Comenzamos a salir seguido y te volviste parte de mi semana 💌" },
+  { id: 5, text: "Halloweennnnnn nuestra primera noche que dormimos juntoss 💖" },
+  { id: 6, text: " Comenzaron las salidas a la playita y te dije te quiero en un dia de noviembre que fuimos a comer pizza y habia vientito un poco heladito🌟" },
+  { id: 7, text: "Me dijiste te amo mientras dormia y tmb fuiste el mjr regalo que he tenido💖✨" },
+  { id: 8, text: "Nos dijimos te amo en la playita y se me pusieron los ojos llorosos y tu lloraste pq me amas mucho 💌✨" },
+  { id: 9, text: "Te pedí que fueras mi novia y me dijiste que si, asíq ahora somos novios y estamos muy enamoradossss 💛💛 ✨" }
 ];
 
 let sortDragSrc = null;
@@ -490,28 +493,28 @@ const emojiQuiz = [
   {
     pregunta: "Si pudiéramos ir a cualquier lugar ahora mismo, ¿a dónde iríamos? 🌍",
     opciones: [
-      { texto: "Una playa desierta 🏖️", resp: "A tomar sol juntos, sin prisa y sin el mundo, solo nosotros dos. Eso suena perfecto." },
-      { texto: "Una ciudad nueva 🏙️", resp: "Explorando calles desconocidas, perdiéndonos y encontrándonos en cada esquina. ¡Me encantaría!" },
-      { texto: "Una cabaña en el bosque 🌲", resp: "Lejos del ruido, solo el sonido de la naturaleza y tu voz. El plan más romántico." },
-      { texto: "Quedarnos en casa 🏠", resp: "A veces el mejor lugar del mundo es estar en casa contigo. No necesito más." }
+      { texto: "Una playa desierta 🏖️", resp: "A tomar sol juntos, comer rolls con juguito de naranja sin prisa y sin nadie, solo nosotros dos. Eso suena dms perfecto." },
+      { texto: "Una ciudad nueva 🏙️", resp: "Explorando calles desconocidas, perdiéndonos y luego tratando de encontrarnos o encontrar lugares. ¡Me encantaría!" },
+      { texto: "Una cabaña en el bosque 🌲", resp: "Lejos del ruido que genera la gente d mrda, solo el sonido de la naturaleza y tu voz. El plan más romántico algo como llifén entre bosque y playita es lo mjr del mundo contigo." },
+      { texto: "Quedarnos en casa 🏠", resp: "A veces el mejor lugar del mundo es estar en casa contigo, alimentarte y poder dormir sin ropa contigo. No necesito nada más." }
     ]
   },
   {
     pregunta: "¿Cuál sería nuestro plan perfecto para un sábado? 🌸",
     opciones: [
-      { texto: "Desayuno largo y rico ☕", resp: "Café con leche, tostadas, y tú frente a mí. Los sábados deberían ser todos así." },
-      { texto: "Salir a caminar sin rumbo 🚶‍♂️‍🚶‍♀️", resp: "Sin destino fijo, solo la mano de alguien que quieres. Eso es libertad." },
-      { texto: "Ver películas todo el día 🎬", resp: "Manta, snacks, y tú. Eso es lo que necesito para ser la persona más feliz." },
-      { texto: "Sorprenderme con algo 🎁", resp: "Me encanta que quieras sorprenderme. Cada momento contigo ya es una sorpresa bonita." }
+      { texto: "Desayuno largo y rico ☕", resp: "Café o tecito, tostadas con huevito o mantequilla, y tú frente a mí mientras escuchamos las olas en curiñanco o estamos con los gatitos en mi casa. Los sábados deberían ser todos así." },
+      { texto: "Salir a caminar sin rumbo 🚶‍♂️‍🚶‍♀️", resp: "Sin destino fijo, solo la mano de alguien que amas con tu alma !!!!osea yo¡¡¡ . Eso es libertad." },
+      { texto: "Ver películas todo el día 🎬", resp: "Manta, snacks, y tú. Eso es lo que necesito para ser la persona más feliz, mentira no necesito todo eso, solo con estar contigo soy el más feliz, pero igual es buen plan." },
+      { texto: "Sorprenderme con algo 🎁", resp: "Me encanta que quieras sorprenderme, como con el album. Cada momento contigo ya es una sorpresa bonita como tus ojos al mirarme." }
     ]
   },
   {
     pregunta: "¿Qué canción describe mejor lo que sientes ahora? 🎵",
     opciones: [
-      { texto: "Una canción lenta y romántica 🎻", resp: "De esas que ponen en las películas cuando los protagonistas finalmente se miran. Eso somos." },
-      { texto: "Algo alegre y bailable 💃", resp: "Porque estar enamorado tiene que celebrarse a todo volumen. ¡Que suene!" },
-      { texto: "Una canción tranquila de verano 🌊", resp: "Como ese momento de calma perfecta. Contigo todo tiene esa vibra de paz." },
-      { texto: "Algo profundo con letra bonita 📝", resp: "Hay cosas que solo la música puede decir. Y tú inspiras las mejores letras." }
+      { texto: "Una canción lenta y romántica estilo macccc 🎻", resp: "De esas que ponen en las películas cuando los protagonistas finalmente se miran. Eso somos." },
+      { texto: "Algo alegre y bailable su sinaka💃", resp: "Pq el gozo contigo es lo mjr q hay. ¡t amo!!!!" },
+      { texto: "Una canción tranquila de verano 🌊", resp: "Como ese momento en el que estamos en la playita relajados escuchando musica y abrazandonos." },
+      { texto: "Algo profundo con letra bonita 📝", resp: "Pq con esas canciones te acuerdas de mi 🐱 y yo tmbbbbb pq te dediqué una cancion q nunca en la vida iba a dedicar x nada del mundo pero te la mereces!!!!!! aun que no es tan profunda la letra pero es una de mis canciones favoritas de hace muchisimos años atrás!!." }
     ]
   }
 ];
