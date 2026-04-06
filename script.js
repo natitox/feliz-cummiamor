@@ -405,7 +405,7 @@ window.skipToLetter = function() {
 
   if (!clave) return;
 
-  if (clave === "2006") {
+  if (clave === "2603") {
 
     state.answers.flujoCompleto = true;
 
