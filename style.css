@@ -1403,7 +1403,7 @@ body::before {
 .music-body {
   padding: .75rem;
   transition: max-height .4s ease, opacity .4s ease;
-  max-height: 400px;
+  max-height: 520px;
   opacity: 1;
 }
 
