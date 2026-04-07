@@ -16,12 +16,17 @@ const CONFIG = {
   EMAILJS_TEMPLATE_ID: 'template_50p5kvb',  // ← tu template ID
   EMAILJS_PUBLIC_KEY:  'lQgzaPl2y_KEiVQaB',  // ← tu public key
   YOUTUBE_IDS: [
-    'uEcKk2U_U7A',
-    'Q4Js9OEODHM',
-    'sXR93C_bSVk',
-    'J_8xCOSekog',
-    '-7a49quIQQc'
-  ],
+  'uEcKk2U_U7A',
+  'Q4Js9OEODHM',
+  'sXR93C_bSVk',
+  'J_8xCOSekog',
+  '-7a49quIQQc',
+  '',
+  '',
+  '',
+  '',
+  ''
+],
 
   MP3_FILES: [
     'music/cancion1.mp3',
