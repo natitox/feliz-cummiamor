@@ -66,14 +66,19 @@ auth.onAuthStateChanged(async user => {
   if (nameEl) nameEl.textContent = window._currentUsername;
 
   // 👇 inicializar panel
+// Habilitar panel privado
   initPrivatePanel();
 
-  // 👇 cargar contenido
+  // Editor natito (solo para natito)
+  if ((sessionStorage.getItem('_lu') || '') === 'natito') {
+    if (typeof window.initNatitoEditor === 'function') window.initNatitoEditor();
+  }
+
+  // Cargar datos de Firestore
   loadDynamicCartas();
   loadDynamicAlbum();
   loadDynamicMusica();
 });
-
 
 
 /* ════════════════════════════════════════════
