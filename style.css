@@ -1354,7 +1354,7 @@ body::before {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  width: min(300px, calc(100vw - 2rem));
+  width: min(380px, calc(100vw - 2rem));
   background: rgba(255,255,255,.95);
   backdrop-filter: blur(16px);
   border: var(--border-romantic);
