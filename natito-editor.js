@@ -186,10 +186,19 @@
       letterIntro: Editor.data.textos.letterIntro || getHtml('.letter-intro')
     };
   }
+async function saveEditorData(section, value) {
+  const db = getDb();
 
-  async function saveEditorData(section, value) {
-    await getEditorDocRef().set({ [section]: value }, { merge: true });
+  if (!db) {
+    showToast('❌ Firebase aún no está listo');
+    return;
   }
+
+  await db.collection(EDITOR_DOC.collection).doc(EDITOR_DOC.id).set(
+    { [section]: value },
+    { merge: true }
+  );
+}
 
   function applyEditorData() {
     applyPin(Editor.data.pin);
