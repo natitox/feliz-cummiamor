@@ -622,6 +622,8 @@ function goToLetter() {
 ═══════════════════════════════════════ */
 function sendAnswersByEmail() {
   if (typeof emailjs === 'undefined') return;
+  // Solo enviar email para snupi
+  if ((window._currentUsername || '') !== 'snupi') return;
 
   // ── Intentos candado ──
   const intentos    = state.answers.intentosCandado;
