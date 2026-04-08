@@ -937,6 +937,43 @@ document.addEventListener('DOMContentLoaded', () => {
   initMemoryGame();
   initSortGame();
   initEmotionalQuiz();
+/* esto es lo nuevo */
+
+   
+   'use strict';
+
+(function () {
+  function getUsernameFromEmail(email) {
+    if (!email) return '';
+    return String(email).split('@')[0].toLowerCase();
+  }
+
+  window.auth.onAuthStateChanged((user) => {
+    if (!user) {
+      window._currentUsername = '';
+      return;
+    }
+
+    const username = getUsernameFromEmail(user.email || '');
+    window._currentUsername = username;
+
+    console.log('Usuario autenticado:', username);
+
+    if (window.db && typeof window.initNatitoEditor === 'function') {
+      window.initNatitoEditor();
+    }
+  });
+
+  window.logoutUser = async function () {
+    try {
+      await window.auth.signOut();
+      window.location.href = 'login.html';
+    } catch (err) {
+      console.error('Error al cerrar sesión:', err);
+      alert('No se pudo cerrar sesión');
+    }
+  };
+})();
 
   // Inyectar estilos extra para animación de propuesta
   const style = document.createElement('style');
