@@ -61,10 +61,9 @@
     return window._currentUsername === EDITOR_USERNAME;
   }
 
-  function getDb() {
-    if (!window.db) throw new Error('Firestore (db) no está disponible');
-    return window.db;
-  }
+ function getDb() {
+  return window.db || null;
+}
 
   function getQuestionsSource() {
     if (Array.isArray(window.preguntas) && window.preguntas.length) return window.preguntas;
@@ -128,27 +127,36 @@
   }
 
   async function loadEditorData() {
-    const snap = await getEditorDocRef().get();
-    if (!snap.exists) {
-      seedRuntimeDefaults();
-      return;
-    }
+  const db = getDb();
 
-    const data = snap.data() || {};
-    Editor.data = {
-      preguntas: Array.isArray(data.preguntas) ? data.preguntas : [],
-      storyLines: Array.isArray(data.storyLines) ? data.storyLines : [],
-      flipCards: Array.isArray(data.flipCards) ? data.flipCards : [],
-      puzzleImage: data.puzzleImage || '',
-      pin: data.pin || '',
-      textos: {
-        lockTitle: data.textos?.lockTitle || '',
-        lockSubtitle: data.textos?.lockSubtitle || '',
-        welcomeTitle: data.textos?.welcomeTitle || '',
-        finalLetter: data.textos?.finalLetter || '',
-        letterIntro: data.textos?.letterIntro || ''
-      }
-    };
+  if (!db) {
+    console.warn('Editor: db aún no está disponible, usando defaults');
+    seedRuntimeDefaults();
+    return;
+  }
+
+  const snap = await db.collection(EDITOR_DOC.collection).doc(EDITOR_DOC.id).get();
+
+  if (!snap.exists) {
+    seedRuntimeDefaults();
+    return;
+  }
+
+  const data = snap.data() || {};
+  Editor.data = {
+    preguntas: Array.isArray(data.preguntas) ? data.preguntas : [],
+    storyLines: Array.isArray(data.storyLines) ? data.storyLines : [],
+    flipCards: Array.isArray(data.flipCards) ? data.flipCards : [],
+    puzzleImage: data.puzzleImage || '',
+    pin: data.pin || '',
+    textos: {
+      lockTitle: data.textos?.lockTitle || '',
+      lockSubtitle: data.textos?.lockSubtitle || '',
+      welcomeTitle: data.textos?.welcomeTitle || '',
+      finalLetter: data.textos?.finalLetter || '',
+      letterIntro: data.textos?.letterIntro || ''
+    }
+  };
 
     seedRuntimeDefaults();
     applyEditorData();
