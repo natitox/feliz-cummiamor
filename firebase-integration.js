@@ -408,7 +408,6 @@ function initSortGame() {
   const container = document.getElementById('sort-phrases');
   if (!container) return;
 
-  // Mezclar
   sortOrder = [...historyPhrases].sort(() => Math.random() - .5);
 
   container.innerHTML = '';
@@ -417,21 +416,31 @@ function initSortGame() {
     item.className = 'sort-item';
     item.draggable = true;
     item.dataset.id = phrase.id;
-    item.innerHTML = `<span class="sort-num">${i + 1}</span><span class="sort-text">${phrase.text}</span>`;
+    item.innerHTML = `<span class="sort-drag-handle">☰</span><span class="sort-num">${i + 1}</span><span class="sort-text">${phrase.text}</span>`;
 
-    // Drag events
+    // Drag desktop
     item.addEventListener('dragstart', e => {
       sortDragSrc = item;
       item.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
     });
-    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      container.querySelectorAll('.sort-item').forEach(el => el.classList.remove('drag-over', 'drag-above'));
+    });
     item.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
-    item.addEventListener('dragenter', () => item.classList.add('drag-over'));
-    item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+    item.addEventListener('dragenter', e => {
+      e.preventDefault();
+      container.querySelectorAll('.sort-item').forEach(el => el.classList.remove('drag-over', 'drag-above'));
+      if (sortDragSrc && sortDragSrc !== item) {
+        const items = [...container.children];
+        item.classList.add(items.indexOf(sortDragSrc) < items.indexOf(item) ? 'drag-over' : 'drag-above');
+      }
+    });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over', 'drag-above'));
     item.addEventListener('drop', e => {
       e.preventDefault();
-      item.classList.remove('drag-over');
+      item.classList.remove('drag-over', 'drag-above');
       if (sortDragSrc && sortDragSrc !== item) {
         const items = [...container.children];
         const fromIdx = items.indexOf(sortDragSrc);
@@ -441,6 +450,84 @@ function initSortGame() {
         updateSortNumbers();
       }
     });
+
+    container.appendChild(item);
+  });
+
+  // Touch drag móvil
+  (function setupTouchDrag() {
+    let ghost = null, dragEl = null, placeholder = null, offsetX = 0, offsetY = 0;
+
+    function createGhost(el, x, y) {
+      const rect = el.getBoundingClientRect();
+      ghost = el.cloneNode(true);
+      ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;margin:0;z-index:99999;pointer-events:none;opacity:0.85;box-shadow:0 10px 30px rgba(230,49,102,.35);transform:scale(1.03);border-radius:14px;`;
+      document.body.appendChild(ghost);
+      offsetX = x - rect.left;
+      offsetY = y - rect.top;
+      placeholder = document.createElement('div');
+      placeholder.className = 'sort-placeholder';
+      placeholder.style.cssText = `height:${rect.height}px;border-radius:14px;background:rgba(230,49,102,.08);border:2px dashed rgba(230,49,102,.35);box-sizing:border-box;`;
+      container.insertBefore(placeholder, el);
+      el.style.display = 'none';
+    }
+
+    function moveGhost(x, y) {
+      if (!ghost) return;
+      ghost.style.left = (x - offsetX) + 'px';
+      ghost.style.top  = (y - offsetY) + 'px';
+      const items = [...container.querySelectorAll('.sort-item:not([style*="display: none"])')];
+      let inserted = false;
+      for (const it of items) {
+        const r = it.getBoundingClientRect();
+        if (y < r.top + r.height / 2) { container.insertBefore(placeholder, it); inserted = true; break; }
+      }
+      if (!inserted) container.appendChild(placeholder);
+    }
+
+    function dropGhost() {
+      if (!ghost || !dragEl || !placeholder) return;
+      ghost.remove(); ghost = null;
+      container.insertBefore(dragEl, placeholder);
+      placeholder.remove(); placeholder = null;
+      dragEl.style.display = '';
+      dragEl.classList.remove('dragging');
+      dragEl = null;
+      updateSortNumbers();
+    }
+
+    function cancelGhost() {
+      if (ghost) ghost.remove();
+      if (placeholder) placeholder.remove();
+      if (dragEl) { dragEl.style.display = ''; dragEl.classList.remove('dragging'); }
+      ghost = null; placeholder = null; dragEl = null;
+    }
+
+    container.addEventListener('touchstart', e => {
+      const item = e.target.closest('.sort-item');
+      if (!item) return;
+      dragEl = item;
+      dragEl.classList.add('dragging');
+      const t = e.touches[0];
+      createGhost(item, t.clientX, t.clientY);
+    }, { passive: true });
+
+    container.addEventListener('touchmove', e => {
+      if (!ghost) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      moveGhost(t.clientX, t.clientY);
+    }, { passive: false });
+
+    container.addEventListener('touchend', () => dropGhost(), { passive: true });
+    container.addEventListener('touchcancel', () => cancelGhost(), { passive: true });
+  })();
+
+  const msgEl = document.getElementById('sort-msg');
+  const btnWrap = document.getElementById('sort-unlock-wrap');
+  if (msgEl) { msgEl.textContent = ''; msgEl.className = 'sort-msg'; }
+  if (btnWrap) btnWrap.style.display = 'none';
+}
 
     // Touch swap (mobile)
     let touchSrc = null;
