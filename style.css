@@ -2103,34 +2103,20 @@ body::before {
 .sort-item {
   display: flex;
   align-items: center;
-  gap: .75rem;
+  gap: 1rem;
   padding: .9rem 1rem;
   background: #fff8fa;
   border: 2px solid #f8bbd0;
   border-radius: 14px;
   cursor: grab;
   user-select: none;
-  touch-action: pan-y;
   transition: transform .15s, box-shadow .15s, border-color .15s, background .2s;
 }
 .sort-item:hover { border-color: #e63166; box-shadow: 0 3px 12px rgba(230,49,102,.15); }
-.sort-item.dragging { opacity: .4; cursor: grabbing; }
-.sort-item.drag-over  { border-color: #e63166; background: #fce4ec; transform: translateY(3px); }
-.sort-item.drag-above { border-color: #e63166; background: #fce4ec; transform: translateY(-3px); }
+.sort-item.dragging { opacity: .5; cursor: grabbing; }
+.sort-item.drag-over { border-color: #e63166; background: #fce4ec; transform: scale(1.02); }
 .sort-item.sort-correct { background: #f0fff4; border-color: #27ae60; }
 .sort-item.sort-wrong { animation: sortShake .3s ease; }
-.sort-drag-handle {
-  color: #f0a0bb;
-  font-size: 1rem;
-  flex-shrink: 0;
-  cursor: grab;
-  padding: 0 2px;
-}
-.sort-placeholder {
-  border-radius: 14px;
-  background: rgba(230,49,102,.07);
-  border: 2px dashed rgba(230,49,102,.3);
-}
 @keyframes sortShake {
   0%,100% { transform: translateX(0); }
   33% { transform: translateX(-6px); }
