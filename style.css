@@ -2110,7 +2110,7 @@ body::before {
   border-radius: 14px;
   cursor: grab;
   user-select: none;
-  touch-action: none;
+  touch-action: pan-y;
   transition: transform .15s, box-shadow .15s, border-color .15s, background .2s;
 }
 .sort-item:hover { border-color: #e63166; box-shadow: 0 3px 12px rgba(230,49,102,.15); }
