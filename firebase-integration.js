@@ -504,6 +504,7 @@ function initSortGame() {
     }
 
     container.addEventListener('touchstart', e => {
+  if (!e.target.closest('.sort-item')) return;
       const item = e.target.closest('.sort-item');
       if (!item) return;
       dragEl = item;
