@@ -539,43 +539,94 @@ window.loadDynamicCartas=async function(){
     });
   }catch(e){console.warn('loadDynamicCartas error:',e);}
 };
+function escapeAttr(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
-window.loadDynamicAlbum=async function(){
-  const grid=document.getElementById('album-grid');
-  if(!grid)return;
-  try{
-    Array.from(grid.querySelectorAll('.album-item.dynamic-album-item, .album-empty')).forEach(el=>el.remove());
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function buildSpotifyEmbedUrl(url) {
+  if (!url) return '';
+  const clean = String(url).trim();
+
+  if (clean.includes('open.spotify.com/embed/')) return clean;
+
+  const match = clean.match(/open\.spotify\.com\/(track|album|playlist|episode|artist)\/([a-zA-Z0-9]+)/);
+  if (match) {
+    const [, type, id] = match;
+    return `https://open.spotify.com/embed/${type}/${id}`;
+  }
+
+  return clean;
+}
+
+window.loadDynamicAlbum = async function () {
+  const grid = document.getElementById('album-grid');
+  if (!grid) return;
+
+  try {
+    Array.from(grid.querySelectorAll('.album-item.dynamic-album-item, .album-empty')).forEach(el => el.remove());
+
     let snap;
-    try { snap = await db.collection('fotos').orderBy('fecha','desc').get(); }
-    catch (_) { snap = await db.collection('fotos').get(); }
-    if(snap.empty){
-      const empty=document.createElement('div');
-      empty.className='album-empty';
-      empty.textContent='Aún no hay fotitos nuevas en el álbum 🌸';
+    try {
+      snap = await db.collection('fotos').orderBy('fecha', 'desc').get();
+    } catch (_) {
+      snap = await db.collection('fotos').get();
+    }
+
+    if (snap.empty) {
+      const empty = document.createElement('div');
+      empty.className = 'album-empty';
+      empty.textContent = 'Aún no hay fotitos nuevas en el álbum 🌸';
       grid.appendChild(empty);
       return;
     }
-    const docs=snap.docs.slice().sort((a,b)=>{
-      const ad=a.data()?.fecha?.toMillis ? a.data().fecha.toMillis() : 0;
-      const bd=b.data()?.fecha?.toMillis ? b.data().fecha.toMillis() : 0;
-      return bd-ad;
+
+    const docs = snap.docs.slice().sort((a, b) => {
+      const ad = a.data()?.fecha?.toMillis ? a.data().fecha.toMillis() : 0;
+      const bd = b.data()?.fecha?.toMillis ? b.data().fecha.toMillis() : 0;
+      return bd - ad;
     });
-    docs.forEach(doc=>{
-      const d=doc.data()||{};
-      if(!d.url) return;
-      const item=document.createElement('div');
-      item.className='album-item dynamic-album-item revealed';
-      item.setAttribute('onclick','openLightbox(this)');
-      item.dataset.caption=d.descripcion||'Nuestro recuerdo 💕';
-      item.innerHTML=`
+
+    docs.forEach(doc => {
+      const d = doc.data() || {};
+      const url = d.url || d.imageUrl || d.photoURL || d.src || d.downloadURL || '';
+      const descripcion = d.descripcion || d.description || d.caption || '';
+
+      if (!url) return;
+
+      const item = document.createElement('div');
+      item.className = 'album-item dynamic-album-item revealed';
+      item.dataset.caption = descripcion;
+      item.onclick = function () {
+        if (typeof openLightbox === 'function') openLightbox(this);
+      };
+
+      item.innerHTML = `
         <div class="album-frame">
-          <img src="${escapeAttr(d.url)}" alt="${escapeAttr(d.descripcion||'Foto especial')}" loading="lazy" />
+          <img src="${escapeAttr(url)}" alt="${escapeAttr(descripcion || 'Foto especial')}" loading="lazy" />
           <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <p class="album-caption">${escapeHtml(d.descripcion||'Nuevo recuerdo 💖')}</p>`;
+        <p class="album-caption">${escapeHtml(descripcion || '')}</p>
+      `;
+
       grid.appendChild(item);
     });
-  }catch(e){console.warn('loadDynamicAlbum error:',e);}
+
+    if (typeof initAlbumAnimations === 'function') initAlbumAnimations();
+  } catch (e) {
+    console.warn('loadDynamicAlbum error:', e);
+  }
 };
 
 window.loadDynamicMusica=async function(){
