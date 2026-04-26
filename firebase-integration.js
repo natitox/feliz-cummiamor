@@ -507,7 +507,7 @@ function showQuizFinal() {
 
   setTimeout(() => {
     if (typeof showScreen === 'function') {
-      showScreen('final-screen');
+      showScreen('cards-screen');
     }
   }, 2500);
 }
