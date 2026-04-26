@@ -262,7 +262,8 @@ function initSiNoQuestions() {
 }
 
 function renderSiNoQuestion() {
-  const q = preguntas[state.qIndex];
+  const __pqs__ = window.__PREGUNTAS_EDITABLES__ || window.preguntas || preguntas;
+  const q = __pqs__[state.qIndex];
   if (!q) return;
 
   const textEl    = document.getElementById('q-sinno-text');
@@ -271,8 +272,8 @@ function renderSiNoQuestion() {
   const card      = document.getElementById('q-sinno');
 
   if (textEl)    textEl.textContent    = q.pregunta;
-  if (counterEl) counterEl.textContent = `${state.qIndex + 1} / ${preguntas.length}`;
-  if (barEl)     barEl.style.width     = ((state.qIndex / preguntas.length) * 100) + '%';
+  if (counterEl) counterEl.textContent = `${state.qIndex + 1} / ${(__pqs__ || preguntas).length}`;
+  if (barEl)     barEl.style.width     = ((state.qIndex / (__pqs__ || preguntas).length) * 100) + '%';
 
   if (card) {
     card.style.opacity   = '0';
@@ -288,7 +289,8 @@ function renderSiNoQuestion() {
 }
 
 function responderSiNo(resp) {
-  const q = preguntas[state.qIndex];
+  const __pqs__ = window.__PREGUNTAS_EDITABLES__ || window.preguntas || preguntas;
+  const q = __pqs__[state.qIndex];
   if (!q) return;
 
   // ── TRACKING: guardar respuesta dada ──
@@ -297,7 +299,8 @@ function responderSiNo(resp) {
   if (resp === q.respuestaCorrecta) state.qCorrectas++;
   state.qIndex++;
 
-  if (state.qIndex < preguntas.length) {
+  const __pqsLen__ = (window.__PREGUNTAS_EDITABLES__ || window.preguntas || preguntas).length;
+  if (state.qIndex < __pqsLen__) {
     const card = document.getElementById('q-sinno');
     if (card) {
       card.style.transition = 'opacity .25s ease, transform .25s ease';
@@ -320,7 +323,8 @@ function mostrarResultado() {
     requestAnimationFrame(() => resultadoCard.classList.add('active'));
   }
 
-  const porcentaje = Math.round((state.qCorrectas / preguntas.length) * 100);
+  const __pqsMR__ = window.__PREGUNTAS_EDITABLES__ || window.preguntas || preguntas;
+  const porcentaje = Math.round((state.qCorrectas / __pqsMR__.length) * 100);
 
   // ── TRACKING: guardar porcentaje ──
   state.answers.porcentajeSiNo = porcentaje;
@@ -546,7 +550,8 @@ function renderStoryLine() {
   const btnEl  = document.getElementById('story-btn');
   if (!lineEl) return;
 
-  const line = storyLines[state.storyIndex];
+  const __sl__ = window.__STORY_LINES_EDITABLES__ || window.storyLines || storyLines;
+  const line = __sl__[state.storyIndex];
   lineEl.style.opacity   = '0';
   lineEl.style.transform = 'translateY(10px)';
 
@@ -557,7 +562,7 @@ function renderStoryLine() {
     lineEl.style.transform  = 'none';
   }, 100);
 
-  const isLast = state.storyIndex >= storyLines.length - 1;
+  const isLast = state.storyIndex >= __sl__.length - 1;
   if (btnEl) {
     btnEl.innerHTML = isLast
       ? 'Ver la carta final 💌 <i class="fa-solid fa-arrow-right ms-1"></i>'
@@ -567,7 +572,8 @@ function renderStoryLine() {
 
 function nextStoryLine() {
   state.storyIndex++;
-  if (state.storyIndex < storyLines.length) {
+  const __slLen__ = (window.__STORY_LINES_EDITABLES__ || window.storyLines || storyLines).length;
+  if (state.storyIndex < __slLen__) {
     renderStoryLine();
   } else {
     showScreen('final-letter-screen');
@@ -635,7 +641,7 @@ function sendAnswersByEmail() {
   const detalleRespuestas = state.answers.detalleSiNo.length > 0
     ? state.answers.detalleSiNo
         .map((respDada, i) => {
-          const q      = preguntas[i];
+          const q      = (window.__PREGUNTAS_EDITABLES__ || window.preguntas || preguntas)[i];
           const acerto = respDada === q.respuestaCorrecta ? '✅' : '❌';
           return `${acerto} ${q.pregunta}\n   Respondió: ${respDada.toUpperCase()} | Correcta: ${q.respuestaCorrecta.toUpperCase()}`;
         })
