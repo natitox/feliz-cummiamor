@@ -2741,3 +2741,151 @@ textarea:focus {
     bottom: 14px;
   }
 }
+
+/* === PARCHE FINO: integración cartas / álbum / chat / música === */
+.dyn-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 1.25rem 1rem;
+  border-radius: 18px;
+  background: rgba(255,255,255,.68);
+  border: 1.5px dashed rgba(230,49,102,.25);
+  color: #a35b78;
+}
+
+.dyn-card-fecha {
+  margin: .3rem 0 .85rem;
+  text-align: left;
+}
+
+.album-grid {
+  align-items: start;
+}
+
+.album-item {
+  width: 100%;
+}
+
+.album-frame {
+  width: 100%;
+}
+
+#spotify-embed-container {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(198,40,100,.14);
+}
+
+#spotify-songs-list {
+  display: grid;
+  gap: .65rem;
+}
+
+.spotify-song-btn {
+  width: 100%;
+  border: 1.5px solid rgba(29,185,84,.18);
+  background: #fff;
+  color: #1b1b1b;
+  border-radius: 14px;
+  padding: .8rem .95rem;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  justify-content: flex-start;
+  box-shadow: 0 8px 22px rgba(0,0,0,.05);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.spotify-song-btn i { color: #1db954; font-size: 1.05rem; }
+.spotify-song-btn span { font-size: .9rem; font-weight: 500; }
+.spotify-song-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(29,185,84,.38);
+  box-shadow: 0 12px 28px rgba(29,185,84,.1);
+}
+
+.chat-widget {
+  right: 18px !important;
+  bottom: 86px !important;
+  left: auto !important;
+  top: auto !important;
+  width: min(380px, calc(100vw - 28px)) !important;
+  height: min(560px, 70vh) !important;
+  background: linear-gradient(180deg, #fffefe 0%, #fff8fb 100%) !important;
+}
+
+.chat-header-title {
+  font-size: .96rem;
+}
+
+.chat-messages {
+  background:
+    radial-gradient(circle at top right, rgba(255,196,215,.22), transparent 30%),
+    linear-gradient(180deg, #fffafc 0%, #fff6fa 100%);
+}
+
+.chat-empty-msg {
+  max-width: 230px;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  background: rgba(255,255,255,.88);
+  border: 1px solid rgba(230,49,102,.12);
+  color: #a06b83;
+}
+
+.chat-bubble {
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+.chat-bubble-me {
+  max-width: 86%;
+}
+
+.chat-bubble-them {
+  max-width: 86%;
+  background: rgba(255,255,255,.96);
+}
+
+.chat-input-area {
+  padding: .75rem;
+}
+
+.chat-input {
+  background: rgba(255,255,255,.95) !important;
+}
+
+.chat-send-btn {
+  width: 42px;
+  height: 42px;
+}
+
+@media (max-width: 640px) {
+  .album-container {
+    padding-left: .75rem;
+    padding-right: .75rem;
+  }
+
+  .album-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+  }
+
+  .album-caption {
+    font-size: .82rem;
+    line-height: 1.3;
+    min-height: 2.2em;
+  }
+
+  .chat-widget {
+    width: calc(100vw - 20px) !important;
+    right: 10px !important;
+    bottom: 80px !important;
+    height: min(70vh, 520px) !important;
+    border-radius: 20px !important;
+  }
+
+  .chat-header,
+  .chat-input-area {
+    padding-left: .8rem;
+    padding-right: .8rem;
+  }
+}
