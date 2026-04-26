@@ -1,4 +1,3 @@
-\
 'use strict';
 
 /* sw.js — cache conservador para GitHub Pages.
