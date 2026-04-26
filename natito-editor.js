@@ -1026,14 +1026,8 @@ async function saveEditorData(section, value) {
   }
 
   window.initNatitoEditor = initNatitoEditor;
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(initNatitoEditor, 0);
-    });
-  } else {
-    setTimeout(initNatitoEditor, 0);
-  }
+  // El arranque lo controla firebase-integration.js después de auth
+  // para garantizar que window._currentUsername esté definido.
 })();
 
 /* ═══════════════════════════════════════════════════════
