@@ -383,44 +383,130 @@ window.checkSortOrder=function(){
 /* ════════════════════════════════════════════
    5. QUIZ EMOCIONAL
 ════════════════════════════════════════════ */
-const emojiQuiz=[
-  {pregunta:"Si pudiéramos ir a cualquier lugar ahora mismo, ¿a dónde iríamos? 🌍",opciones:["A la playa 🏖️","A las montañas ⛰️","A un café acogedor ☕","A quedarnos en casa 🏠"],respuesta:3},
-  {pregunta:"¿Cuál sería nuestra película perfecta para ver juntos? 🎬",opciones:["Una comedia romántica 💕","Una de aventura 🗺️","Una animada 🌟","Un documental de naturaleza 🦋"],respuesta:0},
-  {pregunta:"Si pudiéramos tener una mascota juntos, ¿cuál elegiríamos? 🐾",opciones:["Un gato 🐱","Un perro 🐶","Un conejo 🐰","Un hámster 🐹"],respuesta:0},
-  {pregunta:"¿Cuál sería nuestro plan perfecto para una tarde libre? ☀️",opciones:["Cocinar juntos 👨‍🍳","Ver series 📺","Salir a caminar 🚶","Leer juntos 📚"],respuesta:1},
-  {pregunta:"¿Qué tipo de música pondríamos en un viaje largo? 🎵",opciones:["Pop romántico 💗","Rock suave 🎸","Indie/alternativo 🎶","Lo que salga 🎲"],respuesta:2}
+const emojiQuiz = [
+  {
+    pregunta: "Si pudiéramos ir a cualquier lugar ahora mismo, ¿a dónde iríamos? 🌍",
+    opciones: [
+      { texto: "Una playa desierta 🏖️", resp: "A tomar sol juntos, comer rolls con juguito de naranja sin prisa y sin nadie, solo nosotros dos. Eso suena dms perfecto." },
+      { texto: "Una ciudad nueva 🏙️", resp: "Explorando calles desconocidas, perdiéndonos y luego tratando de encontrarnos o encontrar lugares. ¡Me encantaría!" },
+      { texto: "Una cabaña en el bosque 🌲", resp: "Lejos del ruido que genera la gente d mrda, solo el sonido de la naturaleza y tu voz. El plan más romántico algo como llifén entre bosque y playita es lo mjr del mundo contigo." },
+      { texto: "Quedarnos en casa 🏠", resp: "A veces el mejor lugar del mundo es estar en casa contigo, alimentarte y poder dormir sin ropa contigo. No necesito nada más." }
+    ]
+  },
+  {
+    pregunta: "¿Cuál sería nuestro plan perfecto para un sábado? 🌸",
+    opciones: [
+      { texto: "Desayuno largo y rico ☕", resp: "Café o tecito, tostadas con huevito o mantequilla, y tú frente a mí mientras escuchamos las olas en curiñanco o estamos con los gatitos en mi casa. Los sábados deberían ser todos así." },
+      { texto: "Salir a caminar sin rumbo 🚶‍♂️🚶‍♀️", resp: "Sin destino fijo, solo la mano de alguien que amas con tu alma !!!!osea yo¡¡¡ . Eso es libertad." },
+      { texto: "Ver películas todo el día 🎬", resp: "Manta, snacks, y tú. Eso es lo que necesito para ser la persona más feliz, mentira no necesito todo eso, solo con estar contigo soy el más feliz, pero igual es buen plan." },
+      { texto: "Sorprenderme con algo 🎁", resp: "Me encanta que quieras sorprenderme, como con el album. Cada momento contigo ya es una sorpresa bonita como tus ojos al mirarme." }
+    ]
+  },
+  {
+    pregunta: "¿Qué canción describe mejor lo que sientes ahora? 🎵",
+    opciones: [
+      { texto: "Una canción lenta y romántica estilo macccc 🎻", resp: "De esas que ponen en las películas cuando los protagonistas finalmente se miran. Eso somos." },
+      { texto: "Algo alegre y bailable su sinaka 💃", resp: "Pq el gozo contigo es lo mjr q hay. ¡t amo!!!!" },
+      { texto: "Una canción tranquila de verano 🌊", resp: "Como ese momento en el que estamos en la playita relajados escuchando musica y abrazandonos." },
+      { texto: "Algo profundo con letra bonita 📝", resp: "Pq con esas canciones te acuerdas de mi 🐱 y yo tmbbbbb pq te dediqué una cancion q nunca en la vida iba a dedicar x nada del mundo pero te la mereces!!!!!! aun que no es tan profunda la letra pero es una de mis canciones favoritas de hace muchisimos años atrás!!." }
+    ]
+  }
 ];
-let equizIndex=0,equizScore=0;
-function initEmotionalQuiz(){equizIndex=0;equizScore=0;renderEQuiz();}
-function renderEQuiz(){
-  const q=emojiQuiz[equizIndex];
-  const qEl=document.getElementById('equiz-question');const optsEl=document.getElementById('equiz-options');
-  const counterEl=document.getElementById('equiz-counter');const resultEl=document.getElementById('equiz-result');
-  const cardEl=document.getElementById('equiz-card');
-  if(resultEl)resultEl.style.display='none';if(cardEl)cardEl.style.display='block';
-  if(counterEl)counterEl.textContent=`${equizIndex+1} / ${emojiQuiz.length}`;
-  if(qEl)qEl.textContent=q.pregunta;
-  if(optsEl){
-    optsEl.innerHTML='';
-    q.opciones.forEach((op,i)=>{
-      const btn=document.createElement('button');btn.className='equiz-btn';btn.textContent=op;
-      btn.onclick=()=>answerEQuiz(i);optsEl.appendChild(btn);
+
+let quizIndex = 0;
+let quizResponses = [];
+
+function initEmotionalQuiz() {
+  quizIndex = 0;
+  quizResponses = [];
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const q = emojiQuiz[quizIndex];
+  const qEl = document.getElementById('equiz-question');
+  const optsEl = document.getElementById('equiz-options');
+  const countEl = document.getElementById('equiz-counter');
+  const respEl = document.getElementById('equiz-response');
+  const resultEl = document.getElementById('equiz-result');
+  const cardEl = document.getElementById('equiz-card');
+  const finalEl = document.getElementById('equiz-final');
+
+  if (!q) return;
+
+  if (resultEl) resultEl.style.display = 'none';
+  if (finalEl) finalEl.style.display = 'none';
+  if (cardEl) cardEl.style.display = 'block';
+
+  if (qEl) qEl.textContent = q.pregunta;
+  if (countEl) countEl.textContent = `${quizIndex + 1} / ${emojiQuiz.length}`;
+  if (respEl) {
+    respEl.textContent = '';
+    respEl.style.opacity = '0';
+  }
+
+  if (optsEl) {
+    optsEl.innerHTML = '';
+    q.opciones.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'equiz-opt';
+      btn.textContent = opt.texto;
+      btn.onclick = () => handleQuizAnswer(opt.resp, btn, optsEl);
+      optsEl.appendChild(btn);
     });
   }
 }
-function answerEQuiz(chosen){
-  const q=emojiQuiz[equizIndex];if(chosen===q.respuesta)equizScore++;equizIndex++;
-  if(equizIndex<emojiQuiz.length)renderEQuiz();else showEQuizResult();
+
+function handleQuizAnswer(respText, btnEl, optsEl) {
+  optsEl.querySelectorAll('button').forEach(b => {
+    b.disabled = true;
+    b.classList.remove('selected');
+  });
+
+  btnEl.classList.add('selected');
+  quizResponses.push(respText);
+
+  const respEl = document.getElementById('equiz-response');
+  if (respEl) {
+    respEl.textContent = respText;
+    respEl.style.transition = 'opacity .5s ease';
+    respEl.style.opacity = '1';
+  }
+
+  setTimeout(() => {
+    quizIndex++;
+    if (quizIndex < emojiQuiz.length) {
+      renderQuizQuestion();
+    } else {
+      showQuizFinal();
+    }
+  }, 2000);
 }
-function showEQuizResult(){
-  const cardEl=document.getElementById('equiz-card');const resultEl=document.getElementById('equiz-result');
-  const scoreEl=document.getElementById('equiz-score-txt');const btnWrap=document.getElementById('equiz-unlock-wrap');
-  if(cardEl)cardEl.style.display='none';
-  if(resultEl){resultEl.style.display='block';resultEl.classList.add('active');}
-  const pct=Math.round((equizScore/emojiQuiz.length)*100);
-  if(scoreEl)scoreEl.textContent=`¡Compatibilidad del ${pct}%! 💖`;
-  if(btnWrap)btnWrap.style.display='block';
+
+function showQuizFinal() {
+  const card = document.getElementById('equiz-card');
+  const finalEl = document.getElementById('equiz-final');
+  const resultEl = document.getElementById('equiz-result');
+
+  if (card) card.style.display = 'none';
+  if (resultEl) resultEl.style.display = 'none';
+
+  if (finalEl) {
+    finalEl.style.display = 'block';
+    finalEl.innerHTML = `
+      <div class="q-heart">💖</div>
+      <h3 style="margin-bottom:.6rem;">Nuestro quiz emocional terminó ✨</h3>
+      <p style="line-height:1.6;">
+        Cada respuesta tuya me hace sentir más cerquita de ti, más enamorado y más seguro de que quiero seguir viviendo muchísimos momentos bonitos contigo.
+      </p>
+      <p style="line-height:1.6;margin-top:.8rem;">
+        Gracias por responder este quiz, mi amorcito hermoso. Eres mi lugar favorito. 💕
+      </p>
+    `;
+  }
 }
+
+window.initEmotionalQuiz = initEmotionalQuiz;
 
 /* ════════════════════════════════════════════
    6. CARGAR CARTAS / ÁLBUM / MÚSICA
