@@ -6,6 +6,10 @@
   <title>Para ti, mi amor 💖</title>
 
   <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#e63166" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -700,5 +704,10 @@ t amooooo :3<br /><br />
 <script src="firebase-config.js"></script>
 <script src="firebase-integration.js"></script>
   <script src="natito-editor.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    }
+  </script>
 </body>
 </html>
