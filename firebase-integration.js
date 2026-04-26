@@ -504,6 +504,12 @@ function showQuizFinal() {
       </p>
     `;
   }
+
+  setTimeout(() => {
+    if (typeof showScreen === 'function') {
+      showScreen('final-screen');
+    }
+  }, 2500);
 }
 
 window.initEmotionalQuiz = initEmotionalQuiz;
