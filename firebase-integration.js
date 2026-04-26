@@ -425,29 +425,13 @@ function showEQuizResult(){
 /* ════════════════════════════════════════════
    6. CARGAR CARTAS / ÁLBUM / MÚSICA
 ════════════════════════════════════════════ */
-function getFirstEl(ids){
-  for(const id of ids){
-    const el=document.getElementById(id);
-    if(el) return el;
-  }
-  return null;
-}
-
-function escapeHtmlAttr(str){
-  return String(str || '')
-    .replace(/&/g,'&amp;')
-    .replace(/"/g,'&quot;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;');
-}
-
 window.loadDynamicCartas=async function(){
-  const list=getFirstEl(['dynamic-cards-grid','cartas-list']);
+  const list=document.getElementById('dynamic-cards-grid');
   if(!list)return;
   try{
     const snap=await db.collection('cartas').orderBy('fecha','desc').get();
     if(snap.empty){
-      list.innerHTML='<div class="dyn-empty">Todavía no hay cartitas guardadas 💌</div>';
+      list.innerHTML='<div class="dyn-empty">Aún no hay cartitas guardadas ✉️</div>';
       return;
     }
     list.innerHTML='';
@@ -455,14 +439,16 @@ window.loadDynamicCartas=async function(){
       const d=doc.data()||{};
       const item=document.createElement('article');
       item.className='dyn-card';
+      const autor=(d.autor||'natito').toString();
+      const fecha=d.fecha?.toDate?formatDate(d.fecha.toDate()):'';
       item.innerHTML=`
         <div class="dyn-card-header">
           <span class="dyn-card-icon">💌</span>
-          <span class="dyn-card-autor">${escapeHtml(d.autor||'natito')}</span>
+          <span class="dyn-card-autor">${escapeHtml(autor)}</span>
         </div>
         <h3 class="dyn-card-titulo">${escapeHtml(d.titulo||'Sin título')}</h3>
-        <p class="dyn-card-fecha">${d.fecha?.toDate?formatDate(d.fecha.toDate()):''}</p>
-        <div class="dyn-card-texto">${escapeHtml(d.contenido||'').replace(/\n/g,'<br>')}</div>`;
+        <div class="dyn-card-texto">${escapeHtml(d.contenido||'').replace(/\n/g,'<br>')}</div>
+        <div class="dyn-card-fecha">${fecha}</div>`;
       list.appendChild(item);
     });
   }catch(e){console.warn('loadDynamicCartas error:',e);}
@@ -472,137 +458,159 @@ window.loadDynamicAlbum=async function(){
   const grid=document.getElementById('album-grid');
   if(!grid)return;
   try{
-    const snap=await db.collection('fotos').orderBy('fecha','desc').get();
+    Array.from(grid.querySelectorAll('.album-item.dynamic-album-item, .album-empty')).forEach(el=>el.remove());
+    let snap;
+    try { snap = await db.collection('fotos').orderBy('fecha','desc').get(); }
+    catch (_) { snap = await db.collection('fotos').get(); }
     if(snap.empty) return;
-    grid.innerHTML='';
-    snap.forEach(doc=>{
+    const docs=snap.docs.slice().sort((a,b)=>{
+      const ad=a.data()?.fecha?.toMillis ? a.data().fecha.toMillis() : 0;
+      const bd=b.data()?.fecha?.toMillis ? b.data().fecha.toMillis() : 0;
+      return bd-ad;
+    });
+    docs.forEach(doc=>{
       const d=doc.data()||{};
+      if(!d.url) return;
       const item=document.createElement('div');
-      item.className='album-item revealed';
-      item.setAttribute('data-caption', d.descripcion || 'Nuestro recuerdo 💕');
-      item.onclick=function(){ if(typeof window.openLightbox==='function') window.openLightbox(this); };
+      item.className='album-item dynamic-album-item revealed';
+      item.setAttribute('onclick','openLightbox(this)');
+      item.dataset.caption=d.descripcion||'Nuestro recuerdo 💕';
       item.innerHTML=`
         <div class="album-frame">
-          <img src="${escapeHtmlAttr(d.url||'')}" alt="${escapeHtmlAttr(d.descripcion||'Foto de nuestro álbum')}" loading="lazy" />
+          <img src="${escapeAttr(d.url)}" alt="${escapeAttr(d.descripcion||'Foto especial')}" loading="lazy" />
           <div class="album-overlay"><i class="fa-solid fa-expand"></i></div>
         </div>
-        <p class="album-caption">${escapeHtml(d.descripcion || 'Nuestro recuerdo 💕')}</p>`;
+        <p class="album-caption">${escapeHtml(d.descripcion||'Nuevo recuerdo 💖')}</p>`;
       grid.appendChild(item);
     });
   }catch(e){console.warn('loadDynamicAlbum error:',e);}
 };
 
 window.loadDynamicMusica=async function(){
-  const list=getFirstEl(['spotify-songs-list','musica-list']);
-  const emptyEl=document.getElementById('spotify-no-songs');
+  const list=document.getElementById('spotify-songs-list');
+  const empty=document.getElementById('spotify-no-songs');
   const embed=document.getElementById('spotify-embed-container');
   if(!list)return;
   try{
-    const snap=await db.collection('musica').orderBy('orden','asc').get();
-    if(snap.empty){
-      if(emptyEl) emptyEl.style.display='block';
-      if(embed) embed.style.display='none';
-      return;
-    }
-    list.innerHTML='';
-    if(emptyEl) emptyEl.style.display='none';
-    snap.forEach((doc,idx)=>{
-      const d=doc.data()||{};
-      const item=document.createElement('button');
-      item.type='button';
-      item.className='spotify-song-btn';
-      item.innerHTML=`<i class="fa-brands fa-spotify"></i><span>${escapeHtml(d.nombre||'Canción')}</span>`;
-      item.onclick=()=>renderSpotifyEmbed(d.url || '');
-      list.appendChild(item);
-      if(idx===0) renderSpotifyEmbed(d.url || '');
+    Array.from(list.querySelectorAll('.spotify-song-item')).forEach(el=>el.remove());
+    let snap;
+    try { snap=await db.collection('musica').orderBy('fecha','desc').get(); }
+    catch (_) { snap=await db.collection('musica').get(); }
+    if(snap.empty){ if(empty) empty.style.display='block'; if(embed) embed.style.display='none'; return; }
+    if(empty) empty.style.display='none';
+    const docs=snap.docs.slice().sort((a,b)=>{
+      const ad=a.data()?.fecha?.toMillis ? a.data().fecha.toMillis() : 0;
+      const bd=b.data()?.fecha?.toMillis ? b.data().fecha.toMillis() : 0;
+      return bd-ad;
     });
+    let firstEmbed='';
+    docs.forEach((doc,idx)=>{
+      const d=doc.data()||{};
+      const item=document.createElement('a');
+      item.className='spotify-song-item';
+      item.href=d.url||'#';
+      item.target='_blank';
+      item.rel='noopener noreferrer';
+      item.innerHTML=`<span class="spotify-song-name"><i class="fa-brands fa-spotify"></i> ${escapeHtml(d.nombre||'Canción')}</span><span class="spotify-song-open">Abrir</span>`;
+      list.appendChild(item);
+      if(idx===0) firstEmbed = buildSpotifyEmbedUrl(d.url||'');
+    });
+    if(embed){
+      if(firstEmbed){
+        embed.innerHTML=`<iframe style="border-radius:12px" src="${escapeAttr(firstEmbed)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`;
+        embed.style.display='block';
+      } else {
+        embed.innerHTML='';
+        embed.style.display='none';
+      }
+    }
   }catch(e){console.warn('loadDynamicMusica error:',e);}
 };
-
-function renderSpotifyEmbed(url){
-  const container=document.getElementById('spotify-embed-container');
-  if(!container || !url) return;
-  const embedUrl = toSpotifyEmbedUrl(url);
-  if(!embedUrl){ container.style.display='none'; return; }
-  container.style.display='block';
-  container.innerHTML=`<iframe style="border-radius:14px" src="${escapeHtmlAttr(embedUrl)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-}
-
-function toSpotifyEmbedUrl(url){
-  const m=String(url||'').match(/spotify\.com\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)/i);
-  if(!m) return '';
-  return `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=generator`;
-}
 
 /* ════════════════════════════════════════════
    7. PANEL: ENVIAR CARTA / UPLOAD FOTO / MÚSICA
 ════════════════════════════════════════════ */
-window.enviarCarta = window.createCarta = async function(){
-  const btn=getFirstEl(['create-carta-btn','carta-send-btn']);
-  const tituloEl=getFirstEl(['carta-titulo-input','carta-titulo']);
-  const contenidoEl=getFirstEl(['carta-contenido-input','carta-contenido']);
+window.createCarta=async function(){
+  const btn=document.getElementById('create-carta-btn');
+  const tituloEl=document.getElementById('carta-titulo-input');
+  const contenidoEl=document.getElementById('carta-contenido-input');
   if(!tituloEl||!contenidoEl)return;
-  const titulo=tituloEl.value.trim();const contenido=contenidoEl.value.trim();
+  const titulo=tituloEl.value.trim();
+  const contenido=contenidoEl.value.trim();
   if(!titulo||!contenido){showCartaStatus('Completa título y contenido 💌','error');return;}
-  const prev=btn?.innerHTML;
-  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-heart me-2"></i>Enviando…';}
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando…';}
   try{
-    await db.collection('cartas').add({titulo,contenido,fecha:firebase.firestore.FieldValue.serverTimestamp(),autor:window._currentUsername||'natito'});
+    await db.collection('cartas').add({
+      titulo,
+      contenido,
+      fecha:firebase.firestore.FieldValue.serverTimestamp(),
+      autor:window._currentUsername||'natito'
+    });
     showCartaStatus('¡Carta enviada con amor! 💖','ok');
     tituloEl.value=''; contenidoEl.value='';
-    loadDynamicCartas();
+    await loadDynamicCartas();
   }catch(err){console.error(err);showCartaStatus('Error al guardar. Intenta de nuevo 😔','error');}
-  finally{if(btn){btn.disabled=false;btn.innerHTML=prev || '<i class="fa-solid fa-paper-plane me-2"></i>Enviar carta';}}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-paper-plane me-2"></i>Enviar carta';}}
 };
+window.enviarCarta = window.createCarta;
 
 window.uploadPhoto=async function(){
-  const fileInput=getFirstEl(['photo-upload-input','photo-file']);
-  const descInput=getFirstEl(['photo-upload-desc','photo-desc']);
-  const btn=getFirstEl(['upload-photo-btn','photo-upload-btn']);
+  const fileInput=document.getElementById('photo-upload-input');
+  const descInput=document.getElementById('photo-upload-desc');
+  const btn=document.getElementById('upload-photo-btn');
+  const previewWrap=document.getElementById('photo-preview-wrap');
+  const previewImg=document.getElementById('photo-preview');
   if(!fileInput?.files?.length){showUploadStatus('Selecciona una foto 📷','error');return;}
   const file=fileInput.files[0];
   if(!file.type.startsWith('image/')){showUploadStatus('Solo se permiten imágenes','error');return;}
-  const prev=btn?.innerHTML;
-  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up me-2"></i>Subiendo…';}
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin me-2"></i>Subiendo…';}
   try{
-    const ref=storage.ref(`fotos/${Date.now()}_${file.name}`); await ref.put(file); const url=await ref.getDownloadURL();
-    await db.collection('fotos').add({url,descripcion:descInput?.value?.trim()||'',fecha:firebase.firestore.FieldValue.serverTimestamp(),autor:window._currentUsername||'natito'});
+    const ref=storage.ref(`fotos/${Date.now()}_${file.name}`);
+    await ref.put(file);
+    const url=await ref.getDownloadURL();
+    await db.collection('fotos').add({
+      url,
+      descripcion:descInput?.value?.trim()||'',
+      fecha:firebase.firestore.FieldValue.serverTimestamp(),
+      autor:window._currentUsername||'natito'
+    });
     showUploadStatus('¡Foto subida! 🌸','ok');
-    fileInput.value=''; if(descInput) descInput.value='';
-    const wrap=document.getElementById('photo-preview-wrap'); if(wrap) wrap.style.display='none';
-    loadDynamicAlbum();
+    fileInput.value='';
+    if(descInput)descInput.value='';
+    if(previewWrap)previewWrap.style.display='none';
+    if(previewImg)previewImg.src='';
+    await loadDynamicAlbum();
   }catch(err){console.error(err);showUploadStatus('Error al subir. Intenta de nuevo','error');}
-  finally{if(btn){btn.disabled=false;btn.innerHTML=prev || '<i class="fa-solid fa-cloud-arrow-up me-2"></i>Subir foto al álbum';}}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up me-2"></i>Subir foto al álbum';}}
 };
 
 window.addMusica=async function(){
-  const nameEl=document.getElementById('musica-nombre-input');
-  const urlEl=document.getElementById('musica-url-input');
-  const status=document.getElementById('musica-status');
+  const nameInput=document.getElementById('musica-nombre-input');
+  const urlInput=document.getElementById('musica-url-input');
   const btn=document.getElementById('add-musica-btn');
-  const nombre=nameEl?.value.trim() || '';
-  const url=urlEl?.value.trim() || '';
-  if(!nombre || !url){
+  const status=document.getElementById('musica-status');
+  const nombre=nameInput?.value?.trim()||'';
+  const url=urlInput?.value?.trim()||'';
+  if(!nombre||!url){
     if(status){status.textContent='Completa nombre y enlace de Spotify 🎵';status.className='panel-status status-error';status.style.display='block';}
     return;
   }
-  if(!toSpotifyEmbedUrl(url)){
-    if(status){status.textContent='Pega un enlace válido de Spotify 💚';status.className='panel-status status-error';status.style.display='block';}
-    return;
-  }
-  const prev=btn?.innerHTML;
-  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-heart me-2"></i>Guardando…';}
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin me-2"></i>Guardando…';}
   try{
-    const existing=await db.collection('musica').get();
-    await db.collection('musica').add({nombre,url,orden:existing.size+1,fecha:firebase.firestore.FieldValue.serverTimestamp(),autor:window._currentUsername||'natito'});
-    if(nameEl) nameEl.value=''; if(urlEl) urlEl.value='';
-    if(status){status.textContent='¡Canción agregada! 🎶';status.className='panel-status status-ok';status.style.display='block';}
-    loadDynamicMusica();
+    await db.collection('musica').add({
+      nombre,
+      url,
+      fecha:firebase.firestore.FieldValue.serverTimestamp(),
+      autor:window._currentUsername||'natito'
+    });
+    if(status){status.textContent='Canción agregada 🎶';status.className='panel-status status-ok';status.style.display='block';}
+    nameInput.value=''; urlInput.value='';
+    await loadDynamicMusica();
   }catch(err){
     console.error(err);
-    if(status){status.textContent='No se pudo guardar la canción 💔';status.className='panel-status status-error';status.style.display='block';}
+    if(status){status.textContent='No se pudo guardar la canción';status.className='panel-status status-error';status.style.display='block';}
   }finally{
-    if(btn){btn.disabled=false;btn.innerHTML=prev || '<i class="fa-solid fa-plus me-2"></i>Agregar canción';}
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-plus me-2"></i>Agregar canción';}
     if(status) setTimeout(()=>{status.style.display='none';},3000);
   }
 };
