@@ -2438,8 +2438,10 @@ body::before {
 /* Botón flotante chat */
 .chat-float-btn {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  left: 18px;
+  top: 18px;
+  right: auto;
+  bottom: auto;
   width: 56px;
   height: 56px;
   border: none;
