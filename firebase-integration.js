@@ -426,7 +426,7 @@ function showEQuizResult(){
    6. CARGAR CARTAS / ÁLBUM / MÚSICA
 ════════════════════════════════════════════ */
 window.loadDynamicCartas=async function(){
-  const list=document.getElementById('dynamic-cards-grid');
+  const list=document.getElementById('dynamic-cards-grid') || document.getElementById('cartas-list');
   if(!list)return;
   try{
     const snap=await db.collection('cartas').orderBy('fecha','desc').get();
@@ -448,7 +448,7 @@ window.loadDynamicCartas=async function(){
         </div>
         <h3 class="dyn-card-titulo">${escapeHtml(d.titulo||'Sin título')}</h3>
         <div class="dyn-card-texto">${escapeHtml(d.contenido||'').replace(/\n/g,'<br>')}</div>
-        <div class="dyn-card-fecha">${fecha}</div>`;
+        <div class="dyn-card-fecha">${fecha || 'Con amor 💖'}</div>`;
       list.appendChild(item);
     });
   }catch(e){console.warn('loadDynamicCartas error:',e);}
@@ -462,7 +462,13 @@ window.loadDynamicAlbum=async function(){
     let snap;
     try { snap = await db.collection('fotos').orderBy('fecha','desc').get(); }
     catch (_) { snap = await db.collection('fotos').get(); }
-    if(snap.empty) return;
+    if(snap.empty){
+      const empty=document.createElement('div');
+      empty.className='album-empty';
+      empty.textContent='Aún no hay fotitos nuevas en el álbum 🌸';
+      grid.appendChild(empty);
+      return;
+    }
     const docs=snap.docs.slice().sort((a,b)=>{
       const ad=a.data()?.fecha?.toMillis ? a.data().fecha.toMillis() : 0;
       const bd=b.data()?.fecha?.toMillis ? b.data().fecha.toMillis() : 0;
@@ -661,7 +667,7 @@ function initChat() {
 function injectChatUI() {
   if (document.getElementById('chat-widget')) return;
   const isNatito = isNatitoUser();
-  const label = isNatito ? '💬 Chat con snupi' : '💬 Hablar con natito';
+  const label = isNatito ? 'Chat con snupi' : 'Hablar con natito';
   const html = `
   <button id="chat-float-btn" class="chat-float-btn" onclick="toggleChat()" aria-label="Chat">
     <span class="chat-float-icon">💬</span>
@@ -669,12 +675,12 @@ function injectChatUI() {
   </button>
   <div id="chat-widget" class="chat-widget" role="dialog" aria-label="Chat">
     <div class="chat-header">
-      <span class="chat-header-avatar">${isNatito ? '🐱' : '💖'}</span>
+      <span class="chat-header-avatar">${isNatito ? '🐱' : '🩷'}</span>
       <span class="chat-header-title">${label}</span>
       <button class="chat-close-btn" onclick="toggleChat()">✕</button>
     </div>
     <div class="chat-messages" id="chat-messages">
-      <div class="chat-empty-msg">Todavía no hay mensajes… ¡di algo bonito! 🌸</div>
+      <div class="chat-empty-msg">Todavía no hay mensajes… di algo bonito 🌸</div>
     </div>
     <div class="chat-input-area">
       <textarea id="chat-input" class="chat-input" placeholder="Escribe algo bonito… 💖" rows="1" onkeydown="chatKeydown(event)"></textarea>
