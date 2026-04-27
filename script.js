@@ -888,21 +888,24 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ═══════════════════════════════════════
-   TABS EXTENDIDO — soporte para panel
+   TABS EXTENDIDO — soporte para panel + lista
 ═══════════════════════════════════════ */
 (function patchShowTab() {
-  const _orig = window.showTab;
   window.showTab = function(tabId, el) {
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     if (el) el.classList.add('active');
     const carta = document.getElementById('tab-carta');
     const album = document.getElementById('tab-album');
     const panel = document.getElementById('tab-panel');
-    [carta, album, panel].forEach(t => { if (t) t.style.display = 'none'; });
+    const lista = document.getElementById('tab-lista');
+    [carta, album, panel, lista].forEach(t => { if (t) t.style.display = 'none'; });
     if (tabId === 'album') {
       if (album) { album.style.display = 'block'; setTimeout(() => initAlbumAnimations(), 60); }
     } else if (tabId === 'panel') {
       if (panel) panel.style.display = 'block';
+    } else if (tabId === 'lista') {
+      if (lista) lista.style.display = 'block';
+      if (typeof window.loadLista === 'function') window.loadLista();
     } else {
       if (carta) carta.style.display = 'block';
     }
