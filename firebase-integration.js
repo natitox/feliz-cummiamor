@@ -1170,7 +1170,7 @@ function buildListaItem(item) {
   wrap.dataset.id = item.id;
 
   const byMe = (item.createdBy || '') === (window._currentUsername || '');
-  const who  = byMe ? 'tú' : (item.createdBy || '');
+  const who  = byMe ? 'ti' : (item.createdBy || '');
   const time = item.createdAt?.toDate
     ? item.createdAt.toDate().toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
     : '';
