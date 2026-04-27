@@ -435,6 +435,9 @@
     <a href="#" class="nav-tab" id="tab-btn-album" onclick="showTab('album', this); return false;">
       <i class="fa-solid fa-images me-1"></i>Álbum
     </a>
+    <a href="#" class="nav-tab" id="tab-btn-lista" onclick="showTab('lista', this); return false;">
+      <i class="fa-solid fa-book-open me-1"></i>Lista
+    </a>
     <a href="#" class="nav-tab" id="tab-btn-panel" onclick="showTab('panel', this); return false;">
       <i class="fa-solid fa-lock me-1"></i>Panel
     </a>
@@ -561,6 +564,83 @@ t amooooo :3<br /><br />
       </footer>
     </div>
   </div>
+
+  <!-- TAB: LISTA COMPARTIDA -->
+  <div class="letter-container" id="tab-lista" style="display:none;">
+
+    <!-- Encabezado libreta -->
+    <header class="lista-header">
+      <div class="lista-header-deco" aria-hidden="true">
+        <span class="lista-cloud">☁️</span>
+        <span class="lista-cloud lista-cloud-2">☁️</span>
+        <span class="lista-snoopy" aria-hidden="true">🐾</span>
+      </div>
+      <h1 class="lista-title">Nuestra<br/><em>Listita</em> 📋</h1>
+      <p class="lista-subtitle">Ideas, pendientes y cositas bonitas para los dos</p>
+      <div class="header-divider"><span>💕</span></div>
+    </header>
+
+    <!-- Libreta -->
+    <div class="lista-notebook">
+
+      <!-- Espiral decorativa -->
+      <div class="lista-spiral" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <!-- Input para agregar -->
+      <div class="lista-add-wrap">
+        <div class="lista-input-row">
+          <input
+            id="lista-input"
+            class="lista-input"
+            type="text"
+            placeholder="Escribe algo bonito para agregar… ✨"
+            maxlength="120"
+            onkeydown="if(event.key==='Enter')addListaItem()"
+          />
+          <button class="lista-add-btn" onclick="addListaItem()" aria-label="Agregar">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+        <div class="lista-status" id="lista-status" style="display:none;"></div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="lista-filters">
+        <button class="lista-filter-btn active" id="filter-todos" onclick="filterLista('todos', this)">
+          Todos
+        </button>
+        <button class="lista-filter-btn" id="filter-pendientes" onclick="filterLista('pendientes', this)">
+          Pendientes
+        </button>
+        <button class="lista-filter-btn" id="filter-hechos" onclick="filterLista('hechos', this)">
+          ✓ Hechos
+        </button>
+      </div>
+
+      <!-- Lista de items -->
+      <div id="lista-items" class="lista-items">
+        <div class="lista-loading">
+          <span class="lista-loading-dot"></span>
+          <span class="lista-loading-dot"></span>
+          <span class="lista-loading-dot"></span>
+        </div>
+      </div>
+
+      <!-- Contador de items -->
+      <div class="lista-counter" id="lista-counter" style="display:none;">
+        <span id="lista-counter-txt"></span>
+      </div>
+
+      <!-- Líneas de libreta decorativas -->
+      <div class="lista-lines" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+    </div><!-- /.lista-notebook -->
+  </div><!-- /#tab-lista -->
 
   <!-- TAB: PANEL PRIVADO -->
   <div class="letter-container" id="tab-panel" style="display:none;">
