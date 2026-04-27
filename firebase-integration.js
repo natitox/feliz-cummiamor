@@ -1089,3 +1089,201 @@ document.addEventListener('DOMContentLoaded',()=>{
 window.initMemoryGame=initMemoryGame;
 window.initSortGame=initSortGame;
 window.initEmotionalQuiz=initEmotionalQuiz;
+
+/* ════════════════════════════════════════════
+   SECCIÓN LISTA COMPARTIDA
+   Colección Firestore: shared_list
+   Campos: text, createdBy, createdAt, completed, updatedAt
+════════════════════════════════════════════ */
+
+let listaFilter = 'todos';
+let listaUnsubscribe = null;
+
+/* Carga y escucha en tiempo real */
+window.loadLista = function() {
+  const container = document.getElementById('lista-items');
+  if (!container) return;
+
+  // Mostrar spinner solo en la primera carga
+  if (!listaUnsubscribe) {
+    container.innerHTML = `
+      <div class="lista-loading">
+        <span class="lista-loading-dot"></span>
+        <span class="lista-loading-dot"></span>
+        <span class="lista-loading-dot"></span>
+      </div>`;
+  }
+
+  if (listaUnsubscribe) listaUnsubscribe();
+
+  listaUnsubscribe = db.collection('shared_list')
+    .orderBy('createdAt', 'desc')
+    .onSnapshot(snap => {
+      renderListaItems(snap.docs);
+    }, err => {
+      console.warn('Lista error:', err);
+      if (container) container.innerHTML = '<p class="lista-empty">No se pudo cargar la lista 😔</p>';
+    });
+};
+
+function renderListaItems(docs) {
+  const container = document.getElementById('lista-items');
+  const counter   = document.getElementById('lista-counter');
+  const counterTxt = document.getElementById('lista-counter-txt');
+  if (!container) return;
+
+  if (!docs || docs.length === 0) {
+    container.innerHTML = '<p class="lista-empty">¡La lista está vacía! Agrega algo bonito ✨</p>';
+    if (counter) counter.style.display = 'none';
+    return;
+  }
+
+  const all       = docs.map(d => ({ id: d.id, ...d.data() }));
+  const total     = all.length;
+  const completed = all.filter(i => i.completed).length;
+  const pending   = total - completed;
+
+  // Filtrar
+  const filtered = listaFilter === 'hechos'     ? all.filter(i =>  i.completed)
+                 : listaFilter === 'pendientes'  ? all.filter(i => !i.completed)
+                 : all;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<p class="lista-empty">${listaFilter === 'hechos' ? 'Ninguno marcado como hecho todavía ✨' : 'Todo hecho 🎉'}</p>`;
+  } else {
+    container.innerHTML = '';
+    filtered.forEach(item => {
+      container.appendChild(buildListaItem(item));
+    });
+  }
+
+  // Contador
+  if (counter && counterTxt) {
+    counter.style.display = 'block';
+    counterTxt.textContent = `${completed} de ${total} completado${total === 1 ? '' : 's'} 💖`;
+  }
+}
+
+function buildListaItem(item) {
+  const wrap = document.createElement('div');
+  wrap.className = `lista-item${item.completed ? ' lista-item-done' : ''}`;
+  wrap.dataset.id = item.id;
+
+  const byMe = (item.createdBy || '') === (window._currentUsername || '');
+  const who  = byMe ? 'tú' : (item.createdBy || '');
+  const time = item.createdAt?.toDate
+    ? item.createdAt.toDate().toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
+    : '';
+
+  wrap.innerHTML = `
+    <button class="lista-check-btn${item.completed ? ' lista-checked' : ''}"
+      onclick="toggleListaItem('${item.id}', ${!item.completed})"
+      aria-label="${item.completed ? 'Desmarcar' : 'Marcar como hecho'}"
+      title="${item.completed ? 'Desmarcar' : 'Marcar como hecho'}">
+      ${item.completed ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-regular fa-circle"></i>'}
+    </button>
+    <div class="lista-item-body">
+      <span class="lista-item-text">${escapeListaHtml(item.text || '')}</span>
+      <span class="lista-item-meta">${who ? 'por ' + escapeListaHtml(who) : ''}${time ? ' · ' + time : ''}</span>
+    </div>
+    <button class="lista-delete-btn" onclick="deleteListaItem('${item.id}')" aria-label="Eliminar" title="Eliminar">
+      <i class="fa-solid fa-xmark"></i>
+    </button>`;
+
+  return wrap;
+}
+
+/* Agregar item */
+window.addListaItem = async function() {
+  const input = document.getElementById('lista-input');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) {
+    showListaStatus('Escribe algo primero ✏️', 'warn');
+    return;
+  }
+
+  const btn = document.querySelector('.lista-add-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
+
+  try {
+    await db.collection('shared_list').add({
+      text,
+      createdBy: window._currentUsername || 'anon',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      completed: false,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = '';
+    showListaStatus('¡Agregado! 🌸', 'ok');
+  } catch (err) {
+    console.error('addListaItem error:', err);
+    showListaStatus('Error al agregar 😔', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-plus"></i>'; }
+  }
+};
+
+/* Toggle completado */
+window.toggleListaItem = async function(id, completed) {
+  const itemEl = document.querySelector(`.lista-item[data-id="${id}"]`);
+  if (itemEl) {
+    itemEl.classList.toggle('lista-item-done', completed);
+    itemEl.classList.add('lista-item-toggling');
+    setTimeout(() => itemEl.classList.remove('lista-item-toggling'), 400);
+  }
+  try {
+    await db.collection('shared_list').doc(id).update({
+      completed,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (err) {
+    console.error('toggleListaItem error:', err);
+    showListaStatus('Error al actualizar 😔', 'error');
+  }
+};
+
+/* Eliminar item */
+window.deleteListaItem = async function(id) {
+  const itemEl = document.querySelector(`.lista-item[data-id="${id}"]`);
+  if (itemEl) {
+    itemEl.classList.add('lista-item-removing');
+    await new Promise(r => setTimeout(r, 280));
+  }
+  try {
+    await db.collection('shared_list').doc(id).delete();
+  } catch (err) {
+    console.error('deleteListaItem error:', err);
+    if (itemEl) itemEl.classList.remove('lista-item-removing');
+    showListaStatus('Error al eliminar 😔', 'error');
+  }
+};
+
+/* Filtrar */
+window.filterLista = function(filter, el) {
+  listaFilter = filter;
+  document.querySelectorAll('.lista-filter-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (typeof window.loadLista === 'function') {
+    // Ya hay listener activo, re-renderizar con el nuevo filtro
+    db.collection('shared_list').orderBy('createdAt', 'desc').get().then(snap => {
+      renderListaItems(snap.docs);
+    });
+  }
+};
+
+function showListaStatus(msg, type) {
+  const el = document.getElementById('lista-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `lista-status lista-status-${type}`;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 2500);
+}
+
+function escapeListaHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
