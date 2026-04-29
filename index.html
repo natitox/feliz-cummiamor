@@ -23,7 +23,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 
   <style>
     /* ── Panel hints ── */
@@ -169,7 +169,7 @@
           <div class="hint-item">
             <span class="hint-label">💌 Momento especial</span>
             <p class="hint-clue">
-              mes que te pedi pololeo” 😳
+              mes que te pedi pololeo" 😳
             </p>
           </div>
 
@@ -239,6 +239,7 @@
     </div>
   </div>
 </section>
+
 <!-- ════════════════════════════════════════════
      PANTALLA 2: PREGUNTAS SÍ / NO
 ════════════════════════════════════════════ -->
@@ -274,7 +275,6 @@
     </div>
   </div>
 </section>
-
 
 <!-- ════════════════════════════════════════════
      PANTALLA: JUEGO DE MEMORIA
@@ -463,6 +463,9 @@
     <a href="#" class="nav-tab" id="tab-btn-album" onclick="showTab('album', this); return false;">
       <i class="fa-solid fa-images me-1"></i>Álbum
     </a>
+    <a href="#" class="nav-tab" id="tab-btn-lista" onclick="showTab('lista', this); return false;">
+      <i class="fa-solid fa-book-open me-1"></i>Lista
+    </a>
     <a href="#" class="nav-tab" id="tab-btn-panel" onclick="showTab('panel', this); return false;">
       <i class="fa-solid fa-lock me-1"></i>Panel
     </a>
@@ -521,7 +524,6 @@ t amooooo :3<br /><br />
       </div>
     </section>
 
-    <!-- Cartas dinámicas de Firestore -->
     <div class="section-divider" aria-hidden="true">
       <span>✦</span><span>Cartas del corazón</span><span>✦</span>
     </div>
@@ -590,6 +592,55 @@ t amooooo :3<br /><br />
     </div>
   </div>
 
+  <!-- TAB: LISTA COMPARTIDA -->
+  <div class="letter-container" id="tab-lista" style="display:none;">
+    <header class="lista-header">
+      <div class="lista-header-deco" aria-hidden="true">
+        <span class="lista-cloud">☁️</span>
+        <span class="lista-cloud lista-cloud-2">☁️</span>
+        <span class="lista-snoopy" aria-hidden="true">🐾</span>
+      </div>
+      <h1 class="lista-title">Lista<br/><em>de cositas</em> 📋</h1>
+      <p class="lista-subtitle">pendientes y cositas raras</p>
+      <div class="header-divider"><span>💕</span></div>
+    </header>
+    <div class="lista-notebook">
+      <div class="lista-spiral" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="lista-add-wrap">
+        <div class="lista-input-row">
+          <input id="lista-input" class="lista-input" type="text"
+            placeholder="Escribe algo bonito para agregar… ✨"
+            maxlength="120" onkeydown="if(event.key==='Enter')addListaItem()" />
+          <button class="lista-add-btn" onclick="addListaItem()" aria-label="Agregar">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+        <div class="lista-status" id="lista-status" style="display:none;"></div>
+      </div>
+      <div class="lista-filters">
+        <button class="lista-filter-btn active" id="filter-todos" onclick="filterLista('todos', this)">Todos</button>
+        <button class="lista-filter-btn" id="filter-pendientes" onclick="filterLista('pendientes', this)">Pendientes</button>
+        <button class="lista-filter-btn" id="filter-hechos" onclick="filterLista('hechos', this)">✓ Hechos</button>
+      </div>
+      <div id="lista-items" class="lista-items">
+        <div class="lista-loading">
+          <span class="lista-loading-dot"></span>
+          <span class="lista-loading-dot"></span>
+          <span class="lista-loading-dot"></span>
+        </div>
+      </div>
+      <div class="lista-counter" id="lista-counter" style="display:none;">
+        <span id="lista-counter-txt"></span>
+      </div>
+      <div class="lista-lines" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
   <!-- TAB: PANEL PRIVADO -->
   <div class="letter-container" id="tab-panel" style="display:none;">
     <header class="album-header">
@@ -600,13 +651,11 @@ t amooooo :3<br /><br />
     </header>
     <div class="private-panel-wrap">
 
-      <!-- ── SUBIR FOTO (vía ImgBB, gratis) ── -->
       <div class="panel-section">
         <h3 class="panel-section-title"><i class="fa-solid fa-camera"></i> Subir nueva foto 📷</h3>
         <p class="panel-hint">
           <i class="fa-solid fa-circle-info me-1"></i>
           Suba la fotito, se agregará al album
-    
         </p>
         <label class="panel-file-label" for="photo-upload-input" id="photo-file-label">
           <i class="fa-solid fa-cloud-arrow-up me-2"></i>
@@ -614,7 +663,6 @@ t amooooo :3<br /><br />
           <input type="file" id="photo-upload-input" accept="image/*" style="display:none;"
             onchange="previewPhoto(this)" />
         </label>
-        <!-- Preview antes de subir -->
         <div id="photo-preview-wrap" style="display:none; text-align:center; margin:.6rem 0;">
           <img id="photo-preview" src="" alt="Preview"
             style="max-width:100%; max-height:200px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.15);" />
@@ -627,7 +675,6 @@ t amooooo :3<br /><br />
         <div class="panel-status" id="upload-status"></div>
       </div>
 
-      <!-- ── MÚSICA SPOTIFY ── -->
       <div class="panel-section">
         <h3 class="panel-section-title"><i class="fa-brands fa-spotify"></i> Agregar canción 🎵</h3>
         <p class="panel-hint">
@@ -635,15 +682,10 @@ t amooooo :3<br /><br />
           Abre Spotify → busca la canción o playlist → clic en
           <em>Compartir → Copiar enlace</em> y pégalo abajo.
         </p>
-        <!-- Player embed -->
         <div id="spotify-embed-container" style="display:none; margin-bottom:.8rem;"></div>
-        <!-- Lista de canciones guardadas -->
         <div id="spotify-songs-list" style="margin-bottom:.8rem;">
-          <p id="spotify-no-songs" class="panel-hint" style="color:#aaa; font-style:italic;">
-             🎶
-          </p>
+          <p id="spotify-no-songs" class="panel-hint" style="color:#aaa; font-style:italic;">🎶</p>
         </div>
-        <!-- Formulario agregar -->
         <input id="musica-nombre-input" class="panel-input" type="text"
           placeholder="Nombre de la canción o playlist… 🎵" maxlength="80" />
         <input id="musica-url-input" class="panel-input" type="url"
@@ -654,7 +696,6 @@ t amooooo :3<br /><br />
         <div class="panel-status" id="musica-status"></div>
       </div>
 
-      <!-- ── CREAR CARTA ── -->
       <div class="panel-section">
         <h3 class="panel-section-title"><i class="fa-solid fa-envelope-open-text"></i> Escribir nueva carta 💌</h3>
         <input id="carta-titulo-input" class="panel-input" type="text"
@@ -693,16 +734,16 @@ t amooooo :3<br /><br />
     </div>
     <div class="music-body" id="music-body">
       <div class="music-playlist" id="music-playlist">
-  <div class="playlist-item active" onclick="playSong(0)" data-vid="uEcKk2U_U7A"><i class="fa-solid fa-music me-2"></i>Nuestra canción 1</div>
-  <div class="playlist-item" onclick="playSong(1)" data-vid="Q4Js9OEODHM"><i class="fa-solid fa-music me-2"></i>Nuestra canción 2</div>
-  <div class="playlist-item" onclick="playSong(2)" data-vid="sXR93C_bSVk"><i class="fa-solid fa-music me-2"></i>Nuestra canción 3</div>
-  <div class="playlist-item" onclick="playSong(3)" data-vid="J_8xCOSekog"><i class="fa-solid fa-music me-2"></i>Nuestra canción 4</div>
-  <div class="playlist-item" onclick="playSong(4)" data-vid="-7a49quIQQc"><i class="fa-solid fa-music me-2"></i>Nuestra canción 5</div>
-  <div class="playlist-item" onclick="playSong(5)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 6</div>
-  <div class="playlist-item" onclick="playSong(6)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 7</div>
-  <div class="playlist-item" onclick="playSong(7)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 8</div>
-  <div class="playlist-item" onclick="playSong(8)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 9</div>
-  <div class="playlist-item" onclick="playSong(9)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 10</div>
+        <div class="playlist-item active" onclick="playSong(0)" data-vid="uEcKk2U_U7A"><i class="fa-solid fa-music me-2"></i>Nuestra canción 1</div>
+        <div class="playlist-item" onclick="playSong(1)" data-vid="Q4Js9OEODHM"><i class="fa-solid fa-music me-2"></i>Nuestra canción 2</div>
+        <div class="playlist-item" onclick="playSong(2)" data-vid="sXR93C_bSVk"><i class="fa-solid fa-music me-2"></i>Nuestra canción 3</div>
+        <div class="playlist-item" onclick="playSong(3)" data-vid="J_8xCOSekog"><i class="fa-solid fa-music me-2"></i>Nuestra canción 4</div>
+        <div class="playlist-item" onclick="playSong(4)" data-vid="-7a49quIQQc"><i class="fa-solid fa-music me-2"></i>Nuestra canción 5</div>
+        <div class="playlist-item" onclick="playSong(5)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 6</div>
+        <div class="playlist-item" onclick="playSong(6)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 7</div>
+        <div class="playlist-item" onclick="playSong(7)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 8</div>
+        <div class="playlist-item" onclick="playSong(8)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 9</div>
+        <div class="playlist-item" onclick="playSong(9)"><i class="fa-solid fa-music me-2"></i>Nuestra canción 10</div>
       </div>
       <audio id="mp3-player" style="display:none; width:100%; margin-bottom:.5rem;" controls></audio>
       <div id="yt-wrapper" style="display:none;">
@@ -731,11 +772,11 @@ t amooooo :3<br /><br />
 <script src="script.js"></script>
 <script src="firebase-config.js"></script>
 <script src="firebase-integration.js"></script>
-  <script src="natito-editor.js"></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(()=>{});
-    }
-  </script>
+<script src="natito-editor.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+</script>
 </body>
 </html>
