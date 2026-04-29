@@ -84,6 +84,8 @@
 ════════════════════════════════════════════ -->
 <section id="welcome-screen" class="screen active">
   <div class="welcome-wrapper">
+
+    <!-- Sobre animado -->
     <div class="welcome-envelope" id="welcome-envelope" onclick="openEnvelope()">
       <div class="envelope-back"></div>
       <div class="envelope-flap" id="envelope-flap"></div>
@@ -94,14 +96,40 @@
       <div class="envelope-front-right"></div>
       <div class="envelope-front-bottom"></div>
     </div>
-    <h2 class="welcome-title">Tengo algo<br/><em>para ti</em> 💕</h2>
+
+    <!-- Título -->
+    <h2 class="welcome-title">Página dedicada<br/><em>para usted mi vida linda</em> 💕</h2>
     <p class="welcome-hint">Toca el sobre para abrir</p>
-    <button class="btn-romantic welcome-btn" onclick="openEnvelope()">
-      <i class="fa-solid fa-envelope-open me-2"></i>Abrir mi carta
-    </button>
-    <button class="btn-skip-quiz" onclick="skipToLetter()">
-      <i class="fa-solid fa-forward-fast"></i>&nbsp;Ya hice el quiz — ir directo 💌 en la carta está la nueva clave 🤨 así q complete este primero
-    </button>
+
+    <!-- Botones principales -->
+    <div class="welcome-actions">
+
+      <!-- Botón primario: empezar quiz -->
+      <button class="welcome-btn-primary" onclick="openEnvelope()">
+        <span class="wbtn-icon"><i class="fa-solid fa-envelope-open"></i></span>
+        <span class="wbtn-content">
+          <span class="wbtn-label">Abrir mi carta</span>
+          <span class="wbtn-sub">Empieza por el quiz 💖</span>
+        </span>
+      </button>
+
+      <!-- Botón secundario: saltar quiz -->
+      <button class="welcome-btn-secondary" onclick="skipToLetter()">
+        <span class="wbtn-icon"><i class="fa-solid fa-forward-step"></i></span>
+        <span class="wbtn-content">
+          <span class="wbtn-label">Saltar el quiz</span>
+          <span class="wbtn-sub">Ir directo a la carta 💌</span>
+        </span>
+      </button>
+
+    </div>
+
+    <!-- Nota pequeña discreta -->
+    <p class="welcome-note">
+      <i class="fa-solid fa-circle-info"></i>
+      En la carta está la nueva clave 🤨
+    </p>
+
   </div>
 </section>
 
@@ -435,9 +463,6 @@
     <a href="#" class="nav-tab" id="tab-btn-album" onclick="showTab('album', this); return false;">
       <i class="fa-solid fa-images me-1"></i>Álbum
     </a>
-    <a href="#" class="nav-tab" id="tab-btn-lista" onclick="showTab('lista', this); return false;">
-      <i class="fa-solid fa-book-open me-1"></i>Lista
-    </a>
     <a href="#" class="nav-tab" id="tab-btn-panel" onclick="showTab('panel', this); return false;">
       <i class="fa-solid fa-lock me-1"></i>Panel
     </a>
@@ -564,83 +589,6 @@ t amooooo :3<br /><br />
       </footer>
     </div>
   </div>
-
-  <!-- TAB: LISTA COMPARTIDA -->
-  <div class="letter-container" id="tab-lista" style="display:none;">
-
-    <!-- Encabezado libreta -->
-    <header class="lista-header">
-      <div class="lista-header-deco" aria-hidden="true">
-        <span class="lista-cloud">☁️</span>
-        <span class="lista-cloud lista-cloud-2">☁️</span>
-        <span class="lista-snoopy" aria-hidden="true">🐾</span>
-      </div>
-      <h1 class="lista-title">Lista<br/><em>de cositas</em> 📋</h1>
-      <p class="lista-subtitle">pendientes y cositas raras</p>
-      <div class="header-divider"><span>💕</span></div>
-    </header>
-
-    <!-- Libreta -->
-    <div class="lista-notebook">
-
-      <!-- Espiral decorativa -->
-      <div class="lista-spiral" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span>
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
-
-      <!-- Input para agregar -->
-      <div class="lista-add-wrap">
-        <div class="lista-input-row">
-          <input
-            id="lista-input"
-            class="lista-input"
-            type="text"
-            placeholder="Escribe algo bonito para agregar… ✨"
-            maxlength="120"
-            onkeydown="if(event.key==='Enter')addListaItem()"
-          />
-          <button class="lista-add-btn" onclick="addListaItem()" aria-label="Agregar">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-        </div>
-        <div class="lista-status" id="lista-status" style="display:none;"></div>
-      </div>
-
-      <!-- Filtros -->
-      <div class="lista-filters">
-        <button class="lista-filter-btn active" id="filter-todos" onclick="filterLista('todos', this)">
-          Todos
-        </button>
-        <button class="lista-filter-btn" id="filter-pendientes" onclick="filterLista('pendientes', this)">
-          Pendientes
-        </button>
-        <button class="lista-filter-btn" id="filter-hechos" onclick="filterLista('hechos', this)">
-          ✓ Hechos
-        </button>
-      </div>
-
-      <!-- Lista de items -->
-      <div id="lista-items" class="lista-items">
-        <div class="lista-loading">
-          <span class="lista-loading-dot"></span>
-          <span class="lista-loading-dot"></span>
-          <span class="lista-loading-dot"></span>
-        </div>
-      </div>
-
-      <!-- Contador de items -->
-      <div class="lista-counter" id="lista-counter" style="display:none;">
-        <span id="lista-counter-txt"></span>
-      </div>
-
-      <!-- Líneas de libreta decorativas -->
-      <div class="lista-lines" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
-
-    </div><!-- /.lista-notebook -->
-  </div><!-- /#tab-lista -->
 
   <!-- TAB: PANEL PRIVADO -->
   <div class="letter-container" id="tab-panel" style="display:none;">
