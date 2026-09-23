@@ -23,7 +23,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="polish.css?v=5" />
 
   <style>
     /* ── Panel hints ── */
@@ -86,7 +87,7 @@
   <div class="welcome-wrapper">
 
     <!-- Sobre animado -->
-    <div class="welcome-envelope" id="welcome-envelope" onclick="openEnvelope()">
+    <div class="welcome-envelope" id="welcome-envelope" role="button" tabindex="0" aria-label="Abrir el sobre y comenzar" onclick="openEnvelope()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openEnvelope();}">
       <div class="envelope-back"></div>
       <div class="envelope-flap" id="envelope-flap"></div>
       <div class="envelope-body">
@@ -106,20 +107,22 @@
 
       <!-- Botón primario: empezar quiz -->
       <button class="welcome-btn-primary" onclick="openEnvelope()">
-        <span class="wbtn-icon"><i class="fa-solid fa-envelope-open"></i></span>
+        <span class="wbtn-icon" aria-hidden="true">💌</span>
         <span class="wbtn-content">
-          <span class="wbtn-label">Abrir mi carta</span>
-          <span class="wbtn-sub">Empieza por el quiz 💖</span>
+          <span class="wbtn-label">Empezar nuestra historia</span>
+          <span class="wbtn-sub">Un pequeño recorrido hecho para ti 💖</span>
         </span>
+        <span class="wbtn-arrow" aria-hidden="true">→</span>
       </button>
 
       <!-- Botón secundario: saltar quiz -->
       <button class="welcome-btn-secondary" onclick="skipToLetter()">
-        <span class="wbtn-icon"><i class="fa-solid fa-forward-step"></i></span>
+        <span class="wbtn-icon" aria-hidden="true">🗝️</span>
         <span class="wbtn-content">
-          <span class="wbtn-label">Saltar el quiz</span>
-          <span class="wbtn-sub">Ir directo a la carta 💌</span>
+          <span class="wbtn-label">Ir a mi carta</span>
+          <span class="wbtn-sub">Entrar con nuestra clave 💌</span>
         </span>
+        <span class="wbtn-arrow" aria-hidden="true">→</span>
       </button>
 
     </div>
@@ -218,22 +221,22 @@
         </div>
 
         <div class="keypad-grid">
-          <button class="key-btn" onclick="keypadPress('1')">1️⃣</button>
-          <button class="key-btn" onclick="keypadPress('2')">2️⃣</button>
-          <button class="key-btn" onclick="keypadPress('3')">3️⃣</button>
-          <button class="key-btn" onclick="keypadPress('4')">4️⃣</button>
-          <button class="key-btn" onclick="keypadPress('5')">5️⃣</button>
-          <button class="key-btn" onclick="keypadPress('6')">6️⃣</button>
-          <button class="key-btn" onclick="keypadPress('7')">7️⃣</button>
-          <button class="key-btn" onclick="keypadPress('8')">8️⃣</button>
-          <button class="key-btn" onclick="keypadPress('9')">9️⃣</button>
+          <button class="key-btn" onclick="keypadPress('1')" aria-label="1">1</button>
+          <button class="key-btn" onclick="keypadPress('2')" aria-label="2">2</button>
+          <button class="key-btn" onclick="keypadPress('3')" aria-label="3">3</button>
+          <button class="key-btn" onclick="keypadPress('4')" aria-label="4">4</button>
+          <button class="key-btn" onclick="keypadPress('5')" aria-label="5">5</button>
+          <button class="key-btn" onclick="keypadPress('6')" aria-label="6">6</button>
+          <button class="key-btn" onclick="keypadPress('7')" aria-label="7">7</button>
+          <button class="key-btn" onclick="keypadPress('8')" aria-label="8">8</button>
+          <button class="key-btn" onclick="keypadPress('9')" aria-label="9">9</button>
           <button class="key-btn key-del" onclick="keypadDelete()">⌫</button>
-          <button class="key-btn" onclick="keypadPress('0')">0️⃣</button>
+          <button class="key-btn" onclick="keypadPress('0')" aria-label="0">0</button>
           <button class="key-btn key-ok" onclick="checkPin()">✅</button>
         </div>
       </div>
 
-      <p class="lock-error" id="lock-error">
+      <p role="alert" class="lock-error" id="lock-error">
         mmm… 🤨 eso no parece de alguien que me conoce tanto
       </p>
     </div>
@@ -434,14 +437,14 @@
       <div class="q-heart" style="font-size:3rem; margin-bottom:1rem;">💌</div>
       <h1 class="final-letter-title">Mi carta final</h1>
       <div class="final-letter-body">
-        <p class="final-letter-text">
+        <div class="final-letter-text">
           Mi amor hermosa,<br /><br />
           Si llegaste hasta acá es porque abriste mi cartita dnv t amo muchisimo y me encanta que veas lo que hago x ti, sentí que estaba muy vacia la pagina porque le dediqué muy poco tiempo, pero ahora si está más completita, te amo muchisimoooo. <br /><br />
           sabías que cada día a tu lado lo atesoro¿. No hay día que no piense en usted y en lo agradecido que estoy de tenerte.<br /><br />
           te elegiría siempre mi amor ya que eres lo mjr d lo mjr :*.<br /><br />
           Te amo, mi nupi. Hoy, mañana y siempre. 26/03 nueva clave!!!💛💖💛🌸💖💛 🌸 <br /><br />
           <em>Tu natito 💖</em>
-        </p>
+        </div>
       </div>
       <div class="final-letter-hearts" aria-hidden="true">💖 💛 🌸 💖 🌸 💛 💖</div>
       <button class="btn-romantic mt-3" onclick="goToMainLetter()">
@@ -481,7 +484,7 @@
       <div class="header-divider" aria-hidden="true"><span>💕</span></div>
     </header>
     <article class="letter-body">
-      <p class="letter-intro">
+      <div class="letter-intro">
         Hola mi nupi limda hermosa d mi corazónnnnn,<br /><br />
         Hoy es el cumpleaños de mi persona favorita. Quiero que sepas que siempre te voy a amar y querer caminar a tu lado. Me encantas y me encanta caminar de la mano contigo, estar a tu lado, dormir contigo, comer contigo.
 
@@ -498,7 +501,7 @@ t amooooo :3<br /><br />
         Gracias por existir, por estar conmigo. Este día es tuyo y quiero que sea bonito como tú lo eres para mí.<br /><br />
         Con todo mi amor para mi wawa, 26/03💛.<br />
         <em>Tu corazón d melon 💖</em>
-      </p>
+      </div>
     </article>
     <div class="section-divider" aria-hidden="true">
       <span>❧</span><span>Nuestros momentos</span><span>❧</span>
@@ -659,8 +662,8 @@ t amooooo :3<br /><br />
         </p>
         <label class="panel-file-label" for="photo-upload-input" id="photo-file-label">
           <i class="fa-solid fa-cloud-arrow-up me-2"></i>
-          Selecciona una imagen (máx. 32 MB)
-          <input type="file" id="photo-upload-input" accept="image/*" style="display:none;"
+          <span class="file-name-txt">Selecciona una imagen · hasta 32 MB</span>
+          <input type="file" id="photo-upload-input" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp,.heic,.heif" class="visually-hidden-file"
             onchange="previewPhoto(this)" />
         </label>
         <div id="photo-preview-wrap" style="display:none; text-align:center; margin:.6rem 0;">
@@ -672,7 +675,12 @@ t amooooo :3<br /><br />
         <button id="upload-photo-btn" class="btn-romantic w-100" onclick="uploadPhoto()">
           <i class="fa-solid fa-cloud-arrow-up me-2"></i>Subir foto al álbum
         </button>
-        <div class="panel-status" id="upload-status"></div>
+        <div id="photo-progress-wrap" class="photo-progress" hidden>
+          <progress id="photo-progress" max="100" value="0" aria-label="Progreso de subida"></progress>
+          <span id="photo-progress-text" role="status">Preparando foto…</span>
+          <button type="button" id="cancel-photo-upload" class="soft-button" onclick="cancelPhotoUpload()">Cancelar subida</button>
+        </div>
+        <div class="panel-status" id="upload-status" role="status" aria-live="polite"></div>
       </div>
 
       <div class="panel-section">
@@ -712,6 +720,21 @@ t amooooo :3<br /><br />
   </div>
 
 </section>
+
+<dialog id="skip-pin-dialog" class="love-dialog" aria-labelledby="skip-pin-title">
+  <button type="button" class="dialog-close" aria-label="Cerrar" onclick="document.getElementById('skip-pin-dialog').close()">×</button>
+  <form onsubmit="submitSkipPin(event)">
+    <span class="pin-emblem" aria-hidden="true">🗝️</span>
+    <p class="eyebrow">UN SECRETO ENTRE NOSOTROS</p>
+    <h2 id="skip-pin-title">Tu carta te espera</h2>
+    <p class="pin-caption">Escribe nuestra clave y abre este pedacito de mi corazón.</p>
+    <label for="skip-pin-input">Nuestra clave de 4 números</label>
+    <input id="skip-pin-input" class="pin-input" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" minlength="4" required autocomplete="off" aria-describedby="skip-pin-error" />
+    <p id="skip-pin-error" class="pin-error" role="alert"></p>
+    <button type="submit" class="btn-romantic pin-submit">Abrir mi carta <span aria-hidden="true">♡</span></button>
+    <button type="button" class="pin-back" onclick="document.getElementById('skip-pin-dialog').close()">Volver al sobre</button>
+  </form>
+</dialog>
 
 <!-- Lightbox -->
 <div id="lightbox" class="lightbox" onclick="closeLightbox()">
@@ -770,9 +793,11 @@ t amooooo :3<br /><br />
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="script.js"></script>
+<script src="page-content.js?v=5"></script>
 <script src="firebase-config.js"></script>
 <script src="firebase-integration.js"></script>
-<script src="natito-editor.js"></script>
+<script src="photo-upload.js?v=5"></script>
+<script src="natito-editor.js?v=5"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
