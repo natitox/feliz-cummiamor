@@ -11,6 +11,7 @@
 ═══════════════════════════════════════ */
 const CONFIG = {
   PIN: '7395',
+  SKIP_PIN: '2603',
 
   EMAILJS_SERVICE_ID:  'service_60wzk5j',   // ← tu service ID
   EMAILJS_TEMPLATE_ID: 'template_50p5kvb',  // ← tu template ID
@@ -121,6 +122,12 @@ const state = {
   storyIndex: 0
 };
 
+// Referencias compartidas: el editor modifica el mismo estado que usa la página.
+window.CONFIG = CONFIG;
+window.state = state;
+window.preguntas = preguntas;
+window.storyLines = storyLines;
+
 /* ═══════════════════════════════════════
    INICIALIZACIÓN
 ═══════════════════════════════════════ */
@@ -138,6 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
    NAVEGACIÓN ENTRE PANTALLAS
 ═══════════════════════════════════════ */
 function showScreen(id) {
+  if (!document.getElementById(id)) return;
+  if (id === 'welcome-screen') {
+    document.getElementById('welcome-envelope')?.classList.remove('opening');
+    document.getElementById('envelope-flap')?.classList.remove('open');
+    document.getElementById('envelope-letter')?.classList.remove('rise');
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(id);
   if (target) {
@@ -179,6 +192,7 @@ function createParticles() {
    PANTALLA 0: SOBRE DE BIENVENIDA
 ═══════════════════════════════════════ */
 function openEnvelope() {
+  window._editorPreview = false;
   const envelope = document.getElementById('welcome-envelope');
   const flap     = document.getElementById('envelope-flap');
   const letter   = document.getElementById('envelope-letter');
@@ -196,13 +210,17 @@ function openEnvelope() {
    Tracking: cuenta cada intento fallido
 ═══════════════════════════════════════ */
 function keypadPress(digit) {
-  if (state.keypadValue.length >= 4) return;
+  if (state.unlocking || state.keypadValue.length >= 4 || !/^\d$/.test(digit)) return;
   state.keypadValue += digit;
   updateKeypadDisplay();
-  if (state.keypadValue.length === 4) setTimeout(checkPin, 300);
+  if (state.keypadValue.length === 4) {
+    clearTimeout(state.pinTimer);
+    state.pinTimer = setTimeout(() => { if (state.keypadValue.length === 4) checkPin(); }, 200);
+  }
 }
 
 function keypadDelete() {
+  clearTimeout(state.pinTimer);
   state.keypadValue = state.keypadValue.slice(0, -1);
   updateKeypadDisplay();
   const err = document.getElementById('lock-error');
@@ -218,6 +236,7 @@ function updateKeypadDisplay() {
 }
 
 function checkPin() {
+  if (state.unlocking || state.keypadValue.length !== 4) return;
   const err = document.getElementById('lock-error');
   if (state.keypadValue === CONFIG.PIN) {
     unlockSuccess();
@@ -237,6 +256,7 @@ function checkPin() {
 }
 
 function unlockSuccess() {
+  state.unlocking = true;
   const lockIcon = document.getElementById('lock-icon');
   const lockFa   = document.getElementById('lock-fa');
   const err      = document.getElementById('lock-error');
@@ -246,6 +266,7 @@ function unlockSuccess() {
   if (lockIcon) lockIcon.classList.add('unlocking');
 
   setTimeout(() => {
+    state.unlocking = false;
     showScreen('questions-screen');
     renderSiNoQuestion();
   }, 850);
@@ -262,6 +283,7 @@ function initSiNoQuestions() {
 }
 
 function renderSiNoQuestion() {
+  state.questionBusy = false;
   const __pqs__ = window.__PREGUNTAS_EDITABLES__ || window.preguntas || preguntas;
   const q = __pqs__[state.qIndex];
   if (!q) return;
@@ -289,6 +311,8 @@ function renderSiNoQuestion() {
 }
 
 function responderSiNo(resp) {
+  if (state.questionBusy) return;
+  state.questionBusy = true;
   const __pqs__ = window.__PREGUNTAS_EDITABLES__ || window.preguntas || preguntas;
   const q = __pqs__[state.qIndex];
   if (!q) return;
@@ -419,27 +443,31 @@ function flipCard(index) {
    SALTAR QUIZ CON CLAVE SECRETA
 ═══════════════════════════════════════ */
 window.skipToLetter = function() {
-
-  const clave = prompt("🔑 Ingresa la clave para saltar el quiz:");
-
-  if (!clave) return;
-
-  if (clave === "2603") {
-
-    state.answers.flujoCompleto = true;
-
-    showScreen('final-letter-screen');
-    animateFinalLetter();
-    showMusicControls();
-
-    setTimeout(playRandomSong, 800);
-
-  } else {
-
-    alert("❌ Clave incorrecta");
-
+  window._editorPreview = false;
+  const dialog = document.getElementById('skip-pin-dialog');
+  const input = document.getElementById('skip-pin-input');
+  input.value = '';
+  input.removeAttribute('aria-invalid');
+  document.getElementById('skip-pin-error').textContent = '';
+  if (!dialog.open) dialog.showModal();
+  input.focus();
+};
+window.submitSkipPin = function(event) {
+  event.preventDefault();
+  const input = document.getElementById('skip-pin-input');
+  const error = document.getElementById('skip-pin-error');
+  if (input.value !== CONFIG.SKIP_PIN) {
+    error.textContent = 'Esa no es la clave, mi amor. Inténtalo de nuevo 💕';
+    input.setAttribute('aria-invalid', 'true');
+    input.select();
+    return;
   }
-
+  document.getElementById('skip-pin-dialog').close();
+  state.answers.flujoCompleto = false;
+  showScreen('final-letter-screen');
+  animateFinalLetter();
+  showMusicControls();
+  setTimeout(playRandomSong, 800);
 };
 /* ═══════════════════════════════════════
    PANTALLA 5: ROMPECABEZAS
@@ -454,6 +482,8 @@ function initPuzzle() {
   state.puzzleSelected = null;
   state.puzzleSolved   = false;
   state.puzzleSize     = size;
+  document.getElementById('puzzle-unlock-wrap').style.display = 'none';
+  document.getElementById('puzzle-msg').textContent = '';
   renderPuzzle(size);
 }
 
@@ -468,7 +498,8 @@ function renderPuzzle(size) {
   const grid = document.getElementById('puzzle-grid');
   if (!grid) return;
 
-  const cellPx = Math.min(89, Math.floor((window.innerWidth - 16) / size));
+  const available = Math.min(grid.parentElement.clientWidth - 40, window.innerWidth - 64);
+  const cellPx = Math.min(89, Math.floor((available - (size - 1) * 2) / size));
   grid.innerHTML = '';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = `repeat(${size}, ${cellPx}px)`;
@@ -488,7 +519,7 @@ function renderPuzzle(size) {
 
     cell.style.width               = cellPx + 'px';
    cell.style.height              = cellPx + 'px';
-   cell.style.backgroundImage = 'url("img/enamoradito.jpg")';
+   cell.style.backgroundImage = `url(${JSON.stringify(window._puzzleImageUrl || 'img/enamoradito.jpg')})`;
    cell.style.backgroundSize      = `${size * 100}% ${size * 100}%`;
    cell.style.backgroundRepeat    = 'no-repeat';
    cell.style.backgroundPositionX = `${bgPosX}%`;
@@ -627,6 +658,7 @@ function goToLetter() {
      {{fecha_hora}}         → fecha y hora (hora Chile)
 ═══════════════════════════════════════ */
 function sendAnswersByEmail() {
+  if (window._editorPreview) return;
   if (typeof emailjs === 'undefined') return;
   // Solo enviar email para snupi
   if ((window._currentUsername || '') !== 'snupi') return;
@@ -913,23 +945,11 @@ document.addEventListener('keydown', (e) => {
 })();
 
 
-/* ═══════════════════════════════════════
-   PREVIEW DE FOTO ANTES DE SUBIR
-═══════════════════════════════════════ */
-window.previewPhoto = function(input) {
-  const wrap    = document.getElementById('photo-preview-wrap');
-  const preview = document.getElementById('photo-preview');
-  const label   = document.getElementById('photo-file-label');
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (preview) { preview.src = e.target.result; }
-    if (wrap)    { wrap.style.display = 'block'; }
-    if (label) {
-      const nameSpan = label.querySelector('.file-name-txt');
-      if (nameSpan) nameSpan.textContent = file.name;
-    }
-  };
-  reader.readAsDataURL(file);
-};
+// Teclado físico: no interceptar al escribir en el editor o en un diálogo.
+document.addEventListener('keydown', event => {
+  if (document.querySelector('dialog[open]') || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName) || event.target.isContentEditable) return;
+  if (!document.getElementById('lock-screen')?.classList.contains('active')) return;
+  if (/^\d$/.test(event.key)) { event.preventDefault(); keypadPress(event.key); }
+  if (event.key === 'Backspace') { event.preventDefault(); keypadDelete(); }
+  if (event.key === 'Enter') checkPin();
+});
