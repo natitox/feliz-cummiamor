@@ -459,8 +459,7 @@
 })();
  
 /* ── Firebase init ── */
-firebase.initializeApp(FIREBASE_CONFIG);
-const auth = firebase.auth();
+const auth = window.auth;
  
 /* ── Anti-brute-force ── */
 const MAX_ATTEMPTS = 5;
@@ -564,7 +563,13 @@ window.handleLogin = async function() {
   } catch (err) {
     btn.disabled = false;
     btn.classList.remove('loading');
-    registerFailedAttempt();
+    if (err.code === 'auth/network-request-failed') {
+      showError('No pudimos conectar. Revisa tu conexión y vuelve a intentar 💕');
+    } else if (err.code === 'auth/too-many-requests') {
+      showError('Espera un momento antes de volver a intentar 💕');
+    } else {
+      registerFailedAttempt();
+    }
   }
 };
 
