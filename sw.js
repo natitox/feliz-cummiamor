@@ -7,7 +7,7 @@
    - fallback a caché si no hay red
    - no interceptar llamadas a Firebase / Google APIs */
 
-const CACHE_NAME = 'cartas-nupi-v3';
+const CACHE_NAME = 'cartas-nupi-v5';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,11 @@ const CORE_ASSETS = [
   './script.js',
   './firebase-integration.js',
   './natito-editor.js',
+  './page-content.js',
+  './photo-upload.js',
+  './polish.css',
+  './firebase-config.js',
+  './login.html',
   './manifest.json'
 ];
 
@@ -29,7 +34,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)));
+    await Promise.all(keys.filter(key => key.startsWith('cartas-nupi-') && key !== CACHE_NAME).map(key => caches.delete(key)));
     await self.clients.claim();
   })());
 });
@@ -42,7 +47,7 @@ function isFirebaseRequest(url) {
 
 function isCoreLocalAsset(url) {
   if (url.origin !== self.location.origin) return false;
-  return /\/(index\.html|style\.css|script\.js|firebase-integration\.js|natito-editor\.js|manifest\.json)?$/.test(url.pathname) ||
+  return /\/(index\.html|style\.css|script\.js|firebase-integration\.js|natito-editor\.js|page-content\.js|photo-upload\.js|polish\.css|firebase-config\.js|login\.html|manifest\.json)?$/.test(url.pathname) ||
          url.pathname.endsWith('/');
 }
 
