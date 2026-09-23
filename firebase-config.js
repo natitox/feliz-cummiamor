@@ -30,14 +30,11 @@ if (!firebase.apps.length) {
   firebase.initializeApp(FIREBASE_CONFIG);
 }
 
-/* 👇 LO MÁS IMPORTANTE */
+// login.html solo carga Auth; no invocar servicios cuyo SDK no está presente.
 window.auth = firebase.auth();
-window.db = firebase.firestore();
-window.storage = firebase.storage();
-
-/* Debug */
-console.log('🔥 Firebase inicializado:', {
-  auth: !!window.auth,
-  db: !!window.db,
-  storage: !!window.storage
-});
+if (typeof firebase.firestore === 'function') window.db = firebase.firestore();
+if (typeof firebase.storage === 'function') {
+  window.storage = firebase.storage();
+  window.storage.setMaxUploadRetryTime(60000);
+  window.storage.setMaxOperationRetryTime(30000);
+}
