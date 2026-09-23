@@ -6,7 +6,7 @@
   // =========================================================
   // IMGBB
   // =========================================================
-  const IMGBB_API_KEY = 'PEGA_AQUI_TU_API_KEY';
+  const IMGBB_API_KEY = '788afa9311150d93136c35f995797225';
 
   let busy = false;
   let activeTask = null;
