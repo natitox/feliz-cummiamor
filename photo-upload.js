@@ -2,7 +2,7 @@
 
 (() => {
   const MAX_BYTES = 32 * 1024 * 1024;
-  const IMGBB_API_KEY = 'PEGA_AQUI_TU_API_KEY';
+  const IMGBB_API_KEY = '788afa9311150d93136c35f995797225';
   let busy = false, activeTask = null, cancelled = false, previewURL = '', pending = null;
   const el = id => document.getElementById(id);
   const mimeFor = file => file.type || ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', bmp: 'image/bmp' }[file.name.split('.').pop().toLowerCase()] || '');
