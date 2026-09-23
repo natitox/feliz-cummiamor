@@ -22,7 +22,7 @@ function isAllowedEmail(email) {
 }
 
 function isNatitoUser() {
-  return (sessionStorage.getItem('_lu') || '') === 'natito';
+  return (auth.currentUser?.email || '').toLowerCase() === USERNAME_TO_EMAIL.natito;
 }
 
 /* ════════════════════════════════════════════
@@ -52,7 +52,8 @@ auth.onAuthStateChanged(async user => {
   }
 
   window._currentUser     = user;
-  window._currentUsername = sessionStorage.getItem('_lu') || 'amor';
+  window._currentUsername = Object.keys(USERNAME_TO_EMAIL).find(name => USERNAME_TO_EMAIL[name] === signedEmail) || 'amor';
+  sessionStorage.setItem('_lu', window._currentUsername);
 
   const nameEl = document.getElementById('user-display-name');
   if (nameEl) nameEl.textContent = window._currentUsername;
@@ -89,48 +90,16 @@ auth.onAuthStateChanged(async user => {
 async function loadAndApplyEditableContent() {
   try {
     const snap = await db.collection('editor_data').doc('content').get();
-    if (!snap.exists) return;
+    if (!snap.exists) { window._editableContent = {}; return; }
     const data = snap.data() || {};
 
-    if (data.pin && window.CONFIG) window.CONFIG.PIN = String(data.pin);
-
-    if (data.textos) {
-      setHtmlSafe('.lock-title',        data.textos.lockTitle);
-      setHtmlSafe('.lock-subtitle',     data.textos.lockSubtitle);
-      setHtmlSafe('.welcome-title',     data.textos.welcomeTitle);
-      setHtmlSafe('.final-letter-text', data.textos.finalLetter);
-      setHtmlSafe('.letter-intro',      data.textos.letterIntro);
-    }
-
-    if (Array.isArray(data.preguntas) && data.preguntas.length) {
-      window.preguntas               = JSON.parse(JSON.stringify(data.preguntas));
-      window.__PREGUNTAS_EDITABLES__ = JSON.parse(JSON.stringify(data.preguntas));
-    }
-
-    if (Array.isArray(data.storyLines) && data.storyLines.length) {
-      window.storyLines                = JSON.parse(JSON.stringify(data.storyLines));
-      window.__STORY_LINES_EDITABLES__ = JSON.parse(JSON.stringify(data.storyLines));
-    }
-
-    if (Array.isArray(data.flipCards) && data.flipCards.length) {
-      data.flipCards.forEach((card, i) => {
-        setTextSafe(`#fc${i} .fc-front-title`, card.titulo || '');
-        setTextSafe(`#fc${i} .fc-back-title`,  card.titulo || '');
-        setTextSafe(`#fc${i} .fc-back-text`,   card.texto  || '');
-        setTextSafe(`#fc${i} .fc-icon`,        card.icono  || '💌');
-      });
-    }
-
-    if (data.puzzleImage) {
-      window._puzzleImageUrl = data.puzzleImage;
-      document.querySelectorAll('.puzzle-cell').forEach(cell => {
-        cell.style.backgroundImage = `url("${data.puzzleImage}")`;
-      });
-    }
+    window._editableContent = data;
+    window.PageContent.apply(data);
 
     console.log('✅ Contenido editable aplicado para:', window._currentUsername);
   } catch (err) {
-    console.warn('⚠️ No se pudo cargar contenido editable:', err);
+    window._editableContentError = err;
+    console.warn('No se pudo cargar contenido editable:', err);
   }
 }
 
@@ -321,14 +290,15 @@ const historyPhrases=[
   {id:8,text:"Nos dijimos te amo en la playita y se me pusieron los ojos llorosos y tu lloraste pq me amas mucho 💌✨"},
   {id:9,text:"Te pedí que fueras mi novia y me dijiste que si, asíq ahora somos novios y estamos muy enamoradossss 💛💛 ✨"}
 ];
+window.historyPhrases = historyPhrases;
 let sortDragSrc=null,sortOrder=[];
 function initSortGame(){
   const container=document.getElementById('sort-phrases');if(!container)return;
-  sortOrder=[...historyPhrases].sort(()=>Math.random()-.5);container.innerHTML='';
+  sortOrder=[...window.historyPhrases].sort(()=>Math.random()-.5);container.innerHTML='';
   sortOrder.forEach((phrase,i)=>{
     const item=document.createElement('div');item.className='sort-item';
     item.draggable=true;item.dataset.id=phrase.id;
-    item.innerHTML=`<span class="sort-num">${i+1}</span><span class="sort-text">${phrase.text}</span>`;
+    item.innerHTML=`<span class="sort-num">${i+1}</span><span class="sort-text">${escapeHtml(phrase.text)}</span>`;
     item.addEventListener('dragstart',e=>{sortDragSrc=item;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
     item.addEventListener('dragend',()=>item.classList.remove('dragging'));
     item.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';});
@@ -368,7 +338,7 @@ function updateSortNumbers(){
 }
 window.checkSortOrder=function(){
   const items=[...document.querySelectorAll('#sort-phrases .sort-item')];
-  const order=items.map(el=>parseInt(el.dataset.id));const correct=historyPhrases.map(p=>p.id);
+  const order=items.map(el=>parseInt(el.dataset.id));const correct=window.historyPhrases.map(p=>p.id);
   const msgEl=document.getElementById('sort-msg');const btnWrap=document.getElementById('sort-unlock-wrap');
   if(JSON.stringify(order)===JSON.stringify(correct)){
     if(msgEl){msgEl.textContent='¡Perfecta! Así fue nuestra historia… y así la llevas en el corazón 💖';msgEl.className='sort-msg sort-msg-ok';}
@@ -413,6 +383,7 @@ const emojiQuiz = [
   }
 ];
 
+window.emojiQuiz = emojiQuiz;
 let quizIndex = 0;
 let quizResponses = [];
 
@@ -423,7 +394,7 @@ function initEmotionalQuiz() {
 }
 
 function renderQuizQuestion() {
-  const q = emojiQuiz[quizIndex];
+  const q = window.emojiQuiz[quizIndex];
   const qEl = document.getElementById('equiz-question');
   const optsEl = document.getElementById('equiz-options');
   const countEl = document.getElementById('equiz-counter');
@@ -439,7 +410,7 @@ function renderQuizQuestion() {
   if (cardEl) cardEl.style.display = 'block';
 
   if (qEl) qEl.textContent = q.pregunta;
-  if (countEl) countEl.textContent = `${quizIndex + 1} / ${emojiQuiz.length}`;
+  if (countEl) countEl.textContent = `${quizIndex + 1} / ${window.emojiQuiz.length}`;
   if (respEl) {
     respEl.textContent = '';
     respEl.style.opacity = '0';
@@ -475,7 +446,7 @@ function handleQuizAnswer(respText, btnEl, optsEl) {
 
   setTimeout(() => {
     quizIndex++;
-    if (quizIndex < emojiQuiz.length) {
+    if (quizIndex < window.emojiQuiz.length) {
       renderQuizQuestion();
     } else {
       showQuizFinal();
@@ -521,13 +492,13 @@ window.loadDynamicCartas=async function(){
   const list=document.getElementById('dynamic-cards-grid') || document.getElementById('cartas-list');
   if(!list)return;
   try{
-    const snap=await db.collection('cartas').orderBy('fecha','desc').get();
+    const snap=await db.collection('cartas').get();
     if(snap.empty){
       list.innerHTML='<div class="dyn-empty">Aún no hay cartitas guardadas ✉️</div>';
       return;
     }
     list.innerHTML='';
-    snap.forEach(doc=>{
+    snap.docs.slice().sort((a,b)=>(b.data().fecha?.toMillis?.() || 0)-(a.data().fecha?.toMillis?.() || 0)).forEach(doc=>{
       const d=doc.data()||{};
       const item=document.createElement('article');
       item.className='dyn-card';
@@ -539,7 +510,7 @@ window.loadDynamicCartas=async function(){
           <span class="dyn-card-autor">${escapeHtml(autor)}</span>
         </div>
         <h3 class="dyn-card-titulo">${escapeHtml(d.titulo||'Sin título')}</h3>
-        <div class="dyn-card-texto">${escapeHtml(d.contenido||'').replace(/\n/g,'<br>')}</div>
+        <div class="dyn-card-texto">${d.formato === 'html' ? window.PageContent.sanitize(d.contenido || '') : escapeHtml(d.contenido||'').replace(/\n/g,'<br>')}</div>
         <div class="dyn-card-fecha">${fecha || 'Con amor 💖'}</div>`;
       list.appendChild(item);
     });
@@ -585,7 +556,7 @@ window.loadDynamicAlbum = async function () {
 
     let snap;
     try {
-      snap = await db.collection('fotos').orderBy('fecha', 'desc').get();
+      snap = await db.collection('fotos').get();
     } catch (_) {
       snap = await db.collection('fotos').get();
     }
@@ -702,36 +673,6 @@ window.createCarta=async function(){
   finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-paper-plane me-2"></i>Enviar carta';}}
 };
 window.enviarCarta = window.createCarta;
-
-window.uploadPhoto=async function(){
-  const fileInput=document.getElementById('photo-upload-input');
-  const descInput=document.getElementById('photo-upload-desc');
-  const btn=document.getElementById('upload-photo-btn');
-  const previewWrap=document.getElementById('photo-preview-wrap');
-  const previewImg=document.getElementById('photo-preview');
-  if(!fileInput?.files?.length){showUploadStatus('Selecciona una foto 📷','error');return;}
-  const file=fileInput.files[0];
-  if(!file.type.startsWith('image/')){showUploadStatus('Solo se permiten imágenes','error');return;}
-  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin me-2"></i>Subiendo…';}
-  try{
-    const ref=storage.ref(`fotos/${Date.now()}_${file.name}`);
-    await ref.put(file);
-    const url=await ref.getDownloadURL();
-    await db.collection('fotos').add({
-      url,
-      descripcion:descInput?.value?.trim()||'',
-      fecha:firebase.firestore.FieldValue.serverTimestamp(),
-      autor:window._currentUsername||'natito'
-    });
-    showUploadStatus('¡Foto subida! 🌸','ok');
-    fileInput.value='';
-    if(descInput)descInput.value='';
-    if(previewWrap)previewWrap.style.display='none';
-    if(previewImg)previewImg.src='';
-    await loadDynamicAlbum();
-  }catch(err){console.error(err);showUploadStatus('Error al subir. Intenta de nuevo','error');}
-  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-cloud-arrow-up me-2"></i>Subir foto al álbum';}}
-};
 
 window.addMusica=async function(){
   const nameInput=document.getElementById('musica-nombre-input');
