@@ -2,9 +2,33 @@
 
 (() => {
   const MAX_BYTES = 32 * 1024 * 1024;
+  const IMGBB_API_KEY = 'PEGA_AQUI_TU_API_KEY';
   let busy = false, activeTask = null, cancelled = false, previewURL = '', pending = null;
   const el = id => document.getElementById(id);
   const mimeFor = file => file.type || ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', bmp: 'image/bmp' }[file.name.split('.').pop().toLowerCase()] || '');
+  function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      const base64 = result.split(',')[1];
+
+      if (!base64) {
+        reject(new Error('No se pudo convertir la foto para subirla.'));
+        return;
+      }
+
+      resolve(base64);
+    };
+
+    reader.onerror = () => {
+      reject(new Error('No se pudo leer la foto.'));
+    };
+
+    reader.readAsDataURL(blob);
+  });
+}
   function validate(file) {
     if (!file) throw new Error('Selecciona una foto primero 📷');
     if (!file.size) throw new Error('La imagen está vacía. Elige otra foto.');
@@ -25,19 +49,20 @@
   }
   function errorMessage(error) {
     const messages = {
-      'storage/unauthorized': 'Tu cuenta no tiene permiso para subir fotos. Natito debe revisar los permisos de fotos en Firebase.',
-      'storage/unauthenticated': 'Tu sesión venció. Vuelve a iniciar sesión y prueba de nuevo.',
-      'storage/quota-exceeded': 'El almacenamiento no está disponible por su cuota o plan. Natito debe revisar Storage y el plan Blaze en Firebase.',
-      'storage/bucket-not-found': 'No se encontró el álbum en el almacenamiento. Natito debe revisar el bucket configurado en Firebase.',
-      'storage/no-default-bucket': 'Falta configurar el almacenamiento del álbum en Firebase.',
-      'storage/project-not-found': 'No se encontró el proyecto de almacenamiento. Revisa la configuración de Firebase.',
-      'storage/retry-limit-exceeded': 'La subida tardó demasiado. Revisa tu conexión y vuelve a intentar.',
+      'imgbb/invalid-key': 'La API key de ImgBB no es válida o fue rechazada.',
+      'imgbb/upload-failed': 'ImgBB no aceptó la foto. Revisa la API key o intenta con otra imagen.',
+      'imgbb/network': 'No pudimos conectar con ImgBB. Revisa tu conexión y vuelve a intentar.',
       'storage/canceled': 'Subida cancelada. Puedes volver a intentarlo con la misma foto.',
-      'storage/invalid-checksum': 'La foto llegó incompleta. Vuelve a intentar la subida.',
-      'storage/unknown': 'El servidor de fotos no respondió como esperaba. Revisa la conexión; si persiste, Natito debe revisar Storage en Firebase.',
-      'permission-denied': 'La imagen se subió, pero no hay permiso para agregarla al álbum. Revisa los permisos de la colección fotos y reintenta.',
+      'permission-denied': 'La foto se subió, pero no hay permiso para agregarla al álbum en Firestore.',
       'unavailable': 'No pudimos conectar con el álbum. Conservamos tu selección para reintentar.'
     };
+
+    return (
+      messages[error.code] ||
+      error.message ||
+      'No se pudo subir la foto. Vuelve a intentarlo.'
+    );
+  }
     return messages[error.code] || (error.code ? `No se pudo guardar la foto (${error.code}). Conservamos tu selección para reintentar.` : error.message) || 'No se pudo subir la foto. Vuelve a intentarlo.';
   }
   async function optimize(file) {
@@ -82,66 +107,172 @@
   };
   window.uploadPhoto = async () => {
     if (busy) return;
-    const fileInput = el('photo-upload-input'), descInput = el('photo-upload-desc'), button = el('upload-photo-btn');
+
+    const fileInput = el('photo-upload-input');
+    const descInput = el('photo-upload-desc');
+    const button = el('upload-photo-btn');
     const file = fileInput.files?.[0];
+
     try {
       validate(file);
-      if (!window.auth?.currentUser) throw new Error('Vuelve a iniciar sesión antes de subir la foto.');
-      if (!navigator.onLine) throw new Error('Estás sin conexión. Conserva la foto y reintenta al volver a conectarte.');
-      if (!window.storage) throw new Error('No se cargó el almacenamiento. Recarga la página y prueba de nuevo.');
-    } catch (error) { status(error.message); return; }
-    busy = true; cancelled = false;
+
+      if (!window.auth?.currentUser) {
+        throw new Error('Vuelve a iniciar sesión antes de subir la foto.');
+      }
+
+      if (!navigator.onLine) {
+        throw new Error('Estás sin conexión. Conserva la foto y reintenta al volver a conectarte.');
+      }
+
+      if (!window.db) {
+        throw new Error('No se cargó la base de datos. Recarga la página y prueba de nuevo.');
+      }
+
+      if (!IMGBB_API_KEY || IMGBB_API_KEY === 'PEGA_AQUI_TU_API_KEY') {
+        throw new Error('Falta configurar la API key de ImgBB en photo-upload.js.');
+      }
+    } catch (error) {
+      status(error.message);
+      return;
+    }
+
+    busy = true;
+    cancelled = false;
+
     const oldButton = button.innerHTML;
-    button.disabled = true; fileInput.disabled = true; descInput.disabled = true;
+    button.disabled = true;
+    fileInput.disabled = true;
+    descInput.disabled = true;
     button.textContent = 'Guardando tu recuerdo…';
+
     el('photo-progress-wrap').hidden = false;
     el('cancel-photo-upload').hidden = false;
     el('upload-status').style.display = 'none';
     progress(0, 'Preparando tu foto…');
+
     try {
-      // La misma referencia al reintentar evita duplicados si falló la escritura del álbum.
+      // Mantener el mismo doc si reintentas
       if (!pending || pending.file !== file) {
         const doc = window.db.collection('fotos').doc();
-        pending = { file, id: doc.id, path: '', uploaded: false, url: '' };
+        pending = {
+          file,
+          id: doc.id,
+          path: '',
+          uploaded: false,
+          url: '',
+          size: 0
+        };
       }
+
       if (!pending.uploaded) {
+        progress(15, 'Optimizando tu foto…');
         const optimized = await optimize(file);
+
         if (cancelled) throw { code: 'storage/canceled' };
-        const extension = ({'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','image/avif':'avif','image/bmp':'bmp'})[optimized.mime];
-        pending.path = `fotos/${pending.id}.${extension}`;
-        const ref = window.storage.ref(pending.path);
-        activeTask = ref.put(optimized.blob, { contentType: optimized.mime, cacheControl: 'public,max-age=31536000', customMetadata: { uploader: window.auth.currentUser.uid } });
-        await new Promise((resolve, reject) => activeTask.on('state_changed', snap => {
-          const value = Math.round(snap.bytesTransferred / Math.max(1, snap.totalBytes) * 100);
-          progress(value, `Subiendo tu foto · ${value}%`);
-        }, reject, resolve));
+
+        progress(35, 'Preparando la subida a ImgBB…');
+        const base64 = await blobToBase64(optimized.blob);
+
+        if (cancelled) throw { code: 'storage/canceled' };
+
+        progress(60, 'Subiendo tu foto a ImgBB…');
+
+        const controller = new AbortController();
+        activeTask = {
+          cancel: () => controller.abort()
+        };
+
+        const formData = new FormData();
+        formData.append('key', IMGBB_API_KEY);
+        formData.append('image', base64);
+        formData.append('name', file.name.replace(/\.[^.]+$/, '').slice(0, 80));
+
+        let response;
+        let result;
+
+        try {
+          response = await fetch('https://api.imgbb.com/1/upload', {
+            method: 'POST',
+            body: formData,
+            signal: controller.signal
+          });
+        } catch (err) {
+          if (err.name === 'AbortError') {
+            throw { code: 'storage/canceled' };
+          }
+          const e = new Error('No pudimos conectar con ImgBB.');
+          e.code = 'imgbb/network';
+          throw e;
+        } finally {
+          activeTask = null;
+        }
+
+        try {
+          result = await response.json();
+        } catch (_) {
+          const e = new Error('ImgBB devolvió una respuesta inválida.');
+          e.code = 'imgbb/upload-failed';
+          throw e;
+        }
+
+        if (!response.ok || !result?.success || !result?.data?.url) {
+          const apiMessage =
+            result?.error?.message ||
+            result?.data?.error?.message ||
+            'ImgBB rechazó la subida.';
+
+          const e = new Error(apiMessage);
+          e.code = /api key/i.test(apiMessage)
+            ? 'imgbb/invalid-key'
+            : 'imgbb/upload-failed';
+          throw e;
+        }
+
         pending.uploaded = true;
+        pending.url = result.data.url;
+        pending.path = `imgbb/${result.data.id || pending.id}`;
         pending.size = optimized.blob.size;
-        activeTask = null;
       }
-      // La subida terminó; cancelar ya no puede deshacer una escritura en curso.
+
       el('cancel-photo-upload').hidden = true;
       progress(100, 'Agregando la foto al álbum…');
-      if (!pending.url) pending.url = await window.storage.ref(pending.path).getDownloadURL();
+
       await window.db.collection('fotos').doc(pending.id).set({
-        url: pending.url, storagePath: pending.path, size: pending.size,
-        descripcion: descInput.value.trim(), fecha: firebase.firestore.FieldValue.serverTimestamp(),
-        autor: window._currentUsername, originalName: file.name
+        url: pending.url,
+        storagePath: pending.path,
+        size: pending.size,
+        descripcion: descInput.value.trim(),
+        fecha: firebase.firestore.FieldValue.serverTimestamp(),
+        autor: window._currentUsername,
+        originalName: file.name
       }, { merge: true });
+
       pending = null;
+
       status('¡Tu foto ya está en el álbum! 🌸', 'ok');
-      fileInput.value = ''; descInput.value = '';
+
+      fileInput.value = '';
+      descInput.value = '';
       el('photo-preview-wrap').style.display = 'none';
       el('photo-preview').removeAttribute('src');
-      el('photo-file-label').querySelector('.file-name-txt').textContent = 'Selecciona una imagen · hasta 32 MB';
-      if (previewURL) { URL.revokeObjectURL(previewURL); previewURL = ''; }
+      el('photo-file-label').querySelector('.file-name-txt').textContent =
+        'Selecciona una imagen · hasta 32 MB';
+
+      if (previewURL) {
+        URL.revokeObjectURL(previewURL);
+        previewURL = '';
+      }
+
       await window.loadDynamicAlbum();
     } catch (error) {
       console.warn('Subida de foto:', error.code || error.message);
       status(errorMessage(error));
     } finally {
-      busy = false; activeTask = null;
-      button.disabled = false; fileInput.disabled = false; descInput.disabled = false;
+      busy = false;
+      activeTask = null;
+      button.disabled = false;
+      fileInput.disabled = false;
+      descInput.disabled = false;
       button.innerHTML = oldButton;
       el('photo-progress-wrap').hidden = true;
     }
