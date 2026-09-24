@@ -33,8 +33,4 @@ if (!firebase.apps.length) {
 // login.html solo carga Auth; no invocar servicios cuyo SDK no está presente.
 window.auth = firebase.auth();
 if (typeof firebase.firestore === 'function') window.db = firebase.firestore();
-if (typeof firebase.storage === 'function') {
-  window.storage = firebase.storage();
-  window.storage.setMaxUploadRetryTime(60000);
-  window.storage.setMaxOperationRetryTime(30000);
-}
+// Las fotos nuevas se envían a ImgBB; no se inicializa Firebase Storage.

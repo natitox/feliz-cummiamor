@@ -7,18 +7,21 @@
    - fallback a caché si no hay red
    - no interceptar llamadas a Firebase / Google APIs */
 
-const CACHE_NAME = 'cartas-nupi-v5';
+const CACHE_NAME = 'cartas-nupi-v6-imgbb';
 const CORE_ASSETS = [
   './',
   './index.html',
-  './style.css',
-  './script.js',
-  './firebase-integration.js',
-  './natito-editor.js',
-  './page-content.js',
-  './photo-upload.js',
-  './polish.css',
-  './firebase-config.js',
+  './style.css?v=6',
+  './script.js?v=6',
+  './firebase-integration.js?v=6',
+  './natito-editor.js?v=6',
+  './page-content.js?v=6',
+  './photo-upload-config.js?v=6',
+  './photo-formats.js?v=6',
+  './photo-upload.js?v=6',
+  './photo-converter.worker.js?v=6',
+  './polish.css?v=6',
+  './firebase-config.js?v=6',
   './login.html',
   './manifest.json'
 ];
@@ -39,15 +42,9 @@ self.addEventListener('activate', event => {
   })());
 });
 
-function isFirebaseRequest(url) {
-  return url.origin.includes('googleapis.com') ||
-         url.origin.includes('gstatic.com') ||
-         url.pathname.includes('firestore');
-}
-
 function isCoreLocalAsset(url) {
   if (url.origin !== self.location.origin) return false;
-  return /\/(index\.html|style\.css|script\.js|firebase-integration\.js|natito-editor\.js|page-content\.js|photo-upload\.js|polish\.css|firebase-config\.js|login\.html|manifest\.json)?$/.test(url.pathname) ||
+  return /\.(?:html|css|m?js|json)$/.test(url.pathname) ||
          url.pathname.endsWith('/');
 }
 
@@ -55,7 +52,8 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
-  if (isFirebaseRequest(url)) return;
+  // Firebase, ImgBB y sus imágenes siempre usan la red normal del navegador.
+  if (url.origin !== self.location.origin) return;
 
   if (event.request.mode === 'navigate' || isCoreLocalAsset(url)) {
     event.respondWith((async () => {
@@ -67,9 +65,10 @@ self.addEventListener('fetch', event => {
         }
         return fresh;
       } catch (error) {
-        const cached = await caches.match(event.request);
+        const cache = await caches.open(CACHE_NAME);
+        const cached = await cache.match(event.request);
         if (cached) return cached;
-        const fallback = await caches.match('./index.html');
+        const fallback = await cache.match('./index.html');
         if (fallback && event.request.mode === 'navigate') return fallback;
         throw error;
       }

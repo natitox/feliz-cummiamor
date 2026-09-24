@@ -151,3 +151,36 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 
 .ne-quiz-nav { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: .6rem; white-space: nowrap; }
+
+/* Fotos v6: selección y estados legibles en pantallas pequeñas. */
+.photo-upload-section .panel-section-title { margin-bottom: .65rem; }
+.photo-upload-section .panel-hint { color: #765662; }
+.photo-upload-section .panel-file-label { display: flex; flex-direction: column; align-items: center; gap: .55rem; min-height: 164px; justify-content: center; padding: 1.35rem 1rem; border-color: #dca8ba; background: #fffdfc; border-radius: 16px; }
+.photo-upload-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; background: #fae6ee; color: #ac2852; font-size: 1.3rem; }
+.photo-upload-section .file-name-txt { color: #73334e; font-weight: 500; overflow-wrap: anywhere; max-width: 100%; }
+.photo-drop-hint { font-size: .73rem; color: #82616e; }
+.panel-file-label.photo-dragover { outline: 3px solid #b92457; outline-offset: 3px; }
+.photo-upload-section .photo-dragover { background: #fbe9f0; border-color: #b92457; }
+.photo-upload-section .photo-disabled { opacity: .65; cursor: default; }
+.photo-selection-info { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .65rem; margin: .5rem 0 .8rem; color: #765662; font-size: .75rem; }
+.photo-selection-info span { overflow-wrap: anywhere; }
+.photo-format-help { color: #765662; font-size: .75rem; line-height: 1.7; margin: .4rem 0 1rem; }
+.photo-format-help summary { cursor: pointer; padding: .25rem 0; }
+.photo-format-help p { margin: .5rem 0 0; }
+.photo-upload-section #photo-preview-wrap { margin: 1rem 0; border: 1px solid #ead0da; padding: .5rem; text-align: center; background: #fff; }
+#photo-preview { max-width: 100%; max-height: 300px; object-fit: contain; border-radius: 8px; }
+.panel-field-label { display: block; color: #684451; font-size: .8rem; line-height: 1.6; margin-bottom: .5rem; }
+.panel-field-label span { color: #82616e; font-weight: 400; }
+.status-info { background: #fff7fa; color: #76485b; border: 1px solid #e9c7d4; }
+#upload-photo-btn:disabled { opacity: .58; cursor: default; transform: none; }
+.photo-upload-section .soft-button { min-height: 44px; }
+.photo-progress progress { height: 10px; }
+@media (max-width: 640px) {
+  .letter-nav { overflow-x: auto; justify-content: flex-start; padding-inline: .5rem; }
+  .nav-tab { padding: .55rem .8rem; white-space: nowrap; flex-shrink: 0; }
+  .photo-upload-section { padding: 1.15rem; }
+  .photo-upload-section .panel-input { font-size: 16px; }
+  /* Mantener el chat arriba a la izquierda, sin los cuatro anclajes a la vez. */
+  .chat-float-btn { top: max(14px,env(safe-area-inset-top)); left: 14px; right: auto; bottom: auto; width: 46px; height: 46px; }
+  .letter-nav { top: max(70px,calc(env(safe-area-inset-top) + 60px)); }
+}

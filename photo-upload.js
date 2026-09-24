@@ -1,149 +1,272 @@
 'use strict';
 
 (() => {
-  const MAX_BYTES = 32 * 1024 * 1024;
-  let busy = false, activeTask = null, cancelled = false, previewURL = '', pending = null;
+  const config = window.PHOTO_UPLOAD_CONFIG;
   const el = id => document.getElementById(id);
-  const mimeFor = file => file.type || ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', bmp: 'image/bmp' }[file.name.split('.').pop().toLowerCase()] || '');
-  function validate(file) {
-    if (!file) throw new Error('Selecciona una foto primero 📷');
-    if (!file.size) throw new Error('La imagen está vacía. Elige otra foto.');
-    if (file.size > MAX_BYTES) throw new Error('La foto supera los 32 MB. Elige una versión más pequeña.');
-    if (/hei[cf]/i.test(file.type + file.name)) throw new Error('Esta foto está en HEIC. Expórtala como JPG o PNG para poder verla en todos los dispositivos.');
-    if (!/^image\/(jpeg|png|webp|gif|avif|bmp)$/.test(mimeFor(file))) throw new Error('Elige una foto JPG, PNG, WebP, GIF, AVIF o BMP.');
-  }
+  const journalPrefix = 'amor-photo-v6:';
+  let selection = null, busy = false, phase = '', controller = null, previewURL = '';
+  let generation = 0, lastUid = window.auth?.currentUser?.uid || null;
+
   function status(message, type = 'error') {
     const target = el('upload-status');
     target.textContent = message;
-    target.className = 'panel-status ' + (type === 'ok' ? 'status-ok' : 'status-error');
-    target.style.display = 'block';
-    target.dataset.state = type;
+    target.className = 'panel-status status-' + type;
+    target.style.display = 'block'; target.dataset.state = type;
   }
   function progress(value, label) {
-    el('photo-progress').value = value;
+    if (value === null) el('photo-progress').removeAttribute('value');
+    else el('photo-progress').value = value;
     el('photo-progress-text').textContent = label;
   }
+  function actor() {
+    const user = window.auth?.currentUser;
+    if (!user) throw new Error('Vuelve a iniciar sesión antes de subir la foto.');
+    const email = (user.email || '').toLowerCase();
+    const author = Object.keys(USERNAME_TO_EMAIL).find(name => USERNAME_TO_EMAIL[name] === email);
+    if (!['natito', 'snupi'].includes(author)) throw new Error('Esta cuenta no tiene acceso al álbum.');
+    return { user, author };
+  }
+  function refreshControls() {
+    const uploaded = !!selection?.uploaded;
+    el('photo-upload-input').disabled = busy || uploaded;
+    el('photo-upload-desc').disabled = busy;
+    el('photo-remove-btn').disabled = busy || uploaded;
+    el('photo-remove-btn').hidden = !selection || uploaded;
+    el('upload-photo-btn').disabled = busy || !selection;
+    el('upload-photo-btn').textContent = busy
+      ? (phase === 'prepare' ? 'Preparando tu foto…' : phase === 'save' ? 'Guardando en el álbum…' : 'Subiendo tu recuerdo…')
+      : uploaded ? 'Guardar foto en el álbum' : 'Subir foto al álbum';
+    el('photo-progress-wrap').hidden = !busy;
+    el('cancel-photo-upload').hidden = !busy || phase === 'save';
+    el('photo-file-label').classList.toggle('photo-disabled', busy || uploaded);
+    el('photo-file-label').setAttribute('aria-busy', String(busy));
+  }
+  function preview(blobOrURL, name) {
+    if (previewURL) { URL.revokeObjectURL(previewURL); previewURL = ''; }
+    const src = typeof blobOrURL === 'string' ? blobOrURL : (previewURL = URL.createObjectURL(blobOrURL));
+    el('photo-preview').src = src; el('photo-preview').alt = 'Vista previa de ' + name;
+    el('photo-preview-wrap').style.display = 'block';
+  }
+  function resetSelection(clearDescription = false) {
+    selection = null;
+    if (previewURL) { URL.revokeObjectURL(previewURL); previewURL = ''; }
+    el('photo-upload-input').value = '';
+    el('photo-preview').removeAttribute('src'); el('photo-preview-wrap').style.display = 'none';
+    el('photo-file-label').querySelector('.file-name-txt').textContent = 'Elegir una foto';
+    el('photo-file-meta').textContent = 'Desde tu galería o tus archivos';
+    if (clearDescription) el('photo-upload-desc').value = '';
+    refreshControls();
+  }
+  function readableSize(size) {
+    return size < 1000000 ? Math.max(1, Math.round(size / 1000)) + ' KB' : (size / 1000000).toFixed(1) + ' MB';
+  }
+  function safeImageURL(url) {
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'https:' && /(^|\.)ibb\.co$/.test(parsed.hostname) ? parsed.href : '';
+    } catch (_) { return ''; }
+  }
+  function journalKey(record) { return journalPrefix + record.uid + ':' + record.docId; }
+  function keepPending(record) {
+    try { localStorage.setItem(journalKey(record), JSON.stringify(record)); return true; }
+    catch (_) { return false; }
+  }
+  function removePending(record) { try { localStorage.removeItem(journalKey(record)); } catch (_) {} }
+  function restorePending(user) {
+    if (busy || selection || !user) return;
+    try {
+      const prefix = journalPrefix + user.uid + ':';
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(prefix)) continue;
+        const record = JSON.parse(localStorage.getItem(key));
+        if (!record || record.uid !== user.uid || typeof record.docId !== 'string' || record.docId.includes('/') ||
+          !safeImageURL(record.url) || typeof record.providerId !== 'string' || !record.originalName || !record.mime) continue;
+        selection = { uploaded: record, uid: user.uid, docId: record.docId };
+        preview(record.url, record.originalName);
+        el('photo-file-label').querySelector('.file-name-txt').textContent = record.originalName;
+        el('photo-file-meta').textContent = 'La imagen ya está subida. Falta agregarla al álbum.';
+        el('photo-upload-desc').value = record.descripcion || '';
+        status('Recuperamos una foto pendiente. Pulsa «Guardar foto en el álbum» para terminar sin volver a subirla.', 'info');
+        refreshControls(); break;
+      }
+    } catch (_) { /* El álbum funciona aunque el navegador limite el almacenamiento local. */ }
+  }
   function errorMessage(error) {
-    const messages = {
-      'storage/unauthorized': 'Tu cuenta no tiene permiso para subir fotos. Natito debe revisar los permisos de fotos en Firebase.',
-      'storage/unauthenticated': 'Tu sesión venció. Vuelve a iniciar sesión y prueba de nuevo.',
-      'storage/quota-exceeded': 'El almacenamiento no está disponible por su cuota o plan. Natito debe revisar Storage y el plan Blaze en Firebase.',
-      'storage/bucket-not-found': 'No se encontró el álbum en el almacenamiento. Natito debe revisar el bucket configurado en Firebase.',
-      'storage/no-default-bucket': 'Falta configurar el almacenamiento del álbum en Firebase.',
-      'storage/project-not-found': 'No se encontró el proyecto de almacenamiento. Revisa la configuración de Firebase.',
-      'storage/retry-limit-exceeded': 'La subida tardó demasiado. Revisa tu conexión y vuelve a intentar.',
-      'storage/canceled': 'Subida cancelada. Puedes volver a intentarlo con la misma foto.',
-      'storage/invalid-checksum': 'La foto llegó incompleta. Vuelve a intentar la subida.',
-      'storage/unknown': 'El servidor de fotos no respondió como esperaba. Revisa la conexión; si persiste, Natito debe revisar Storage en Firebase.',
-      'permission-denied': 'La imagen se subió, pero no hay permiso para agregarla al álbum. Revisa los permisos de la colección fotos y reintenta.',
-      'unavailable': 'No pudimos conectar con el álbum. Conservamos tu selección para reintentar.'
-    };
-    return messages[error.code] || (error.code ? `No se pudo guardar la foto (${error.code}). Conservamos tu selección para reintentar.` : error.message) || 'No se pudo subir la foto. Vuelve a intentarlo.';
+    if (error.name === 'AbortError') return 'Operación cancelada. Tu selección sigue disponible para reintentar.';
+    if (error.code === 'permission-denied') return 'La foto ya está en ImgBB, pero Firebase no permitió agregarla al álbum. Revisa las reglas de la colección fotos y pulsa «Guardar foto en el álbum» para reintentar.';
+    if (error.code === 'unavailable' || error.code === 'deadline-exceeded') return 'No pudimos conectar con el álbum. Conservamos la foto para que puedas reintentar.';
+    if (error.code?.startsWith('auth/')) return 'No pudimos comprobar tu sesión. Vuelve a iniciar sesión y reintenta.';
+    return error.message || 'No se pudo guardar la foto. Conservamos tu selección para reintentar.';
   }
-  async function optimize(file) {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    try {
-      await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = () => reject(new Error('No pudimos abrir esta imagen. Prueba con otra foto JPG o PNG.')); img.src = url; });
-      const mime = mimeFor(file);
-      // Conservar las animaciones y evitar conversiones que aumenten el tamaño.
-      if (mime === 'image/gif' || mime === 'image/avif') return { blob: file, mime };
-      const ratio = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.round(img.naturalWidth * ratio));
-      canvas.height = Math.max(1, Math.round(img.naturalHeight * ratio));
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      const outputMime = mime === 'image/png' ? 'image/png' : 'image/jpeg';
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, outputMime, 0.9));
-      return blob && blob.size < file.size ? { blob, mime: outputMime } : { blob: file, mime };
-    } finally { URL.revokeObjectURL(url); }
+  async function prepareSelection(job, signal) {
+    if (job.prepared) return;
+    phase = 'prepare'; refreshControls();
+    job.prepared = await window.PhotoFormats.prepare(job.file, { signal, onProgress: label => progress(null, label) });
+    if (signal.aborted) throw new DOMException('Operación cancelada.', 'AbortError');
+    preview(job.prepared.blob, job.file.name);
+    el('photo-file-meta').textContent = `${readableSize(job.file.size)} → ${readableSize(job.prepared.blob.size)} · ${job.prepared.width} × ${job.prepared.height}`;
   }
-  window.previewPhoto = input => {
-    if (busy) return;
-    if (!input.files?.length) return;
+  window.previewPhoto = async input => {
+    if (busy || selection?.uploaded || !input.files?.length) return;
+    const file = input.files[0]; resetSelection();
+    try { window.PhotoFormats.validate(file); }
+    catch (error) { status(error.message); return; }
+    const job = { file, prepared: null, uploaded: null, uid: null, docId: null };
+    selection = job; const run = ++generation;
+    controller = new AbortController(); busy = true;
+    el('photo-file-label').querySelector('.file-name-txt').textContent = file.name;
+    el('photo-file-meta').textContent = readableSize(file.size);
+    status('Estamos preparando tu foto…', 'info');
     try {
-      const file = input.files[0]; validate(file);
-      if (previewURL) URL.revokeObjectURL(previewURL);
-      previewURL = URL.createObjectURL(file);
-      el('photo-preview').src = previewURL;
-      el('photo-preview').alt = 'Vista previa de ' + file.name;
-      el('photo-preview-wrap').style.display = 'block';
-      el('photo-file-label').querySelector('.file-name-txt').textContent = `${file.name} · ${(file.size / 1048576).toFixed(1)} MB`;
-      el('upload-status').style.display = 'none';
+      await prepareSelection(job, controller.signal);
+      if (run === generation) status('Tu foto está lista. Agrega una descripción si quieres y súbela al álbum.', 'info');
     } catch (error) {
-      input.value = '';
-      el('photo-preview-wrap').style.display = 'none';
-      status(error.message);
+      if (run === generation) status(errorMessage(error));
+    } finally {
+      if (run === generation) { busy = false; controller = null; phase = ''; refreshControls(); }
     }
   };
-  window.cancelPhotoUpload = () => {
-    cancelled = true;
-    if (activeTask) activeTask.cancel();
+  window.removePhotoSelection = () => {
+    if (busy || selection?.uploaded) return;
+    ++generation; resetSelection(); el('upload-status').style.display = 'none';
   };
+  window.cancelPhotoUpload = () => { if (phase !== 'save' && controller) controller.abort(); };
+
+  function uploadToImgBB(job, author, signal) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest(); let settled = false;
+      const finish = (error, result) => {
+        if (settled) return;
+        settled = true; signal.removeEventListener('abort', abort);
+        error ? reject(error) : resolve(result);
+      };
+      const abort = () => { xhr.abort(); finish(new DOMException('Operación cancelada.', 'AbortError')); };
+      if (signal.aborted) { abort(); return; }
+      xhr.open('POST', config.endpoint, true); xhr.timeout = config.timeoutMs;
+      xhr.upload.onprogress = event => {
+        if (event.lengthComputable) {
+          const value = Math.round(event.loaded / event.total * 100);
+          progress(value, value === 100 ? 'ImgBB está procesando tu foto…' : `Subiendo tu foto · ${value}%`);
+        }
+      };
+      xhr.onload = () => {
+        let body; try { body = JSON.parse(xhr.responseText); } catch (_) {}
+        if (xhr.status >= 200 && xhr.status < 300 && body?.success === true) {
+          const url = safeImageURL(body.data?.url || body.data?.display_url), id = body.data?.id;
+          if (url && typeof id === 'string' && id.length) { finish(null, { url, id }); return; }
+        }
+        const detail = String(body?.error?.message || body?.status_txt || '');
+        let message = 'ImgBB no pudo guardar la imagen. Conservamos tu selección; vuelve a intentarlo.';
+        if (xhr.status === 401 || xhr.status === 403 || /api.*key|invalid.*key/i.test(detail)) message = 'ImgBB rechazó la clave de subida. Natito debe revisar la configuración de fotos.';
+        else if (xhr.status === 429) message = 'ImgBB recibió demasiadas solicitudes. Espera un momento y vuelve a intentar.';
+        else if (xhr.status === 413) message = 'ImgBB indica que la imagen es demasiado grande. Elige una copia más pequeña.';
+        else if (xhr.status >= 500) message = 'ImgBB está teniendo un problema temporal. Tu foto sigue seleccionada para reintentar.';
+        finish(new Error(message));
+      };
+      xhr.onerror = () => finish(new Error('No pudimos conectar con ImgBB. Revisa tu conexión y vuelve a intentar.'));
+      xhr.ontimeout = () => finish(new Error('ImgBB tardó demasiado en responder. Conservamos tu foto para reintentar.'));
+      xhr.onabort = () => finish(new DOMException('Operación cancelada.', 'AbortError'));
+      signal.addEventListener('abort', abort, { once: true });
+      const form = new FormData();
+      // La clave va en el cuerpo, sin incluirla en URLs ni mensajes de error.
+      form.append('key', config.apiKey);
+      form.append('image', job.prepared.blob, `${author}-${job.docId}.${job.prepared.extension}`);
+      form.append('name', `${author}-${job.docId}`);
+      try { xhr.send(form); } catch (_) { finish(new Error('No se pudo iniciar la subida. Revisa la conexión y reintenta.')); }
+    });
+  }
+  async function saveAlbum(record, user, author) {
+    const ref = window.db.collection('fotos').doc(record.docId);
+    // Reintento idempotente: Snupi solo necesita permiso para crear, no update.
+    await window.db.runTransaction(async transaction => {
+      if (window.auth.currentUser?.uid !== user.uid) throw new Error('Tu sesión cambió. Inicia sesión con la cuenta que subió esta foto.');
+      const existing = await transaction.get(ref);
+      if (existing.exists) {
+        const data = existing.data();
+        if (data.url === record.url && data.autor === author) return;
+        throw new Error('Ya existe otra foto con esta referencia. Recarga el álbum antes de reintentar.');
+      }
+      transaction.set(ref, {
+        url: record.url,
+        // Referencia de ImgBB, conservada por compatibilidad con tus reglas.
+        storagePath: 'imgbb/' + record.providerId,
+        provider: 'imgbb', providerId: record.providerId,
+        descripcion: record.descripcion, fecha: firebase.firestore.FieldValue.serverTimestamp(),
+        autor: author, originalName: record.originalName,
+        size: record.size, contentType: record.mime, width: record.width, height: record.height
+      });
+    });
+  }
   window.uploadPhoto = async () => {
     if (busy) return;
-    const fileInput = el('photo-upload-input'), descInput = el('photo-upload-desc'), button = el('upload-photo-btn');
-    const file = fileInput.files?.[0];
+    let identity;
     try {
-      validate(file);
-      if (!window.auth?.currentUser) throw new Error('Vuelve a iniciar sesión antes de subir la foto.');
-      if (!navigator.onLine) throw new Error('Estás sin conexión. Conserva la foto y reintenta al volver a conectarte.');
-      if (!window.storage) throw new Error('No se cargó el almacenamiento. Recarga la página y prueba de nuevo.');
-    } catch (error) { status(error.message); return; }
-    busy = true; cancelled = false;
-    const oldButton = button.innerHTML;
-    button.disabled = true; fileInput.disabled = true; descInput.disabled = true;
-    button.textContent = 'Guardando tu recuerdo…';
-    el('photo-progress-wrap').hidden = false;
-    el('cancel-photo-upload').hidden = false;
-    el('upload-status').style.display = 'none';
-    progress(0, 'Preparando tu foto…');
+      identity = actor();
+      if (!selection) throw new Error('Selecciona una foto primero.');
+      if (!navigator.onLine) throw new Error('Estás sin conexión. Tu selección sigue disponible para reintentar.');
+      if (!window.db) throw new Error('No se cargó el álbum. Recarga la página y vuelve a intentar.');
+      if (!config?.apiKey || !window.PhotoFormats) throw new Error('No se cargó la configuración de fotos. Recarga la página.');
+    } catch (error) { status(errorMessage(error)); return; }
+    const { user, author } = identity, job = selection;
+    if (job.uid && job.uid !== user.uid) { status('Esta foto pendiente pertenece a otra sesión. Vuelve a entrar con esa cuenta.'); return; }
+    const run = ++generation;
+    controller = new AbortController(); const signal = controller.signal;
+    busy = true; phase = job.uploaded ? 'save' : 'upload'; refreshControls();
+    el('upload-status').style.display = 'none'; progress(null, 'Comprobando tu sesión…');
     try {
-      // La misma referencia al reintentar evita duplicados si falló la escritura del álbum.
-      if (!pending || pending.file !== file) {
-        const doc = window.db.collection('fotos').doc();
-        pending = { file, id: doc.id, path: '', uploaded: false, url: '' };
+      await user.getIdToken();
+      if (signal.aborted) throw new DOMException('Operación cancelada.', 'AbortError');
+      job.uid = user.uid;
+      if (!job.docId) job.docId = window.db.collection('fotos').doc().id;
+      const description = el('photo-upload-desc').value.trim();
+      if (!job.uploaded) {
+        await prepareSelection(job, signal);
+        phase = 'upload'; refreshControls(); progress(0, 'Subiendo tu foto…');
+        const uploaded = await uploadToImgBB(job, author, signal);
+        job.uploaded = {
+          uid: user.uid, docId: job.docId, author, providerId: uploaded.id, url: uploaded.url,
+          originalName: job.file.name, descripcion: description, size: job.prepared.blob.size,
+          mime: job.prepared.mime, width: job.prepared.width, height: job.prepared.height
+        };
       }
-      if (!pending.uploaded) {
-        const optimized = await optimize(file);
-        if (cancelled) throw { code: 'storage/canceled' };
-        const extension = ({'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','image/avif':'avif','image/bmp':'bmp'})[optimized.mime];
-        pending.path = `fotos/${pending.id}.${extension}`;
-        const ref = window.storage.ref(pending.path);
-        activeTask = ref.put(optimized.blob, { contentType: optimized.mime, cacheControl: 'public,max-age=31536000', customMetadata: { uploader: window.auth.currentUser.uid } });
-        await new Promise((resolve, reject) => activeTask.on('state_changed', snap => {
-          const value = Math.round(snap.bytesTransferred / Math.max(1, snap.totalBytes) * 100);
-          progress(value, `Subiendo tu foto · ${value}%`);
-        }, reject, resolve));
-        pending.uploaded = true;
-        pending.size = optimized.blob.size;
-        activeTask = null;
+      job.uploaded.descripcion = description; keepPending(job.uploaded);
+      if (signal.aborted) throw new DOMException('Operación cancelada.', 'AbortError');
+      phase = 'save'; refreshControls(); progress(null, 'Agregando tu foto al álbum…');
+      await saveAlbum(job.uploaded, user, author); removePending(job.uploaded);
+      if (run === generation) {
+        resetSelection(true); status('¡Tu foto ya está en el álbum! 🌸', 'ok');
+        // No confundir un fallo al refrescar con un fallo al guardar.
+        try { await window.loadDynamicAlbum?.(); } catch (_) {}
       }
-      // La subida terminó; cancelar ya no puede deshacer una escritura en curso.
-      el('cancel-photo-upload').hidden = true;
-      progress(100, 'Agregando la foto al álbum…');
-      if (!pending.url) pending.url = await window.storage.ref(pending.path).getDownloadURL();
-      await window.db.collection('fotos').doc(pending.id).set({
-        url: pending.url, storagePath: pending.path, size: pending.size,
-        descripcion: descInput.value.trim(), fecha: firebase.firestore.FieldValue.serverTimestamp(),
-        autor: window._currentUsername, originalName: file.name
-      }, { merge: true });
-      pending = null;
-      status('¡Tu foto ya está en el álbum! 🌸', 'ok');
-      fileInput.value = ''; descInput.value = '';
-      el('photo-preview-wrap').style.display = 'none';
-      el('photo-preview').removeAttribute('src');
-      el('photo-file-label').querySelector('.file-name-txt').textContent = 'Selecciona una imagen · hasta 32 MB';
-      if (previewURL) { URL.revokeObjectURL(previewURL); previewURL = ''; }
-      await window.loadDynamicAlbum();
     } catch (error) {
-      console.warn('Subida de foto:', error.code || error.message);
-      status(errorMessage(error));
+      if (run === generation) status(errorMessage(error));
+      console.warn('Subida de foto:', error.code || error.name || 'error');
     } finally {
-      busy = false; activeTask = null;
-      button.disabled = false; fileInput.disabled = false; descInput.disabled = false;
-      button.innerHTML = oldButton;
-      el('photo-progress-wrap').hidden = true;
+      if (run === generation) { busy = false; controller = null; phase = ''; refreshControls(); }
     }
   };
+  const dropZone = el('photo-file-label');
+  ['dragenter', 'dragover'].forEach(name => dropZone.addEventListener(name, event => {
+    event.preventDefault(); if (!busy && !selection?.uploaded) dropZone.classList.add('photo-dragover');
+  }));
+  ['dragleave', 'drop'].forEach(name => dropZone.addEventListener(name, event => {
+    event.preventDefault(); dropZone.classList.remove('photo-dragover');
+  }));
+  dropZone.addEventListener('drop', event => {
+    if (!busy && !selection?.uploaded && event.dataTransfer?.files?.length) window.previewPhoto({ files: event.dataTransfer.files });
+  });
+  window.auth?.onAuthStateChanged(user => {
+    const uid = user?.uid || null;
+    if (lastUid && lastUid !== uid) {
+      controller?.abort(); ++generation; busy = false; controller = null; phase = '';
+      resetSelection(true); el('upload-status').style.display = 'none';
+    }
+    lastUid = uid; restorePending(user);
+  });
+  window.addEventListener('beforeunload', event => {
+    if (!busy) return;
+    event.preventDefault(); event.returnValue = '';
+  });
+  refreshControls();
 })();

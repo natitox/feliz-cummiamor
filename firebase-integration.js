@@ -12,7 +12,6 @@
 // Reutilizar referencias globales de firebase-config.js
 const auth    = window.auth;
 const db      = window.db;
-const storage = window.storage;
 
 /* ════════════════════════════════════════════
    HELPERS DE SEGURIDAD
@@ -36,6 +35,8 @@ function initPrivatePanel() {
   const allowed = isAllowedEmail(user.email || '');
   panelBtn.style.display = allowed ? '' : 'none';
   panelTab.style.display = 'none';
+  const musicAdmin = document.getElementById('music-admin-fields');
+  if (musicAdmin) musicAdmin.hidden = !isNatitoUser();
 }
 
 /* ════════════════════════════════════════════
@@ -675,6 +676,7 @@ window.createCarta=async function(){
 window.enviarCarta = window.createCarta;
 
 window.addMusica=async function(){
+  if (!isNatitoUser()) return;
   const nameInput=document.getElementById('musica-nombre-input');
   const urlInput=document.getElementById('musica-url-input');
   const btn=document.getElementById('add-musica-btn');
